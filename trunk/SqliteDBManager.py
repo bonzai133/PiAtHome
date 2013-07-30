@@ -27,7 +27,11 @@ class GlobalData:
                         ('day', "n", "Day"), 
                         ('energy', "r", "Energy in kWh"),
                         ('peak', "r", "Peak energy in W"),
-                        ('hours', "r", "Hours of sunshine")]}
+                        ('hours', "r", "Hours of sunshine")],
+
+        "ErrorsHistory":[    ('datetime', "d", "Date and time"), 
+                        ('errCode', "n", "Error Code"), 
+                        ('desc', "t", "Description of error")]}
 
 class DBManager:
     """Management of a MySQL database"""
@@ -38,10 +42,10 @@ class DBManager:
             self.connection = sqlite3.connect(dbFileName)
         except Exception, err:
             print "DB Connect failed: %s" % err
-            self.connectFailure =1
+            self.connectFailure = 1
         else:
             self.cursor = self.connection.cursor()
-            self.connectFailure =0
+            self.connectFailure = 0
     
     def CreateTables(self, dictTables):
         for table in dictTables.keys():
@@ -57,6 +61,8 @@ class DBManager:
                     fieldType = 'REAL'
                 elif fType == 'd':
                     fieldType = 'TEXT PRIMARY KEY'
+                elif fType == 't':
+                    fieldType = 'TEXT'
                 else:
                     fieldType = 'BLOB'
                     
