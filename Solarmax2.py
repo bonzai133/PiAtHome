@@ -1,8 +1,29 @@
 #!/usr/bin/env python
 #-*-coding: utf-8 -*-
 
+import os
+import logging
+import logging.config
+
 import argparse, socket, re
 from datetime import *
+from time import *
+from SqliteDBManager import *
+
+#Logger
+ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
+LOGCONF_PATH = os.path.join(ROOT_PATH, 'logging.conf')
+
+logging.config.fileConfig(LOGCONF_PATH)
+logger = logging.getLogger(__name__)
+
+#Output colors
+RED = '\033[91m'
+YELLOW = '\033[93m'
+GREEN = '\033[92m'
+BLUE = '\033[94m'
+ENDC = '\033[0m'
+
 
 class Format:
     @staticmethod
@@ -11,6 +32,7 @@ class Format:
         seconds = xTime.hour * 3600 + xTime.minute * 60 + xTime.second
         hex_datetime = '%03X%02X%02X,%04X' % (xTime.year, xTime.month, xTime.day, seconds)
         return hex_datetime
+
 
 class Command():
     def __init__(self, Name, Descr, DataConvert, Output):
@@ -24,10 +46,11 @@ class Command():
         return "%s : %s" % (self.Name, self.Descr)
 
 
-
-
-
 class DataConverter:
+    def __init__(self, dbm=None):
+        self.m_sqlRequestList = []
+        self.m_dbm = dbm
+
     m_Status = {
         20001:"En service",
         20002:"Rayonnement trop faible",
@@ -62,7 +85,9 @@ class DataConverter:
         20131:"Commut. général hors",
         20132:"Diode de surtempérature",
         20134:"Ventilateur défectueux",
-        20165:"Pas de secteur 2",}
+        20165:"TODO Error 20165",
+        20173:"TODO Error 20173",
+}
 
     m_DeviceType = {
         2001:"SolarMax 2000 E",
@@ -98,17 +123,35 @@ class DataConverter:
         try:
             retStr = DataConverter.m_Status[int(code, 16)]
         except KeyError:
-            retStr = "Unknwon Status %d" % int(code, 16)
+            retStr = YELLOW + "Unknwon Status %d" % int(code, 16) + ENDC
             
         return retStr
     
+    @staticmethod
+    def convertError(values):
+        logger.debug("ConvertError: %s" % values)
+
+        date = DataConverter.convertDate([values[0]])
+        time = DataConverter.convertTime([values[1]])
+        
+        key = int(values[2], 16)
+        if DataConverter.m_Status.has_key(key):
+            error = DataConverter.m_Status[key]
+        else:
+            logger.warning("Unknown error (%s)" % key)
+            error = YELLOW + "Unknown error (%s)" % key + ENDC
+        
+        #return date + " " + time + " : " + error
+        return (date, time, key, error)
+
     @staticmethod 
     def convertType(values):
         value = values[0]
         try:
             retStr =  DataConverter.m_DeviceType[int(value,16)]
         except KeyError:
-            retStr = "Unknwon Type %d" % int(value, 16)
+            logger.warning("Unknwon Type %d" % int(value, 16))
+            retStr = YELLOW + "Unknwon Type %d" % int(value, 16) + ENDC
             
         return retStr
     
@@ -117,12 +160,19 @@ class DataConverter:
         #7DB0206 -> 2011-02-06
         m = re.split("(.+)(.{2})(.{2})", values[0])
         
-        #print "Date ", repr(m)
-        year = str(int(m[1], 16))
-        month = str(int(m[2], 16))
-        day = str(int(m[3], 16))
+        #year = str(int(m[1], 16))
+        #month = str(int(m[2], 16))
+        #day = str(int(m[3], 16))
+        year = int(m[1], 16)
+        month = int(m[2], 16)
+        day = int(m[3], 16)
         
-        return year + "-" + month + "-" + day
+        return "%04d-%02d-%02d" % (year, month, day)
+        #return year + "-" + month + "-" + day
+
+    @staticmethod
+    def convertTime(values):
+        return strftime('%H:%M:%S', gmtime(int(values[0],16)))
 
     @staticmethod 
     def convertD2(values):
@@ -155,83 +205,297 @@ class DataConverter:
     def convertX500(values):
         value = values[0]
         return str(int(value, 16)*500)       
+
+    @staticmethod
+    def convertDateEnergy(values):
+        #7DB0112,1B,11F6,51 -> date, total watt, peak watt, hours sunshine
+        date = DataConverter.convertDate([values[0]])
+        total = DataConverter.convertD10([values[1]])
+        peak = DataConverter.convertD2([values[2]])
+        hours = DataConverter.convertD10([values[3]])
+
+        #return date + " : " + total + " kWh, " + peak + " W peak, " + hours + " hours"
+        return (date, total, peak, hours)
+
+    #@staticmethod
+    def OutputPrint(self, cmd):
+        print "%s = %s" % (cmd, cmd.Value)
+
+    #@staticmethod
+    def OutputError(self, cmd):
+        logger.debug("%s = %s" % (cmd, cmd.Value))
+        print "%s = %s" % (cmd, cmd.Value)
+
+        #Split values
+        (date_str, time_str, errCode, desc) = cmd.Value
+
+        #Build request
+        sqlRequest = 'REPLACE INTO ErrorsHistory '
+        sqlRequest += '(datetime, errCode, desc) '
+        sqlRequest += 'VALUES ("%s %s", "%s", "%s")' % (date_str, time_str, errCode, desc)
+
+        logger.debug("Request generated: %s" % sqlRequest)
+
+        self.m_sqlRequestList.append(sqlRequest)
+
              
+    #@staticmethod
+    def OutputStatsYear(self, cmd):
+        logger.debug("%s = %s" % (cmd, cmd.Value))
+        #Split values
+        (date_str, energy, peak, hours) = cmd.Value
+
+        #Format date
+        date_array = date_str.split("-")
+        
+        year = date_array[0]
+        #month = date_array[1]
+        #day = date_array[2]
+
+        #year 2000 indicate an empty data
+        if year != "2000":
+            #Build request
+            sqlRequest = 'REPLACE INTO EnergyByYear '
+            sqlRequest += '(date, year, energy, peak, hours) '
+            sqlRequest += 'VALUES ("%s", "%s", "%s", "%s", "%s")' % (date_str, year, energy, peak, hours)
+
+            logger.debug("Request generated: %s" % sqlRequest)
+
+            self.m_sqlRequestList.append(sqlRequest)
+
+    #@staticmethod
+    def OutputStatsMonth(self, cmd):
+        logger.debug("%s = %s" % (cmd, cmd.Value))
+
+        #Split values
+        (date_str, energy, peak, hours) = cmd.Value
+
+        #Format date
+        date_array = date_str.split("-")
+        
+        year = date_array[0]
+        month = date_array[1]
+        #day = date_array[2]
+
+        #year 2000 indicate an empty data
+        if year != "2000":
+            #Build request
+            sqlRequest = 'REPLACE INTO EnergyByMonth '
+            sqlRequest += '(date, year, month, energy, peak, hours) '
+            sqlRequest += 'VALUES ("%s", "%s", "%s", "%s", "%s", "%s")' % (date_str, year, month, energy, peak, hours)
+
+            logger.debug("Request generated: %s" % sqlRequest)
+
+            self.m_sqlRequestList.append(sqlRequest)
+
+    #@staticmethod
+    def OutputStatsDay(self, cmd):
+        logger.debug("%s = %s" % (cmd, cmd.Value))
+
+        #Split values
+        (date_str, energy, peak, hours) = cmd.Value
+
+        #Format date
+        date_array = date_str.split("-")
+        
+        year = date_array[0]
+        month = date_array[1]
+        day = date_array[2]
+
+        #year 2000 indicate an empty data
+        if year != "2000":
+            #Build request
+            sqlRequest = 'REPLACE INTO EnergyByDay '
+            sqlRequest += '(date, year, month, day, energy, peak, hours) '
+            sqlRequest += 'VALUES ("%s", "%s", "%s", "%s", "%s", "%s", "%s")' % (date_str, year, month, day, energy, peak, hours)
+
+            logger.debug("Request generated: %s" % sqlRequest)
+
+            self.m_sqlRequestList.append(sqlRequest)
+
+
     m_Commands = {
-                  'SYS':Command('SYS', 'Operation State', convertSYS, None),
-                  'ADR':Command('ADR', 'Address', convertX1, None),
-                  'TYP':Command('TYP', 'Type', convertType, None),
-                  'SWV':Command('SWV', 'Software version', convertD10, None),
-                  'BDN':Command('BDN', 'Build number', convertX1, None),
-                  'DDY':Command('DDY', 'Date day', convertX1, None),
-                  'DMT':Command('DMT', 'Date month', convertX1, None),
-                  'DYR':Command('DYR', 'Date year', convertX1, None),
-                  'THR':Command('THR', 'Time hours', convertX1, None),
-                  'TMI':Command('TMI', 'Time minutes', convertX1, None),
+                  'SYS':Command('SYS', 'Operation State', convertSYS, OutputPrint),
+                  'ADR':Command('ADR', 'Address', convertX1, OutputPrint),
+                  'TYP':Command('TYP', 'Type', convertType, OutputPrint),
+                  'SWV':Command('SWV', 'Software version', convertD10, OutputPrint),
+                  'BDN':Command('BDN', 'Build number', convertX1, OutputPrint),
+                  'DDY':Command('DDY', 'Date day', convertX1, OutputPrint),
+                  'DMT':Command('DMT', 'Date month', convertX1, OutputPrint),
+                  'DYR':Command('DYR', 'Date year', convertX1, OutputPrint),
+                  'THR':Command('THR', 'Time hours', convertX1, OutputPrint),
+                  'TMI':Command('TMI', 'Time minutes', convertX1, OutputPrint),
 
-                  'KHR':Command('KHR', 'Operating hours', convertX1, None),
-                  'KDY':Command('KDY', 'Energy today [Wh]', convertX100, None),
-                  'KLD':Command('KLD', 'Energy yesterday [Wh]', convertX100, None),
-                  'KMT':Command('KMT', 'Energy this month [kWh]', convertX1, None),
-                  'KLM':Command('KLM', 'Energy last month [kWh]', convertX1, None),
-                  'KYR':Command('KYR', 'Energy this year [kWh]', convertX1, None),
-                  'KLY':Command('KLY', 'Energy last year [kWh]', convertX1, None),
-                  'KT0':Command('KT0', 'Energy total [kWh]', convertX1, None),
+                  'KHR':Command('KHR', 'Operating hours', convertX1, OutputPrint),
+                  'KDY':Command('KDY', 'Energy today [Wh]', convertX100, OutputPrint),
+                  'KLD':Command('KLD', 'Energy yesterday [Wh]', convertX100, OutputPrint),
+                  'KMT':Command('KMT', 'Energy this month [kWh]', convertX1, OutputPrint),
+                  'KLM':Command('KLM', 'Energy last month [kWh]', convertX1, OutputPrint),
+                  'KYR':Command('KYR', 'Energy this year [kWh]', convertX1, OutputPrint),
+                  'KLY':Command('KLY', 'Energy last year [kWh]', convertX1, OutputPrint),
+                  'KT0':Command('KT0', 'Energy total [kWh]', convertX1, OutputPrint),
                   
-                  'LAN':Command('LAN', 'Language', convertX1, None),
+                  'LAN':Command('LAN', 'Language', convertX1, OutputPrint),
+                  'UDC':Command('UDC', 'DC voltage [V]', convertD10, OutputPrint),
 
-                  'UDC':Command('UDC', 'DC voltage [V]', convertD10, None),
-                  'UL1':Command('UL1', 'AC voltage [V]', convertD10, None),
-                  'IDC':Command('IDC', 'DC current [A]', convertD100, None),
-                  'IL1':Command('IL1', 'AC current [A]', convertD100, None),
-                  'PAC':Command('PAC', 'AC power [W]', convertD2, None),
-                  'PIN':Command('PIN', 'Power installed [W]', convertD2, None),
+                  'UL1':Command('UL1', 'AC voltage [V]', convertD10, OutputPrint),
+                  'IDC':Command('IDC', 'DC current [A]', convertD100, OutputPrint),
+                  'IL1':Command('IL1', 'AC current [A]', convertD100, OutputPrint),
+                  'PAC':Command('PAC', 'AC power [W]', convertD2, OutputPrint),
+                  'PIN':Command('PIN', 'Power installed [W]', convertD2, OutputPrint),
 
-                  'PRL':Command('PRL', 'AC power [%]', convertX1, None),
-                  'CAC':Command('CAC', 'Start ups', convertX1, None),
-                  'FRD':Command('FRD', 'First run date', convertDate, None),
+                  'PRL':Command('PRL', 'AC power [%]', convertX1, OutputPrint),
+                  'CAC':Command('CAC', 'Start ups', convertX1, OutputPrint),
+                  'FRD':Command('FRD', 'First run date', convertDate, OutputPrint),
 
-                  'TKK':Command('TKK', 'Temperature Heat Sink', convertX1, None),
-                  'TNF':Command('TNF', 'AC Frequency', convertD100, None),
+                  'TKK':Command('TKK', 'Temperature Heat Sink', convertX1, OutputPrint),
+                  'TNF':Command('TNF', 'AC Frequency', convertD100, OutputPrint),
+
+                  'EC00':Command('EC00', 'Error 00', convertError, OutputError),
+                  'EC01':Command('EC01', 'Error 01', convertError, OutputError),
+                  'EC02':Command('EC02', 'Error 02', convertError, OutputError),
+                  'EC03':Command('EC03', 'Error 03', convertError, OutputError),
+                  'EC04':Command('EC04', 'Error 04', convertError, OutputError),
+                  'EC05':Command('EC05', 'Error 05', convertError, OutputError),
+                  'EC06':Command('EC06', 'Error 06', convertError, OutputError),
+                  'EC07':Command('EC07', 'Error 07', convertError, OutputError),
+                  'EC08':Command('EC08', 'Error 08', convertError, OutputError),
+                  'EC09':Command('EC09', 'Error 09', convertError, OutputError),
+                  'EC10':Command('EC10', 'Error 10', convertError, OutputError),
+                  'EC11':Command('EC11', 'Error 11', convertError, OutputError),
+                  'EC12':Command('EC12', 'Error 12', convertError, OutputError),
+                  'EC13':Command('EC13', 'Error 13', convertError, OutputError),
+                  'EC14':Command('EC14', 'Error 14', convertError, OutputError),
+                  'EC15':Command('EC15', 'Error 15', convertError, OutputError),
+                  'EC16':Command('EC16', 'Error 16', convertError, OutputError),
+                  'EC17':Command('EC17', 'Error 17', convertError, OutputError),
+                  'EC18':Command('EC18', 'Error 18', convertError, OutputError),
+                  'EC19':Command('EC19', 'Error 19', convertError, OutputError),
+
+                  'DY00':Command('DY00', 'Energy by year', convertDateEnergy, OutputStatsYear),
+                  'DY01':Command('DY01', 'Energy by year', convertDateEnergy, OutputStatsYear),
+                  'DY02':Command('DY02', 'Energy by year', convertDateEnergy, OutputStatsYear),
+                  'DY03':Command('DY03', 'Energy by year', convertDateEnergy, OutputStatsYear),
+                  'DY04':Command('DY04', 'Energy by year', convertDateEnergy, OutputStatsYear),
+                  'DY05':Command('DY05', 'Energy by year', convertDateEnergy, OutputStatsYear),
+                  'DY06':Command('DY06', 'Energy by year', convertDateEnergy, OutputStatsYear),
+                  'DY07':Command('DY07', 'Energy by year', convertDateEnergy, OutputStatsYear),
+                  'DY08':Command('DY08', 'Energy by year', convertDateEnergy, OutputStatsYear),
+                  'DY09':Command('DY09', 'Energy by year', convertDateEnergy, OutputStatsYear),
+
+                  'DM00':Command('DM00', 'Energy by month', convertDateEnergy, OutputStatsMonth),
+                  'DM01':Command('DM01', 'Energy by month', convertDateEnergy, OutputStatsMonth),
+                  'DM02':Command('DM02', 'Energy by month', convertDateEnergy, OutputStatsMonth),
+                  'DM03':Command('DM03', 'Energy by month', convertDateEnergy, OutputStatsMonth),
+                  'DM04':Command('DM04', 'Energy by month', convertDateEnergy, OutputStatsMonth),
+                  'DM05':Command('DM05', 'Energy by month', convertDateEnergy, OutputStatsMonth),
+                  'DM06':Command('DM06', 'Energy by month', convertDateEnergy, OutputStatsMonth),
+                  'DM07':Command('DM07', 'Energy by month', convertDateEnergy, OutputStatsMonth),
+                  'DM08':Command('DM08', 'Energy by month', convertDateEnergy, OutputStatsMonth),
+                  'DM09':Command('DM09', 'Energy by month', convertDateEnergy, OutputStatsMonth),
+                  'DM10':Command('DM10', 'Energy by month', convertDateEnergy, OutputStatsMonth),
+                  'DM11':Command('DM11', 'Energy by month', convertDateEnergy, OutputStatsMonth),
+
+                  'DD00':Command('DD00', 'Energy by day', convertDateEnergy, OutputStatsDay),
+                  'DD01':Command('DD01', 'Energy by day', convertDateEnergy, OutputStatsDay),
+                  'DD02':Command('DD02', 'Energy by day', convertDateEnergy, OutputStatsDay),
+                  'DD03':Command('DD03', 'Energy by day', convertDateEnergy, OutputStatsDay),
+                  'DD04':Command('DD04', 'Energy by day', convertDateEnergy, OutputStatsDay),
+                  'DD05':Command('DD05', 'Energy by day', convertDateEnergy, OutputStatsDay),
+                  'DD06':Command('DD06', 'Energy by day', convertDateEnergy, OutputStatsDay),
+                  'DD07':Command('DD07', 'Energy by day', convertDateEnergy, OutputStatsDay),
+                  'DD08':Command('DD08', 'Energy by day', convertDateEnergy, OutputStatsDay),
+                  'DD09':Command('DD09', 'Energy by day', convertDateEnergy, OutputStatsDay),
+                  'DD10':Command('DD10', 'Energy by day', convertDateEnergy, OutputStatsDay),
+                  'DD11':Command('DD11', 'Energy by day', convertDateEnergy, OutputStatsDay),
+                  'DD12':Command('DD12', 'Energy by day', convertDateEnergy, OutputStatsDay),
+                  'DD13':Command('DD13', 'Energy by day', convertDateEnergy, OutputStatsDay),
+                  'DD14':Command('DD14', 'Energy by day', convertDateEnergy, OutputStatsDay),
+                  'DD15':Command('DD15', 'Energy by day', convertDateEnergy, OutputStatsDay),
+                  'DD16':Command('DD16', 'Energy by day', convertDateEnergy, OutputStatsDay),
+                  'DD17':Command('DD17', 'Energy by day', convertDateEnergy, OutputStatsDay),
+                  'DD18':Command('DD18', 'Energy by day', convertDateEnergy, OutputStatsDay),
+                  'DD19':Command('DD19', 'Energy by day', convertDateEnergy, OutputStatsDay),
+                  'DD20':Command('DD20', 'Energy by day', convertDateEnergy, OutputStatsDay),
+                  'DD21':Command('DD21', 'Energy by day', convertDateEnergy, OutputStatsDay),
+                  'DD22':Command('DD22', 'Energy by day', convertDateEnergy, OutputStatsDay),
+                  'DD23':Command('DD23', 'Energy by day', convertDateEnergy, OutputStatsDay),
+                  'DD24':Command('DD24', 'Energy by day', convertDateEnergy, OutputStatsDay),
+                  'DD25':Command('DD25', 'Energy by day', convertDateEnergy, OutputStatsDay),
+                  'DD26':Command('DD26', 'Energy by day', convertDateEnergy, OutputStatsDay),
+                  'DD27':Command('DD27', 'Energy by day', convertDateEnergy, OutputStatsDay),
+                  'DD28':Command('DD28', 'Energy by day', convertDateEnergy, OutputStatsDay),
+                  'DD29':Command('DD29', 'Energy by day', convertDateEnergy, OutputStatsDay),
+                  'DD30':Command('DD30', 'Energy by day', convertDateEnergy, OutputStatsDay),
 
       }
 
-    
+        
     def TreatResponse(self, command, values):
         try:
             #Call a static method need to use the __get__ method
             self.m_Commands[command].Value = \
                 self.m_Commands[command].DataConvert.__get__(None, DataConverter)(values)
             
-            #print self.m_Commands[command].Value
+            logger.debug("TreatResponse: %s" % repr(self.m_Commands[command].Value))
             
         except KeyError:
-            print "Unknown command '%s' = %s" % (command, values)
+            logger.error("TreatResponse: Unknown command '%s' = %s" % (command, values))
+            print RED + "Unknown command '%s' = %s" % (command, values) + ENDC
             
     def GetCurrentValue(self, command):
-        cmd = self.m_Commands[command]
-        
-        print "%s : %s" % (cmd, cmd.Value)
+        try:
+            cmd = self.m_Commands[command]
+            if cmd.Output is None:
+                logger.warning("GetCurrentValue: No Output: %s = %s" % (cmd, cmd.Value))
+                print YELLOW + "No Output: %s = %s" % (cmd, cmd.Value) + ENDC
+            else:
+                #Call output function
+                self.m_Commands[command].Output.__get__(self, DataConverter)(cmd)
+
+        except KeyError:
+            logger.warning("GetCurrentValue: Unknown command %s" % command)
     
+    def CommitDataToDb(self):
+        if self.m_dbm.connectFailure == 0:
+            for req in self.m_sqlRequestList:
+                logger.debug("Will execute: %s" % req)
+                self.m_dbm.ExecuteRequest(req)
+            
+            self.m_dbm.Commit()
+
 
 class Response:
-        
     def __init__(self, respData):
+        self.body = ""
+        self.AddBlock(respData)
+        
+    def AddBlock(self, respData):
         parts = respData.split("|")
         
-        self.header = parts[0] 
-        self.body = parts[1]
-        self.checksum = parts[2]
+        #self.header = parts[0] 
+        self.body += parts[1]
+        #self.checksum = parts[2]
 
         #Parse body if it exists
-        if self.body: 
+        if self.body:
             parts = self.body.split(':')
             
-            self.port = parts[0]
-            self.data = parts[1]
-            
-            #separate each command response
-            self.cmdList = self.data.split(';')
-        
+            if len(parts) < 2:
+                print RED + "Error in body: %s" % self.body + ENDC
+                logger.error("Error in body: %s" % self.body)
+
+                self.port = 0
+                self.data = ""
+                self.cmdList = []
+            else:
+                self.port = parts[0]
+                self.data = parts[1]
+                
+                #separate each command response
+                self.cmdList = self.data.split(';')
+
+
     def ParseCommandResponse(self):
         rsp = {}
         for cmd in self.cmdList:
@@ -295,8 +559,109 @@ class Request:
         checksum = self.CheckSum16(msg)
         
         return "{%s%04X}" % (msg, checksum)
+
+
+def requestAndPrintCommands(my_sock, dataConverter, cmds):
+    #Request values
+    logger.debug("requestAndPrintCommands: %s" % repr(cmds))
+    cmd = Request(cmds)
+    cmdData = cmd.BuildCommand()
+
+    logger.debug("%d %s" % (len(cmdData), cmdData))
+
+    if len(cmdData) < 128:
+        my_sock.send(cmdData)
+        rspData = my_sock.recv(255)
+        rsp = Response(rspData)
+        while len(rspData) == 255:
+            rspData = my_sock.recv(255)
+            rsp.AddBlock(rspData)
+
+        cmdDict = rsp.ParseCommandResponse()
+
+        for cmd, values in cmdDict.items():
+            dataConverter.TreatResponse(cmd, values)
+
+        for cmd in cmds:
+            dataConverter.GetCurrentValue(cmd)
+    else:
+        logger.error("Command too large")
+
+GROUPS_COMMANDS= (
+        #Infos software
+        {'group':'Infos software', 'cmds':(
+        "ADR", "TYP", "SWV", "LAN", 
+        "CAC", 
+        "FRD", 
+        "BDN",),
+        'action':'Info'
+        },
+
+        #Date and Time
+        {'group':'Date and Time', 'cmds':(
+        "DDY", "DMT", "DYR", "THR", "TMI",),
+        'action':'Info'
+        },
+
+        #Stats Production
+        {'group':'Stats Production', 'cmds':(
+        "KHR", "KDY", "KLD", "KMT", "KLM", "KYR", "KLY", "KT0",),
+        'action':'Stats'
+        },
+
+        #Current values
+        {'group':'Current values', 'cmds':(
+        "UDC", "UL1", 
+        "IDC", "IL1", 
+        "PAC", "PIN", "PRL", 
+        "TNF", 
+
+        "TKK", 
+        "SYS", ),
+        'action':'Realtime'
+        },
+ 
+        #Errors
+        {'group':'Errors1', 'cmds':(
+        "EC00", "EC01", "EC02", "EC03", "EC04", "EC05", "EC06", "EC07", "EC08", "EC09",),
+        'action':'History'
+        },
+        {'group':'Errors2', 'cmds':(
+        "EC10", "EC11", "EC12", "EC13", "EC14", "EC15", "EC16", "EC17", "EC18", "EC19",),
+        'action':'History'
+        },
+
+        #Stats by day
+        {'group':'Stats by day 1', 'cmds':(
+        "DD00", "DD01", "DD02", "DD03", "DD04", "DD05", "DD06", "DD07", "DD08", "DD09",
+        "DD10", "DD11", "DD12", "DD13", "DD14", "DD15",),
+        'action':'History'
+        },
+        {'group':'Stats by day 2', 'cmds':(
+        "DD15", "DD16", "DD17", "DD18", "DD19",
+        "DD20", "DD21", "DD22", "DD23", "DD24", "DD25", "DD26", "DD27", "DD28", "DD29",
+        "DD30",),
+        'action':'History'
+        },
+
+        #Stats by month
+        {'group':'Stats by month', 'cmds':(
+        "DM00", "DM01", "DM02", "DM03", "DM04", "DM05", "DM06", "DM07", "DM08", "DM09", "DM10", "DM11",),
+        'action':'History'
+        },
+
+        #Stats by year
+        {'group':'Stats by year', 'cmds':(
+        "DY00", "DY01", "DY02", "DY03", "DY04", "DY05", "DY06", "DY07", "DY08", "DY09",),
+        'action':'History'
+        },
         
-        
+        #Tests
+        {'group':'Tests', 'cmds':(
+        "DDY", "DMT", "DYR", "THR", "TMI"),
+        'action':'Tests'
+        },
+        )
 
 
 def main():
@@ -305,28 +670,52 @@ def main():
     parser.add_argument('-H',  '--host', dest='hostname', action='store',  help='Host name',  default='192.168.0.123')
     parser.add_argument('-p',  '--port', dest='port', type=int,  action='store',  help='Port value',  default='12345')
 
+    parser.add_argument('-d',  '--dbname', dest='dbFileName', action='store',  help='Database filename',  default='Solarmax_data2.s3db')
+    parser.add_argument('-a',  '--action', dest='action', action='store',  help='Action (Send a predefined list of commands)', choices=['Realtime', 'Stats', 'History', 'Info', 'SetTime'], default='Info')
+
     args = parser.parse_args()
     
     #Connect to inverter
     #Create socket and connect
-    my_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    my_sock.connect((args.hostname,  args.port))
-    
-    #TODO : treat connection errors
-    print "Connected to %s:%d" % (args.hostname,  args.port)
-    
-    #Request values
-    
-    
-    #Display values
-    
+    try:
+        my_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        my_sock.connect((args.hostname,  args.port))
         
-    #Store values
-    
+        logger.info("Connected to %s:%d" % (args.hostname,  args.port))
+
+        if args.action == "SetTime":
+            logger.info("Action: SetTime")
+            #TODO SetTime to current time
+
+        else:
+            #Connect to the database
+            dbm = DBManager(args.dbFileName)
+            if dbm.connectFailure == 1:
+                print "Can't connect to database"
+                logger.error("Can't connect to database '%s'" % args.dbFileName)
+            else:
+                dbm.CreateTables(GlobalData.dbTables)
+            
+            dataConverter = DataConverter(dbm)
+            for group in GROUPS_COMMANDS:
+                if group["action"] == args.action:
+                    logger.info("Request group '%s'" % group["group"])
+                    print GREEN + group["group"] + ENDC
+                    requestAndPrintCommands(my_sock, dataConverter, group["cmds"])
+                    print
+
+            #Commit data to DB
+            dataConverter.CommitDataToDb()
+            #Close database
+            dbm.Close()
+
+    except socket.error, e:
+        print "Socket error: %s" %e
+        logger.error("Socket error: %s" %e)
     
     #Close the socket
     my_sock.close()
-    print "Disconnected\n"
+    logger.info("Disconnected")
 
 def testCmd():
     cmd = Request(["SAL"])
@@ -362,16 +751,14 @@ def testRsp():
     
 
 if __name__ == "__main__":
-    #main()
+    #print RED + "TODO: changer le format des dates dans la base existante: aaaa/mm/dd => aaaa-mm-dd" + ENDC
+    #UPDATE EnergyByYear SET date = replace(date, '/', '-');
+    #UPDATE EnergyByMonth SET date = replace(date, '/', '-');
+    #UPDATE EnergyByDay SET date = replace(date, '/', '-');
+
+    #print RED + "TODO: créer le cron pour récupérer l'historique" + ENDC
+    print RED + "TODO: faire le code et le cron pour les valeurs temps réel en base" + ENDC
+    main()
     #testCmd()
-    
-    #TODO exception socket
-    #File "./Solarmax.py", line 532, in main
-    #s.connect((HOST, PORT))
-    #File "/usr/lib/python2.7/socket.py", line 224, in meth
-    #return getattr(self._sock,name)(*args)
-    #socket.error: [Errno 101] Network is unreachable
-    
-    #TODO : interpréter les réponses
-    testRsp()
+    #testRsp()
     
