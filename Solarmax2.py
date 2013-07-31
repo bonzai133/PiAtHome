@@ -471,6 +471,8 @@ class Response:
         self.AddBlock(respData)
         
     def AddBlock(self, respData):
+        logger.debug("AddBlock: %s" % respData)
+        
         parts = respData.split("|")
         
         #self.header = parts[0] 
@@ -498,11 +500,17 @@ class Response:
 
     def ParseCommandResponse(self):
         rsp = {}
+        
+        logger.debug("cmdList: %s" % repr(self.cmdList))
         for cmd in self.cmdList:
-            key = cmd.split('=')[0]
-            value = cmd.split('=')[1]
+            if '=' in cmd:
+                cmd_array = cmd.split('=')
+                key = cmd_array[0]
+                value = cmd_array[1]
             
-            rsp[key] = value.split(",")
+                rsp[key] = value.split(",")
+            else:
+                rsp['return'] = cmd
         
         #Return a dictionary with a list of values for each received command 
         return rsp
@@ -559,6 +567,34 @@ class Request:
         checksum = self.CheckSum16(msg)
         
         return "{%s%04X}" % (msg, checksum)
+
+def setTimeToCurrentTime(my_sock, dataConverter):
+    #Request values
+    logger.debug("setTimeToCurrentTime")
+    cmd = Request(["SDAT"], way=Request.SET, attr=datetime.now(), fFormat=Format.DateTime2Hex)
+    cmdData = cmd.BuildCommand()
+
+    logger.debug("%d %s" % (len(cmdData), cmdData))
+
+    if len(cmdData) < 128:
+        my_sock.send(cmdData)
+        rspData = my_sock.recv(255)
+        
+        rsp = Response(rspData)
+        while len(rspData) == 255:
+            rspData = my_sock.recv(255)
+            rsp.AddBlock(rspData)
+
+        cmdDict = rsp.ParseCommandResponse()
+        if 'return' in cmdDict.keys() and cmdDict['return'] == 'Ok':
+            print "Inverter set to current time."
+            logger.info("Inverter set to current time.")
+        else:
+            print RED + "Inverter was NOT set to current time." + ENDC
+            logger.error("Inverter was NOT set to current time.")
+
+    else:
+        logger.error("Command too large")
 
 
 def requestAndPrintCommands(my_sock, dataConverter, cmds):
@@ -686,7 +722,8 @@ def main():
         if args.action == "SetTime":
             logger.info("Action: SetTime")
             #TODO SetTime to current time
-
+            dataConverter = DataConverter()
+            setTimeToCurrentTime(my_sock, dataConverter)
         else:
             #Connect to the database
             dbm = DBManager(args.dbFileName)
