@@ -31,7 +31,13 @@ class GlobalData:
 
         "ErrorsHistory":[    ('datetime', "d", "Date and time"), 
                         ('errCode', "n", "Error Code"), 
-                        ('desc', "t", "Description of error")]}
+                        ('desc', "t", "Description of error")],
+
+        "Realtime":[    ('key', "d", "key"), 
+                        ('value', "t", "value"),
+                        ('desc', "t", "key description")],
+        }
+
 
 class DBManager:
     """Management of a MySQL database"""
