@@ -222,6 +222,19 @@ class DataConverter:
         print "%s = %s" % (cmd, cmd.Value)
 
     #@staticmethod
+    def OutputRealtime(self, cmd):
+        logger.debug("%s = %s" % (cmd, cmd.Value))
+        print "%s = %s" % (cmd, cmd.Value)
+        #Build request
+        sqlRequest = 'REPLACE INTO Realtime '
+        sqlRequest += '(key, value, desc) '
+        sqlRequest += 'VALUES ("%s", "%s", "%s")' % (cmd.Name, cmd.Value, cmd.Descr)
+
+        logger.debug("Request generated: %s" % sqlRequest)
+
+        self.m_sqlRequestList.append(sqlRequest)
+
+    #@staticmethod
     def OutputError(self, cmd):
         logger.debug("%s = %s" % (cmd, cmd.Value))
         print "%s = %s" % (cmd, cmd.Value)
@@ -249,15 +262,17 @@ class DataConverter:
         date_array = date_str.split("-")
         
         year = date_array[0]
-        #month = date_array[1]
-        #day = date_array[2]
+        month = "01"
+        day = "01"
+
+        date = "%s-%s-%s" % (year, month, day)
 
         #year 2000 indicate an empty data
         if year != "2000":
             #Build request
             sqlRequest = 'REPLACE INTO EnergyByYear '
             sqlRequest += '(date, year, energy, peak, hours) '
-            sqlRequest += 'VALUES ("%s", "%s", "%s", "%s", "%s")' % (date_str, year, energy, peak, hours)
+            sqlRequest += 'VALUES ("%s", "%s", "%s", "%s", "%s")' % (date, year, energy, peak, hours)
 
             logger.debug("Request generated: %s" % sqlRequest)
 
@@ -275,14 +290,16 @@ class DataConverter:
         
         year = date_array[0]
         month = date_array[1]
-        #day = date_array[2]
+        day = "01"
+
+        date = "%s-%s-%s" % (year, month, day)
 
         #year 2000 indicate an empty data
         if year != "2000":
             #Build request
             sqlRequest = 'REPLACE INTO EnergyByMonth '
             sqlRequest += '(date, year, month, energy, peak, hours) '
-            sqlRequest += 'VALUES ("%s", "%s", "%s", "%s", "%s", "%s")' % (date_str, year, month, energy, peak, hours)
+            sqlRequest += 'VALUES ("%s", "%s", "%s", "%s", "%s", "%s")' % (date, year, month, energy, peak, hours)
 
             logger.debug("Request generated: %s" % sqlRequest)
 
@@ -315,7 +332,7 @@ class DataConverter:
 
 
     m_Commands = {
-                  'SYS':Command('SYS', 'Operation State', convertSYS, OutputPrint),
+                  'SYS':Command('SYS', 'Operation State', convertSYS, OutputRealtime),
                   'ADR':Command('ADR', 'Address', convertX1, OutputPrint),
                   'TYP':Command('TYP', 'Type', convertType, OutputPrint),
                   'SWV':Command('SWV', 'Software version', convertD10, OutputPrint),
@@ -335,21 +352,20 @@ class DataConverter:
                   'KLY':Command('KLY', 'Energy last year [kWh]', convertX1, OutputPrint),
                   'KT0':Command('KT0', 'Energy total [kWh]', convertX1, OutputPrint),
                   
+                  'UDC':Command('UDC', 'DC voltage [V]', convertD10, OutputRealtime),
+                  'UL1':Command('UL1', 'AC voltage [V]', convertD10, OutputRealtime),
+                  'IDC':Command('IDC', 'DC current [A]', convertD100, OutputRealtime),
+                  'IL1':Command('IL1', 'AC current [A]', convertD100, OutputRealtime),
+                  'PAC':Command('PAC', 'AC power [W]', convertD2, OutputRealtime),
+                  'PIN':Command('PIN', 'Power installed [W]', convertD2, OutputRealtime),
+                  'PRL':Command('PRL', 'AC power [%]', convertX1, OutputRealtime),
+
+                  'TKK':Command('TKK', 'Temperature Heat Sink', convertX1, OutputRealtime),
+                  'TNF':Command('TNF', 'AC Frequency', convertD100, OutputRealtime),
+
                   'LAN':Command('LAN', 'Language', convertX1, OutputPrint),
-                  'UDC':Command('UDC', 'DC voltage [V]', convertD10, OutputPrint),
-
-                  'UL1':Command('UL1', 'AC voltage [V]', convertD10, OutputPrint),
-                  'IDC':Command('IDC', 'DC current [A]', convertD100, OutputPrint),
-                  'IL1':Command('IL1', 'AC current [A]', convertD100, OutputPrint),
-                  'PAC':Command('PAC', 'AC power [W]', convertD2, OutputPrint),
-                  'PIN':Command('PIN', 'Power installed [W]', convertD2, OutputPrint),
-
-                  'PRL':Command('PRL', 'AC power [%]', convertX1, OutputPrint),
                   'CAC':Command('CAC', 'Start ups', convertX1, OutputPrint),
                   'FRD':Command('FRD', 'First run date', convertDate, OutputPrint),
-
-                  'TKK':Command('TKK', 'Temperature Heat Sink', convertX1, OutputPrint),
-                  'TNF':Command('TNF', 'AC Frequency', convertD100, OutputPrint),
 
                   'EC00':Command('EC00', 'Error 00', convertError, OutputError),
                   'EC01':Command('EC01', 'Error 01', convertError, OutputError),
@@ -715,6 +731,7 @@ def main():
     #Create socket and connect
     try:
         my_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        my_sock.settimeout(15)
         my_sock.connect((args.hostname,  args.port))
         
         logger.info("Connected to %s:%d" % (args.hostname,  args.port))
@@ -794,7 +811,7 @@ if __name__ == "__main__":
     #UPDATE EnergyByDay SET date = replace(date, '/', '-');
 
     #print RED + "TODO: créer le cron pour récupérer l'historique" + ENDC
-    print RED + "TODO: faire le code et le cron pour les valeurs temps réel en base" + ENDC
+    #print RED + "TODO: faire le code et le cron pour les valeurs temps réel en base" + ENDC
     main()
     #testCmd()
     #testRsp()
