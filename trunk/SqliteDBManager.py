@@ -1,39 +1,45 @@
 # Test avec sqlite3
 
-import sqlite3, sys
+import sqlite3
+import sys
+
 
 class GlobalData:
     """Contains global vars"""
     dbFileName = "Solarmax_data.s3db"
     
     #Structure of database
-    dbTables = { 
-        "EnergyByYear":[('date', "d", "Date"),
-                        ('year', "n", "Year"), 
+    dbTables = {
+        "EnergyByYear": [('date', "d", "Date"),
+                        ('year', "n", "Year"),
                         ('energy', "r", "Energy in kWh"),
                         ('peak', "r", "Peak energy in W"),
                         ('hours', "r", "Hours of sunshine")],
                         
-        "EnergyByMonth":[('date', "d", "Date"),
-                        ('year', "n", "Year"), 
-                        ('month', "n", "Month"), 
+        "EnergyByMonth": [('date', "d", "Date"),
+                        ('year', "n", "Year"),
+                        ('month', "n", "Month"),
                         ('energy', "r", "Energy in kWh"),
                         ('peak', "r", "Peak energy in W"),
                         ('hours', "r", "Hours of sunshine")],
                          
-        "EnergyByDay":[    ('date', "d", "Date"), 
-                        ('year', "n", "Year"), 
-                        ('month', "n", "Month"), 
-                        ('day', "n", "Day"), 
+        "EnergyByDay": [('date', "d", "Date"),
+                        ('year', "n", "Year"),
+                        ('month', "n", "Month"),
+                        ('day', "n", "Day"),
                         ('energy', "r", "Energy in kWh"),
                         ('peak', "r", "Peak energy in W"),
                         ('hours', "r", "Hours of sunshine")],
 
-        "ErrorsHistory":[    ('datetime', "d", "Date and time"), 
-                        ('errCode', "n", "Error Code"), 
+        "ErrorsHistory": [('datetime', "d", "Date and time"),
+                        ('errCode', "n", "Error Code"),
                         ('desc', "t", "Description of error")],
 
-        "Realtime":[    ('key', "d", "key"), 
+        "Realtime": [('key', "d", "key"),
+                        ('value', "t", "value"),
+                        ('desc', "t", "key description")],
+                
+        "Statistics": [('key', "d", "key"),
                         ('value', "t", "value"),
                         ('desc', "t", "key description")],
         }
@@ -78,12 +84,11 @@ class DBManager:
                 
             self.ExecuteRequest(req)
                 
-        
     def DeleteTables(self, dictTables):
         for table in dictTables.keys():
             req = "DROP TABLE %s" % table
             self.ExecuteRequest(req)
-        self.Commit()            
+        self.Commit()
     
     def ExecuteRequest(self, req):
         #print req
@@ -92,7 +97,7 @@ class DBManager:
         except Exception, err:
             print "Incorrect SQL request (%s)\n%s" % (req, err)
             return 0
-        else:    
+        else:
             return 1
     
     def GetResult(self):
@@ -105,7 +110,8 @@ class DBManager:
     def Close(self):
         if self.connection:
             self.connection.close()
-        
+
+
 def main(argv):
     #Connect to the database
     dbm = DBManager(GlobalData.dbFileName)
@@ -116,7 +122,6 @@ def main(argv):
         print "TODO : work on the DB"
     
     dbm.Close()
-    
     
     
 if __name__ == "__main__":
