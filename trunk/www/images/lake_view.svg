@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="640px"
+   height="480px"
+   id="svg3252"
+   version="1.1"
+   inkscape:version="0.48.3.1 r9886"
+   sodipodi:docname="lake view.svg">
+  <title
+     id="title4117">Lake view home</title>
+  <defs
+     id="defs3254">
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4063"
+       id="linearGradient3201"
+       gradientUnits="userSpaceOnUse"
+       x1="-81.389481"
+       y1="463.74182"
+       x2="-34.881207"
+       y2="510.25009"
+       gradientTransform="matrix(1.7167554,0,0,1.7201783,489.71481,-684.0868)" />
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient4063">
+      <stop
+         style="stop-color:#0197fd;stop-opacity:1"
+         offset="0"
+         id="stop4065" />
+      <stop
+         style="stop-color:#4e9a06;stop-opacity:0;"
+         offset="1"
+         id="stop4067" />
+    </linearGradient>
+    <filter
+       color-interpolation-filters="sRGB"
+       inkscape:collect="always"
+       id="filter4453"
+       x="-0.51759678"
+       width="2.0351934"
+       y="-0.48461607"
+       height="1.9692321">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="3.1385795"
+         id="feGaussianBlur4455" />
+    </filter>
+    <filter
+       color-interpolation-filters="sRGB"
+       inkscape:collect="always"
+       id="filter4457"
+       x="-0.51759678"
+       width="2.0351934"
+       y="-0.48461607"
+       height="1.9692321">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="3.1385795"
+         id="feGaussianBlur4459" />
+    </filter>
+    <filter
+       color-interpolation-filters="sRGB"
+       inkscape:collect="always"
+       id="filter4461"
+       x="-0.51759678"
+       width="2.0351934"
+       y="-0.48461607"
+       height="1.9692321">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="3.1385795"
+         id="feGaussianBlur4463" />
+    </filter>
+    <filter
+       color-interpolation-filters="sRGB"
+       inkscape:collect="always"
+       id="filter4465"
+       x="-0.51759678"
+       width="2.0351934"
+       y="-0.48461607"
+       height="1.9692321">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="3.1385795"
+         id="feGaussianBlur4467" />
+    </filter>
+    <filter
+       color-interpolation-filters="sRGB"
+       inkscape:collect="always"
+       id="filter4469"
+       x="-0.033132862"
+       width="1.0662657"
+       y="-0.33953989"
+       height="1.6790798">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="3.1385795"
+         id="feGaussianBlur4471" />
+    </filter>
+    <filter
+       color-interpolation-filters="sRGB"
+       inkscape:collect="always"
+       id="filter4477"
+       x="-0.070997201"
+       width="1.1419944"
+       y="-0.17568798"
+       height="1.3513761">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="3.1385795"
+         id="feGaussianBlur4479" />
+    </filter>
+    <filter
+       color-interpolation-filters="sRGB"
+       inkscape:collect="always"
+       id="filter4481"
+       x="-0.091969021"
+       width="1.183938"
+       y="-0.14902736"
+       height="1.2980547">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="3.1385795"
+         id="feGaussianBlur4483" />
+    </filter>
+    <filter
+       color-interpolation-filters="sRGB"
+       inkscape:collect="always"
+       id="filter4485">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="3.1385795"
+         id="feGaussianBlur4487" />
+    </filter>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.77472527"
+     inkscape:cx="283.01572"
+     inkscape:cy="225.3206"
+     inkscape:current-layer="layer1"
+     inkscape:document-units="px"
+     showgrid="false"
+     inkscape:window-width="1366"
+     inkscape:window-height="706"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata3257">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>Lake view home</dc:title>
+        <dc:subject>
+          <rdf:Bag>
+            <rdf:li>lake view</rdf:li>
+            <rdf:li>lake side</rdf:li>
+            <rdf:li>county</rdf:li>
+            <rdf:li>country</rdf:li>
+            <rdf:li>country side</rdf:li>
+            <rdf:li>home</rdf:li>
+            <rdf:li>house</rdf:li>
+            <rdf:li>realty</rdf:li>
+            <rdf:li>real estate</rdf:li>
+            <rdf:li>home town</rdf:li>
+          </rdf:Bag>
+        </dc:subject>
+        <dc:date>2012-05-01</dc:date>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>NetAlloy.com, Srinivas Bala, India</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/publicdomain/" />
+      </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/publicdomain/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+    <path
+       style="opacity:0.38536586;fill:#6c7c3c;fill-opacity:1;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;filter:url(#filter4485)"
+       d="m -238.18123,525.35956 30,0 100.00001,-75 115.9872187,92.35376 -115.9872187,-97.35376 -30,0 z"
+       id="path4408"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccccc"
+       transform="matrix(1.7167553,0,0,1.7201783,499.6952,-686.58687)"
+       inkscape:export-filename="C:\Documents and Settings\Fastallow\Desktop\Lake_country_logo2.png"
+       inkscape:export-xdpi="89.968269"
+       inkscape:export-ydpi="89.968269" />
+    <path
+       style="opacity:0.38536586;fill:#6c7c3c;fill-opacity:1;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;filter:url(#filter4481)"
+       d="m -76.364489,470.80974 -11.54022,-9.54182 19.72349,0 62.1800797,50.54502 -62.5434197,-46.63506 z"
+       id="path4410"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccc"
+       transform="matrix(1.7167553,0,0,1.7201783,499.6952,-686.58687)"
+       inkscape:export-filename="C:\Documents and Settings\Fastallow\Desktop\Lake_country_logo2.png"
+       inkscape:export-xdpi="89.968269"
+       inkscape:export-ydpi="89.968269" />
+    <path
+       style="opacity:0.38536586;fill:#6c7c3c;fill-opacity:1;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;filter:url(#filter4477)"
+       d="m -88.656399,526.42377 18.89399,0 36.33459,-31.97444 49.415048,37.06129 -49.415048,-42.87482 -13.80714,1.45338 -42.87482,39.24136 z"
+       id="path4412"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccccc"
+       transform="matrix(1.7167553,0,0,1.7201783,499.6952,-686.58687)"
+       inkscape:export-filename="C:\Documents and Settings\Fastallow\Desktop\Lake_country_logo2.png"
+       inkscape:export-xdpi="89.968269"
+       inkscape:export-ydpi="89.968269" />
+    <path
+       style="opacity:1;fill:#98fc66;fill-opacity:1;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;"
+       d="m -228.22918,624.75655 c 0,0 36.97309,-10.87642 56.40891,-11.50003 37.43852,-1.20126 73.285221,16.93836 110.681121,15.11431 20.99797,-1.02422 60.2549777,-14.45718 60.2549777,-14.45718 0,0 -40.1438577,8.25038 -60.6823477,8.21432 -37.63628,-0.0662 -73.702411,-18.63981 -111.108441,-15.4429 -19.98412,1.70794 -55.55422,18.07148 -55.55422,18.07148 z"
+       id="path4420"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="csscssc"
+       transform="matrix(1.7167553,0,0,1.7201783,503.56754,-726.60106)"
+       inkscape:export-filename="C:\Documents and Settings\Fastallow\Desktop\Lake_country_logo2.png"
+       inkscape:export-xdpi="89.968269"
+       inkscape:export-ydpi="89.968269" />
+    <path
+       style="opacity:0.38536586;fill:#6c7c3c;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;filter:url(#filter4465)"
+       d="m -124.16206,489.71013 0,15.54342 14.55301,0 0,-15.54342 z"
+       id="path4422"
+       inkscape:connector-curvature="0"
+       transform="matrix(1.7167553,0,0,1.7201783,499.6952,-686.58687)"
+       inkscape:export-filename="C:\Documents and Settings\Fastallow\Desktop\Lake_country_logo2.png"
+       inkscape:export-xdpi="89.968269"
+       inkscape:export-ydpi="89.968269" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path4424"
+       d="m -106.51821,489.71013 0,15.54342 14.553011,0 0,-15.54342 z"
+       style="opacity:0.38536586;fill:#6c7c3c;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;filter:url(#filter4461)"
+       transform="matrix(1.7167553,0,0,1.7201783,499.6952,-686.58687)"
+       inkscape:export-filename="C:\Documents and Settings\Fastallow\Desktop\Lake_country_logo2.png"
+       inkscape:export-xdpi="89.968269"
+       inkscape:export-ydpi="89.968269" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path4426"
+       d="m -124.15487,507.80097 0,15.54342 14.55301,0 0,-15.54342 z"
+       style="opacity:0.38536586;fill:#6c7c3c;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;filter:url(#filter4457)"
+       transform="matrix(1.7167553,0,0,1.7201783,499.6952,-686.58687)"
+       inkscape:export-filename="C:\Documents and Settings\Fastallow\Desktop\Lake_country_logo2.png"
+       inkscape:export-xdpi="89.968269"
+       inkscape:export-ydpi="89.968269" />
+    <path
+       style="opacity:0.38536586;fill:#6c7c3c;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;filter:url(#filter4453)"
+       d="m -106.43457,507.70773 0,15.54342 14.553011,0 0,-15.54342 z"
+       id="path4428"
+       inkscape:connector-curvature="0"
+       transform="matrix(1.7167553,0,0,1.7201783,499.6952,-686.58687)"
+       inkscape:export-filename="C:\Documents and Settings\Fastallow\Desktop\Lake_country_logo2.png"
+       inkscape:export-xdpi="89.968269"
+       inkscape:export-ydpi="89.968269" />
+    <rect
+       style="opacity:0;fill:#000000;fill-opacity:1;stroke:#323b49;stroke-width:0;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="rect4212"
+       width="480.6915"
+       height="384.55319"
+       x="75.411354"
+       y="45.702122"
+       inkscape:export-filename="C:\Documents and Settings\Fastallow\Desktop\Lake_country_logo2.png"
+       inkscape:export-xdpi="89.968269"
+       inkscape:export-ydpi="89.968269" />
+    <path
+       sodipodi:nodetypes="ccccccc"
+       inkscape:connector-curvature="0"
+       id="path3963"
+       d="m 90.796323,209.30425 51.502657,0 L 313.97454,80.290882 513.09621,239.15581 313.97454,71.689992 l -51.50267,0 z"
+       style="fill:url(#linearGradient3201);fill-opacity:1;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    <path
+       sodipodi:nodetypes="cccccc"
+       inkscape:connector-curvature="0"
+       id="path3965"
+       d="m 368.59608,115.46883 -19.81174,-16.413638 33.8604,0 106.74798,86.946448 -107.37174,-80.22061 z"
+       style="fill:#b3defd;fill-opacity:1;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    <path
+       sodipodi:nodetypes="cccccccc"
+       inkscape:connector-curvature="0"
+       id="path3967"
+       d="m 347.49387,211.13487 32.43636,0 62.37759,-55.00174 84.83356,63.75204 -84.83356,-73.75234 -23.70347,2.50007 -73.60558,67.50214 z"
+       style="fill:#0169c9;fill-opacity:1;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path3981"
+       d="m 286.53935,147.98087 0,26.73746 24.98395,0 0,-26.73746 z"
+       style="fill:#888a85;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    <path
+       style="fill:#888a85;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 316.82952,147.98087 0,26.73746 24.98395,0 0,-26.73746 z"
+       id="path3983"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:#888a85;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 286.55168,179.10034 0,26.73745 24.98397,0 0,-26.73745 z"
+       id="path3985"
+       inkscape:connector-curvature="0" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path3987"
+       d="m 316.97311,178.93995 0,26.73745 24.98395,0 0,-26.73745 z"
+       style="fill:#888a85;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+  </g>
+</svg>
