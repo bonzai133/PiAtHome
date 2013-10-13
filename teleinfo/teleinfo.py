@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# -*- coding: UTF-8 -*-
 '''
 Created on 26 sept. 2013
 
@@ -127,11 +127,45 @@ PAPP 00070 (
 
 
 '''
-
-import traceback
-import RPi.GPIO as GPIO
-import serial
+import os
 import re
+import logging
+import logging.config
+import argparse
+import sqlite3
+from datetime import datetime
+
+try:
+    import RPi.GPIO as GPIO
+except ImportError, e:
+    print "RPi module must be installed"
+    
+    #Fake GPIO class for unit tests
+    class cGPIO:
+        BOARD = 0
+        LOW = 0
+        HIGH = 1
+        OUT = 0
+        
+        def setup(self, chanel, direction, initial=0):
+            pass
+        
+        def setmode(self, mode):
+            pass
+        
+        def cleanup(self):
+            pass
+    GPIO = cGPIO()
+    
+import serial
+
+#Logger
+ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
+LOGCONF_PATH = os.path.join(ROOT_PATH, 'logging.conf')
+
+logging.config.fileConfig(LOGCONF_PATH)
+logger = logging.getLogger(__name__)
+
 
 #Counter position (teleinfo input)
 COUNTER_POS_PROD = 0
@@ -168,107 +202,252 @@ def cleanupGPIO():
     GPIO.cleanup()
 
 
-def setupSerial():
+def setupSerial(serialPortName):
+    serial_port = None
     try:
-        serial_port = serial.Serial(SERIAL_PORT_NAME, baudrate=SERIAL_PORT_BAUDRATE,
+        serial_port = serial.Serial(serialPortName, baudrate=SERIAL_PORT_BAUDRATE,
                                     bytesize=SERIAL_PORT_DATABITS,
                                     parity=SERIAL_PORT_PARITY, stopbits=SERIAL_PORT_STOPBITS,
                                     rtscts=SERIAL_PORT_RTSCTS, timeout=SERIAL_PORT_READTIMEOUT)
-    except Exception, e:
-        print "Exception in setupSerial: %s" % e
     
-    wainting_chars = serial_port.inWaiting()
-    if wainting_chars != 0:
-        print "Warning : there is some chars in the buffer. We are not alone !"
+        wainting_chars = serial_port.inWaiting()
+        if wainting_chars != 0:
+            logger.warning("There is some chars in the buffer. We are not alone !")
+    except Exception, e:
+        logger.error("Exception in setupSerial: %s" % e)
     
     return serial_port
 
 
 def cleanupSerial(serPort):
-    serPort.close()
+    if serPort:
+        serPort.close()
 
 
 #===============================================================================
 # Read and parse
 #===============================================================================
 def readFrame(serPort):
+    if serPort is None:
+        return ""
+    
     #Discard first byte (can be erroneous)
     serPort.read(25)
 
     frame = ""
     rcv = ""
     while frame == "":
-        rcv += serPort.read(100)
-        #print str(rcv)
+        rcv += serPort.read(255)
         if len(rcv) == 0:
-            print "No data received"
+            logger.warning("No data received")
         else:
-            print '%d bytes received' % len(rcv)
-            
-            #print repr(rcv)
+            logger.debug('%d bytes received' % len(rcv))
+            logger.debug(repr(rcv))
 
             frames_grp = str(rcv).split(chr(0x02))
             if len(frames_grp) < 3:
-                print "Not enought data received"
+                logger.info("Not enought data received")
             else:
-                print "Groups: %d" % len(frames_grp)
-                print repr(frames_grp)
+                logger.debug("Groups: %d" % len(frames_grp))
+                logger.debug(repr(frames_grp))
                 
                 #Skip first and last group (incomplete)
                 for index in range(1, len(frames_grp) - 1):
                     frm_grp = frames_grp[index]
                     if frm_grp[-1:] == chr(0x03):
-                        #ret_frames.append(frm_grp.rstrip(chr(0x03)))
                         frame = frm_grp.rstrip(chr(0x03))
                         break
                     else:
-                        print "No end tag in frame (%d) : %s" % (index, frm_grp)
+                        logger.info("No end tag in frame (%d) : %s" % (index, frm_grp))
            
     return frame
 
 
-def parseFrame(frame):
-    #print repr(frame)
-    messages = frame.replace('\n', '').split('\r')
+def verifyCheksum(code, val, ctrl):
+    chk = 0
+    for c in "%s %s" % (code, val):
+        chk += ord(c)
+        
+    chk = (chk & 0x3F) + 0x20
+    
+    logger.debug("verifyCheksum: calculated[%d], received[%d]" % (chk, ord(ctrl)))
+    if chk == ord(ctrl):
+        return True
+    else:
+        return False
 
+
+def parseFrame(frame):
+    re_msg = re.compile("(.*) (.*) (.)")
+    messages = frame.replace('\n', '').split('\r')
+    
     data = {}
     for msg in messages:
+        if len(msg) == 0:
+            continue
+        
         try:
-            (code, val, ctrl) = msg.split()
-            #print "%s: %s" % (code, val)
+            splitted = re_msg.split(msg)
+            
+            if splitted and len(splitted) == 5:
+                code = splitted[1]
+                val = splitted[2]
+                ctrl = splitted[3]
 
-            data[code] = val
+                logger.debug("%s: %s" % (code, val))
+            
+                if not verifyCheksum(code, val, ctrl):
+                    logger.warning("Checksum doesn't match for msg: %s" % msg)
+
+                data[code] = val
+            else:
+                logger.warning("Badly splitted: %s" % msg)
         except Exception, e:
             if msg != "":
-                print "Can't split: %s" % msg
+                logger.warning("Can't split: %s" % msg)
 
     return data
+
 
 #===============================================================================
 # Data export
 #===============================================================================
-def exportData(data):
+def exportData(data, dbFileName):
+    if dbFileName == "":
+        logger.info("Will print data")
+        displayData(data)
+    else:
+        logger.info("Will store data in %s" % dbFileName)
+        writeDataToDb(data, dbFileName)
+
+
+def displayData(data):
     print data
+
+  
+def writeDataToDb(data, dbFileName):
+    logger.debug("%s -> %s" % (data, dbFileName))
+    
+    db = DBManager(dbFileName)
+    if db.connectFailure == 1:
+        logger.error("Can't connect to database '%s'" % dbFileName)
+    else:
+        db.CreateTables(Teleinfo_dbTables)
+        
+        #db Execute query insert data
+        try:
+            counterId = data['ADCO']
+            indexBase = data['BASE']
+            iMax = data['IMAX']
+            date = datetime.now()
+            
+            query = 'INSERT INTO TeleinfoDaily (date, counterId, indexBase, iMax) \
+                     VALUES ("%s", "%s", "%s", "%s")'
+            
+            db.ExecuteRequest(query % (date, counterId, indexBase, iMax))
+            db.Commit()
+            
+        except KeyError, e:
+            logger.error("Can't store data. Missing key: '%s'" % e)
+
+        db.Close()
+        
+        
+#===========================================================================
+# TODO: à supprimer : utiliser module externe
+#===========================================================================
+Teleinfo_dbTables = {"TeleinfoDaily": [('date', "d", "Date"),
+                        ('counterId', "n", "Counter identifier (serial number)"),
+                        ('indexBase', "n", "Base index (Wh)"),
+                        ('iMax', "n", "Maximal intensity")], }
+
+
+class DBManager:
+    """Management of a MySQL database"""
+    
+    def __init__(self, dbFileName):
+        "Connect and create the cursor"
+        try:
+            self.connection = sqlite3.connect(dbFileName)
+        except Exception, err:
+            logging.error("DB Connect failed: %s" % err)
+            self.connectFailure = 1
+        else:
+            self.cursor = self.connection.cursor()
+            self.connectFailure = 0
+    
+    def CreateTables(self, dictTables):
+        for table in dictTables.keys():
+            req = "CREATE TABLE IF NOT EXISTS %s (" % table
+            
+            for descr in dictTables[table]:
+                fieldName = descr[0]
+                fType = descr[1]
+                
+                if fType == 'n':
+                    fieldType = 'INTEGER'
+                elif fType == 'r':
+                    fieldType = 'REAL'
+                elif fType == 'd':
+                    fieldType = 'TEXT PRIMARY KEY'
+                elif fType == 't':
+                    fieldType = 'TEXT'
+                else:
+                    fieldType = 'BLOB'
+                    
+                req = req + "%s %s, " % (fieldName, fieldType)
+                
+            req = req[:-2] + ")"
+                
+            self.ExecuteRequest(req)
+                
+    def DeleteTables(self, dictTables):
+        for table in dictTables.keys():
+            req = "DROP TABLE %s" % table
+            self.ExecuteRequest(req)
+        self.Commit()
+    
+    def ExecuteRequest(self, req):
+        logger.debug("Request: %s" % req)
+        try:
+            self.cursor.execute(req)
+        except Exception, err:
+            logging.error("Incorrect SQL request (%s)\n%s" % (req, err))
+            return 0
+        else:
+            return 1
+    
+    def GetResult(self):
+        return self.cursor.fetchall()
+        
+    def Commit(self):
+        if self.connection:
+            self.connection.commit()
+                    
+    def Close(self):
+        if self.connection:
+            self.connection.close()
 
 
 #===============================================================================
 # Read teleinfo main function
 #===============================================================================
-def readTeleinfo(counterPos):
+def readTeleinfo(serialPortName, interface, dbFileName):
+    serPort = None
     try:
-        setupGPIO(counterPos)
-
-        serPort = setupSerial()
+        #Setup of ports
+        setupGPIO(interface)
+        serPort = setupSerial(serialPortName)
         
+        #Read frame
         frame = readFrame(serPort)
-        
         data = parseFrame(frame)
         
-        exportData(data)
+        #Write data
+        exportData(data, dbFileName)
         
-    except Exception, e:
-        print "Unexpected exception: %s" % e
-        traceback.print_exc()
+    except Exception:
+        logger.exception("Unexpected exception")
     finally:
         cleanupSerial(serPort)
         cleanupGPIO()
@@ -278,11 +457,29 @@ def readTeleinfo(counterPos):
 # main
 #===============================================================================
 def main():
-    print "--- CONSOMMATION ---"
-    readTeleinfo(COUNTER_POS_CONSO)
-    print
-    #print "--- PRODUCTION ---"
-    #readTeleinfo(COUNTER_POS_PROD)
+    #Get parameters
+    parser = argparse.ArgumentParser(description='Read values from teleinfo interface')
+    
+    parser.add_argument('-p', '--portName', dest='serialPortName', action='store',
+                        help='Serial port name', default=SERIAL_PORT_NAME)
+    parser.add_argument('-i', '--interface', dest='interface', type=int, action='store',
+                        help='Teleinfo interface : 0 for Production, 1 for Consumption', default=COUNTER_POS_CONSO)
+    parser.add_argument('-d', '--dbname', dest='dbFileName', action='store',
+                        help='Database filename', default='')
+
+    args = parser.parse_args()
+
+    logger.info("Args: %s" % repr(args))
+    
+    #Check arguments
+    if args.interface < 0 or args.interface > 1:
+        logger.error("Interface must be 0 or 1")
+        parser.error("Interface must be 0 or 1")
+    
+    readTeleinfo(args.serialPortName, args.interface, args.dbFileName)
+    
+    logger.info("----- End of treatment")
+
 
 if __name__ == "__main__":
-        main()
+    main()
