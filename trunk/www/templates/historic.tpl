@@ -7,11 +7,9 @@
         <select name="compare2" id="cbCompare2"></select>
     </form>
     
-
-    <div id="chart1" style="height:400px;width:800px; "></div>
-
+    <div id="chart1" style="height:auto;width:100%;max-height:400px;max-width:800px;"></div>
     <br><span id="info1"></span>
-    <div id="chart2" style="height:200px;width:800px; "></div>
+    <div id="chart2" style="height:auto;width:100%;max-height:200px;max-width:800px;"></div>
 %end
 
 %def jscript():
@@ -241,6 +239,19 @@ $(document).ready(function(){
       plot2 = drawChart2(pointIndex+1);
     }
   );
+  
+  //Bind resize browser event
+  $(window).resize(function() {
+	  $.each(plot1.series, function(index, series) { series.barWidth = undefined; });
+	  plot1.replot( { resetAxes: true } );
+
+	  $.each(plot2.series, function(index, series) { series.barWidth = undefined; });
+	  plot2.replot( { resetAxes: true } );
+      
+      
+  });
+
+
   
   $('#cbCompare1').change(refreshPlot1);
   $('#cbCompare2').change(refreshPlot1);  
