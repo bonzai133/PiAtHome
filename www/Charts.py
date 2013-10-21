@@ -310,27 +310,64 @@ def statistics_data(db):
     return json.dumps([data])
 
 
-@route("/list_errors.json")
-def list_errors(db):
+@route("/list_errors_grid.json")
+def list_errors_grid(db):
+    #Get parameters
+    #search = request.query.get('search')
+    #nd = request.query.get('nd')
+    rows = int(request.query.get('rows'))
+    page = int(request.query.get('page'))
+    sidx = request.query.get('sidx')
+    sord = request.query.get('sord')
+    
+    #Build request
     today = datetime.datetime.today()
     delta = datetime.timedelta(7)
     last_days = today - delta
     
     strlastdays = "%04d-%02d-%02d" % (last_days.year, last_days.month, last_days.day)
-                  
-    c = db.execute('SELECT datetime, errCode, desc \
-                    FROM ErrorsHistory \
-                    where datetime > ? \
-                    ORDER BY datetime ASC', (strlastdays, ))
+    
+    #Calculate limit for pagination
+    limit = rows
+    offset = rows * (page - 1)
+    #print "Limit: %d, %d" % (offset, limit)
+    
+    #print sidx, sord
+    query = 'SELECT datetime, errCode, desc FROM ErrorsHistory where datetime > ? \
+                    ORDER BY %s %s LIMIT ?, ?' % (sidx, sord)
+                    
+    c = db.execute(query, (strlastdays, offset, limit))
 
+    json_data = {
+        "page": 0,
+        "total": 0,
+        "records": 0,
+        "rows": []}
+    
     data = []
+    idx = 1
     for row in c:
-        data.append({'date': row[0], 'code': row[1], 'desc': row[2]})
-        
-    if len(data) == 0:
-        data.append({'date': strlastdays, 'code': '-----', 'desc': "Pas d'erreur depuis cette date."})
+        data.append({"id": idx, "cell": [row[0], row[1], row[2]]})
+        idx = idx + 1
 
-    return json.dumps({"errors": data})
+    #Calculate pagination
+    c = db.execute('SELECT count(*) FROM ErrorsHistory where datetime > ? ', (strlastdays, ))
+    res = c.fetchall()
+
+    records = res[0][0]
+    if records == 0:
+        data.append({"id": 1, "cell": [strlastdays, '-----', "Pas d'erreur depuis cette date."]})
+        records = 1
+
+    nb_pages = int(records / rows + 1)
+    
+    #print "page %d/%d, records %d/%d" % (page, nb_pages, rows, records)
+    json_data["page"] = page
+    json_data["total"] = nb_pages
+    json_data["records"] = records
+    json_data["rows"] = data
+    
+    return json.dumps(json_data)
 
 
 #===============================================================================

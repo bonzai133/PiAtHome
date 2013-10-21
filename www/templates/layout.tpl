@@ -8,6 +8,7 @@
     <link rel="stylesheet" type="text/css" href="../css/examples.css" />
     
     <link rel="stylesheet" type="text/css" href="../css/ui-darkness/jquery-ui-1.10.2.custom.min.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="../css/ui.jqgrid.css" />
         
     <script language="javascript" type="text/javascript" src="../scripts/jquery.min.js"></script>
 	<script language="javascript" type="text/javascript" src="../scripts/jquery.jqplot.min.js"></script>
@@ -21,6 +22,9 @@
 	<script type="text/javascript" src="../scripts/plugins/jqplot.pointLabels.min.js"></script>
 	
 	<script type="text/javascript" src="../scripts/plugins/jqplot.meterGaugeRenderer.min.js"></script>
+	
+	<script src="../scripts/grid.locale-fr.js" type="text/javascript"></script>
+    <script src="../scripts/jquery.jqGrid.min.js" type="text/javascript"></script>
 </head>
 <body>
   %include
