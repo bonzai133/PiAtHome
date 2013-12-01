@@ -20,6 +20,7 @@
           <div class="example-link"><a class="example-link" href="prod_statistics">Production: statistiques</a></div>
           <div class="example-link"><a class="example-link" href="prod_historic">Production: historique</a></div>
           <div class="example-link"><a class="example-link" href="prod_errors">Production: erreurs</a></div>
+          <div class="example-link"><a class="example-link" href="teleinfo">Teleinfo</a></div>
 
 		  <!--
 		  <div class="example-link"><a class="example-link" href="about">A propos</a></div>

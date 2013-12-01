@@ -359,7 +359,10 @@ def writeDataToDb(data, dbFileName):
 Teleinfo_dbTables = {"TeleinfoDaily": [('date', "d", "Date"),
                         ('counterId', "n", "Counter identifier (serial number)"),
                         ('indexBase', "n", "Base index (Wh)"),
-                        ('iMax', "n", "Maximal intensity")], }
+                        ('iMax', "n", "Maximal intensity")],
+                     "TeleinfoCounters": [('counterId', "i", "Counter identifier (serial number)"),
+                                          ('counterName', "n", "Counter name"), ]
+                     }
 
 
 class DBManager:
@@ -386,6 +389,8 @@ class DBManager:
                 
                 if fType == 'n':
                     fieldType = 'INTEGER'
+                elif fType == 'i':
+                    fieldType = 'INTEGER PRIMARY KEY'
                 elif fType == 'r':
                     fieldType = 'REAL'
                 elif fType == 'd':

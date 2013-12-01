@@ -37,8 +37,6 @@ SCRIPTS_CSS = os.path.join(ROOT_PATH, "css")
 SSL_FILES = os.path.join(ROOT_PATH, "ssl")
 
 
-
-
 #===============================================================================
 # TODO List
 #===============================================================================
@@ -52,7 +50,7 @@ SSL_FILES = os.path.join(ROOT_PATH, "ssl")
 #===============================================================================
 @route("/")
 def default():
-    redirect("/prod_historic")
+    redirect("/prod_realtime")
 
 
 #===============================================================================
@@ -71,7 +69,7 @@ def login():
         session = beakerSession()
         session['username'] = name
         
-    redirect("/prod_historic")
+    redirect("/prod_realtime")
 
 
 @route("/logout", method='POST')
@@ -144,6 +142,12 @@ def prod_statistics():
 @authenticated
 def prod_errors():
     return template("errors", title="Pi@Home")
+
+
+@route("/teleinfo")
+@authenticated
+def teleinfo():
+    return template("teleinfo", title="Pi@Home")
 
 
 #===============================================================================
@@ -370,6 +374,143 @@ def list_errors_grid(db):
     return json.dumps(json_data)
 
 
+@route("/teleinfo_counter_id.json")
+def teleinfo_counterId(db2):
+    query = "SELECT distinct(TeleinfoDaily.counterId), counterName from TeleinfoDaily, TeleinfoCounters WHERE TeleinfoDaily.counterId=TeleinfoCounters.counterId"
+    c = db2.execute(query)
+    d1 = []
+
+    for row in c:
+        d1.append((row[0], row[1]))
+
+    return json.dumps(d1)
+
+
+@route("/teleinfo_set_counter_id.json")
+def teleinfo_setCounterId(db2):
+    counterId = request.query.get('counterId')
+    counterName = request.query.get('counterName')
+    
+    query_exists = "SELECT EXISTS (SELECT 1 FROM TeleinfoDaily WHERE counterId=?)"
+    query = "REPLACE INTO TeleinfoCounters (counterId, counterName) VALUES (?, ?)"
+    
+    c = db2.execute(query_exists, (counterId, ))
+    row = c.fetchone()
+
+    if row and row[0] != 1:
+        retVal = "Impossible de changer le nom du compteur n°%s." % (counterId)
+    else:
+        db2.execute(query, (counterId, counterName))
+        db2.commit()
+    
+        retVal = "Le nom du compteur n°%s a été modifié : '%s'." % (counterId, counterName)
+    
+    return json.dumps(retVal)
+   
+
+@route("/teleinfo_all_data.json")
+def teleinfo_all_data(db2):
+    #Get parameters from request
+    date1 = request.query.get('date1')
+    date2 = request.query.get('date2')
+    counterId = request.query.get('counterId')
+    
+    if not date1 or not date2 or not counterId:
+        print "Missing args"
+        return None
+
+    #Format dates
+    dStart = date1.replace('_', '-')
+    dEnd = date2.replace('_', '-')
+    #print "%s - %s" % (dStart, dEnd)
+
+    #Query db
+    data = []
+    series_label = []
+    
+    if counterId == "-1":
+        query1 = "SELECT distinct(counterId) from TeleinfoDaily"
+        c1 = db2.execute(query1)
+    else:
+        c1 = [[counterId]]
+        
+    for row1 in c1:
+        query2 = "SELECT \
+                date(T1.date) as d1, max(T1.indexBase), d2, m2, m2 - max(T1.indexBase) as diff \
+                \
+                FROM TeleinfoDaily as T1,\
+                  (SELECT date(T2.date) as d2, max(T2.indexBase)  as m2\
+                  FROM TeleinfoDaily as T2\
+                  WHERE T2.counterId = ?\
+                  and d2 between ? and ?\
+                  group by date(T2.date))\
+                \
+                where T1.counterId = ?\
+                and d1 between ? and ?\
+                and d1 = date(d2, '-1 day')\
+                group by date(T1.date)"
+        
+        c2 = db2.execute(query2, (row1[0], dStart, dEnd, row1[0], dStart, dEnd))
+        d1 = []
+        d2 = []
+        for row in c2:
+            d1.append((row[0], row[4]))
+            d2.append(row[0])
+            #print "%s %s" % (row[0], row[4])
+        
+        series_label.append(str(row1[0]))
+        data.append(d1)
+    
+    #print json.dumps([series_label, d2, data])
+    return json.dumps([series_label, d2, data])
+
+
+@route("/teleinfo_rawdata.json")
+def teleinfo_rawdata(db2):
+    #Get parameters from request
+    date1 = request.query.get('date1')
+    date2 = request.query.get('date2')
+    counterId = request.query.get('counterId')
+    
+    if not date1 or not date2 or not counterId:
+        print "Missing args"
+        return None
+
+    #Format dates
+    dStart = date1.replace('_', '-')
+    dEnd = date2.replace('_', '-')
+
+    #Query db
+    data = []
+    series_label = []
+    
+    if counterId == "-1":
+        query1 = "SELECT distinct(counterId) from TeleinfoDaily"
+        c1 = db2.execute(query1)
+    else:
+        c1 = [[counterId]]
+        
+    for row1 in c1:
+        query2 = "SELECT date, indexBase from TeleinfoDaily where counterId = ? and date between ? and ? order by date asc"
+
+        c2 = db2.execute(query2, (row1[0], dStart, dEnd))
+    
+        offset = 0
+        d1 = []
+        d2 = []
+        for row in c2:
+            if counterId == "-1" and offset == 0:
+                offset = row[1]
+                
+            d1.append((row[0], row[1] - offset))
+            d2.append(row[0])
+            
+        series_label.append(str(row1[0]))
+        data.append(d1)
+    
+    return json.dumps([series_label, d2, data])
+
+
 #===============================================================================
 # Static files
 #===============================================================================
@@ -440,9 +581,14 @@ def main(debug=False):
     
     if debug:
         local_db_file = os.path.join(ROOT_PATH, "Solarmax_data2.s3db")
-        
+        local_db_file2 = os.path.join(ROOT_PATH, "../teleinfo/Teleinfo_data.s3db")
+       
         #Plugins : SQLitePlugin give a connection in each functions with a db parameter
         install(SQLitePlugin(dbfile=local_db_file))
+        
+        p2 = SQLitePlugin(dbfile=local_db_file2, keyword='db2')
+        p2.name = "sqlite2"
+        install(p2)
         
         #Run http test server on port 8080
         run(app=myapp, host='127.0.0.1', port="8080")
