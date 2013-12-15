@@ -361,7 +361,7 @@ Teleinfo_dbTables = {"TeleinfoDaily": [('date', "d", "Date"),
                         ('indexBase', "n", "Base index (Wh)"),
                         ('iMax', "n", "Maximal intensity")],
                      "TeleinfoCounters": [('counterId', "i", "Counter identifier (serial number)"),
-                                          ('counterName', "n", "Counter name"), ]
+                                          ('counterName', "t", "Counter name"), ]
                      }
 
 
