@@ -1,18 +1,43 @@
 %def rightblock():
     <h1>Teleinfo</h1>
-    <p>Date de début: <input type="text" id="datepicker1" style="width:100px;"/>
-       Date de fin: <input type="text" id="datepicker2" style="width:100px;"/></p>
-    <form>
-        Compteur:
-        <select name="counter1" id="cbCounter1"></select>
-        
-        <input name="counterName" id="iCounterName" type="text">
-        <input type='button' value='Changer le nom' id='btnSetName'>
-    </form>
-        
-    <div id="chart1" style="height:auto;width:100%;max-height:400px;max-width:800px;"></div>
-    <div id="chart2" style="height:auto;width:100%;max-height:400px;max-width:800px;"></div>
-
+    <div style="border:2px solid;border-radius:12px;padding:10px;">
+        <h2 style="margin-top:-12px;margin-right:-12px;margin-left:-12px; border-top-left-radius:12px; border-top-right-radius:12px;text-align:center; color: gray; background-color:lightgray;">
+        Relevés</h2>
+	    Date de contrat: <input type="text" id="datepicker3" style="width:100px;"/>
+	                     <input type="text" id="datepicker4" style="width:100px;"/>
+	                     <input type='button' value='Calculer' id='btnGetContractInfo'>
+	                     </br>
+	    Différence entre les 2 dates: <div id='contractInfo'></div>
+	    <table border="1">
+	    <tr>
+	        <th>Id compteur</th>
+	        <th>Index initial</th>
+	        <th>Index final</th>
+	        <th>Ecart</th>
+	    </tr>
+	    <tbody id ='tableBody'></tbody>
+	
+	    </table>
+    </div>
+    <br>
+    <div style="border:2px solid;border-radius:12px;padding:10px;">
+        <h2 style="margin-top:-12px;margin-right:-12px;margin-left:-12px; border-top-left-radius:12px; border-top-right-radius:12px;text-align:center; color: gray; background-color:lightgray;">
+        Graphique</h2>
+	    <p>Date de début: <input type="text" id="datepicker1" style="width:100px;"/>
+	       Date de fin: <input type="text" id="datepicker2" style="width:100px;"/>
+	       <input type='button' value='Rafraichir' id='btnRefreshGraph'>
+	       </p>
+	    <form>
+	        Compteur:
+	        <select name="counter1" id="cbCounter1"></select>
+	        
+	        <input name="counterName" id="iCounterName" type="text">
+	        <input type='button' value='Changer le nom' id='btnSetName'>
+	    </form>
+	        
+	    <div id="chart1" style="height:auto;width:100%;max-height:400px;max-width:800px;"></div>
+	    <div id="chart2" style="height:auto;width:100%;max-height:400px;max-width:800px;"></div>
+    </div>
 
 %end
 
@@ -49,11 +74,15 @@ $(document).ready(function() {
     //Combo box
     function populateComboBox() {
    	      $("#datepicker1").datepicker({ dateFormat: "dd/mm/yy" });
-    	  $("#datepicker2").datepicker({ dateFormat: "dd/mm/yy" });
+          $("#datepicker2").datepicker({ dateFormat: "dd/mm/yy" });
+          $("#datepicker3").datepicker({ dateFormat: "dd/mm/yy" });
+          $("#datepicker4").datepicker({ dateFormat: "dd/mm/yy" });
 
     	  $("#datepicker1").datepicker( "setDate", "-1m" );
     	  $("#datepicker2").datepicker( "setDate", "0" );
-    	  
+          $("#datepicker3").datepicker( "setDate", "-1y" );
+          $("#datepicker4").datepicker( "setDate", "0" );
+          
           $.getJSON('teleinfo_counter_id.json', {}, function(data) {
               var select1 = $('#cbCounter1');
               $('option', select1).remove();
@@ -188,6 +217,30 @@ $(document).ready(function() {
         });
     }
     
+    function updateContractInfo() {
+    	var ret = null;
+    	$.ajax({url:'/teleinfo_delta_from_date.json',
+    		data: "date1=" + formatDate($("#datepicker3").datepicker("getDate")) + "&date2=" + 
+    				formatDate($("#datepicker4").datepicker("getDate")) + "&counterId=" + $('#cbCounter1 option:selected').val(),
+			dataType:"json",
+            success: function(data) {
+            	$("#tableBody").html("");
+            	$.each(data, function(id, values) {
+            		var table = "<tr><th>" + id + "</th>";
+            		table += "<td>" + values[0] + "</td>";
+            		table += "<td>" + values[1] + "</td>";
+            		table += "<td>" + values[2] + "</td></tr>";
+            		
+            		$("#tableBody").append(table);
+                });
+            }
+            
+    		});
+    	
+    	
+    	
+    }
+    
     function updateGraphs() {
     	$("#iCounterName").val($('#cbCounter1 option:selected').text());
     	
@@ -224,15 +277,27 @@ $(document).ready(function() {
         		alert(data);
         	},
 	        error: function(data){
-	            alert("Impossible de changer le nom !");
+	            alert("Impossible de changer le nom !\n");
+	            //alert(data.responseText);
             }
         });
         
-    });  
+    });
+    
+    $("#btnGetContractInfo").click(function(){
+    	updateContractInfo();
+        });
+    $("#btnRefreshGraph").click(function(){
+    	updateGraphs();
+        });
+    
+    
     
     $('#cbCounter1').change(updateGraphs);
     populateComboBox();
     
+    //Update delta values
+    updateContractInfo();
 
 });
 
@@ -243,4 +308,4 @@ $(document).ready(function() {
 
 
 
-%rebase columns rightblock=rightblock, jscript=jscript, title=title
+%rebase columns rightblock=rightblock, jscript=jscript, title=title, login=login

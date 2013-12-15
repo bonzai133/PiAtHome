@@ -216,4 +216,4 @@ $(document).ready(function(){
 
 
 
-%rebase columns rightblock=rightblock, jscript=jscript, title=title
+%rebase columns rightblock=rightblock, jscript=jscript, title=title, login=login

@@ -7,7 +7,7 @@
          <a class="nav"  href="/docs"><span>&gt;</span>Docs</a>
          <a class="nav"  href="/download"><span>&gt;</span>Download</a>
          <a class="nav" href="/info"><span>&gt;</span>Info</a>
-         <a class="nav" href="/authentication"><span>&gt;</span>S'identifier</a>
+         <a class="nav" href="/authentication"><span>&gt;</span>{{login}}</a>
      </div>
  </div>
  <div class="colmask leftmenu">
