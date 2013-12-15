@@ -11,9 +11,9 @@
 	    <table border="1">
 	    <tr>
 	        <th>Id compteur</th>
-	        <th>Index initial</th>
-	        <th>Index final</th>
-	        <th>Ecart</th>
+	        <th>Index initial (kWh)</th>
+	        <th>Index final (kWh)</th>
+	        <th>Ecart (kWh)</th>
 	    </tr>
 	    <tbody id ='tableBody'></tbody>
 	
@@ -227,9 +227,9 @@ $(document).ready(function() {
             	$("#tableBody").html("");
             	$.each(data, function(id, values) {
             		var table = "<tr><th>" + id + "</th>";
-            		table += "<td>" + values[0] + "</td>";
-            		table += "<td>" + values[1] + "</td>";
-            		table += "<td>" + values[2] + "</td></tr>";
+            		table += "<td>" + values[0]/1000 + "</td>";
+            		table += "<td>" + values[1]/1000 + "</td>";
+            		table += "<td>" + values[2]/1000 + "</td></tr>";
             		
             		$("#tableBody").append(table);
                 });
