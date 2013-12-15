@@ -39,7 +39,7 @@ class current_user():
     def has(self, role):
         user_role = self.m_session.get('role', None)
         
-        if role in user_role:
+        if user_role is not None and role in user_role:
             return True
 
         return False
