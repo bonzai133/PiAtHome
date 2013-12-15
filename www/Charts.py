@@ -28,8 +28,8 @@ ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE_PATH.insert(0, os.path.join(ROOT_PATH, "templates"))
 
 #DB_FILE = os.path.join(ROOT_PATH, "Solarmax_data2.s3db")
-DB_FILE_SOLAR = os.path.join("/opt/pysolarmax", "Solarmax_data2.s3db")
-DB_FILE_TELEINFO = os.path.join("/opt/pysolarmax", "Teleinfo_data.s3db")
+DB_FILE_SOLAR = os.path.join("/opt/pysolarmax/data", "Solarmax_data2.s3db")
+DB_FILE_TELEINFO = os.path.join("/opt/pysolarmax/data", "Teleinfo_data.s3db")
 
 #SSL Certificate
 SSL_CERTIFICATE = os.path.join(ROOT_PATH, "ssl/cacert.pem")
@@ -89,12 +89,30 @@ def getUser():
     return json.dumps({"user": username})
 
 
+@route("/createUser", method='POST', apply=authenticated)
+def createUser():
+    if not current_user().has('admin'):
+        return "Seul l'administrateur peut exécuter cette commande."
+    else:
+        name = request.forms.UserName
+        realname = request.forms.RealName
+        passwd = request.forms.Password
+        
+        if not name or not passwd:
+            return "Error creating user"
+        else:
+            ApplicationUsers(USERSFILE).createUser(name, realname, passwd, 'user')
+        
+    return "OK"
+
+
 #===============================================================================
 # Main pages
 #===============================================================================
 @route("/authentication")
 def authentication():
-    return template("authentication", title="Pi@Home", login=getLogin())
+    return template("authentication", title="Pi@Home", login=getLogin(),
+                    isAuthentic=current_user().isAuthentic(), isAdmin=current_user().has("admin"))
 
 
 @route("/prod_realtime")
