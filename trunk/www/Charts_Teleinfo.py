@@ -193,7 +193,7 @@ def teleinfo_delta_from_date(db2):
             index2 = row[1][1]
             delta = index2 - index1
             #print "%s: %d - %d = %d" % (row1[0], index2, index1, delta)
-            d1[row1[0]] = (index2, index1, delta)
+            d1[row1[0]] = (index1, index2, delta)
     
     #print json.dumps(d1)
     return json.dumps(d1)
