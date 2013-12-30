@@ -19,6 +19,9 @@ from Charts_Authentication import *
 from Charts_Solar import *
 from Charts_Teleinfo import *
 
+from requestlogger import WSGILogger, ApacheFormatter
+from logging.handlers import TimedRotatingFileHandler
+
 
 #Set file path
 #ROOT_PATH = os.path.dirname(__file__)
@@ -30,6 +33,7 @@ TEMPLATE_PATH.insert(0, os.path.join(ROOT_PATH, "templates"))
 #DB_FILE = os.path.join(ROOT_PATH, "Solarmax_data2.s3db")
 DB_FILE_SOLAR = os.path.join("/opt/pysolarmax/data", "Solarmax_data2.s3db")
 DB_FILE_TELEINFO = os.path.join("/opt/pysolarmax/data", "Teleinfo_data.s3db")
+VAR_LOG_ACCESS = os.path.join("/var/log", "access.log")
 
 #SSL Certificate
 SSL_CERTIFICATE = os.path.join(ROOT_PATH, "ssl/cacert.pem")
@@ -199,6 +203,37 @@ class MultiCherryPyServer(ServerAdapter):
         cherrypy.engine.start()
         #cherrypy.engine.block()
 
+
+class MultiCherryPyServerDebug(ServerAdapter):
+    def run(self, handler):
+        import cherrypy
+        from cherrypy import wsgiserver
+        from cherrypy import _cpserver
+       
+        cherrypy.server.unsubscribe()
+        
+        #Logs
+        cherrypy.config.update({'log.access_file': 'access.log',
+                               'log.error_file': 'error.log',
+                               'log.wsgi': True})
+        
+        #HTTP server
+        server1 = wsgiserver.CherryPyWSGIServer((self.host, 8080), handler)
+        adapter1 = _cpserver.ServerAdapter(cherrypy.engine, server1)
+        adapter1.subscribe()
+        
+        #HTTPS server
+        server2 = wsgiserver.CherryPyWSGIServer((self.host, 8443), handler)
+        server2.ssl_certificate = SSL_CERTIFICATE
+        server2.ssl_private_key = SSL_PRIVATE_KEY
+        
+        adapter2 = _cpserver.ServerAdapter(cherrypy.engine, server2)
+        adapter2.subscribe()
+       
+        #Start all servers
+        cherrypy.engine.start()
+        #cherrypy.engine.block()
+        
         
 def main(debug=False):
     #Beaker options
@@ -209,36 +244,43 @@ def main(debug=False):
       'session.auto': True
     }
     
+    if debug:
+        #Sqlite db file
+        mydbfile_solarmax = os.path.join(ROOT_PATH, "Solarmax_data2.s3db")
+        mydbfile_teleinfo = os.path.join(ROOT_PATH, "../teleinfo/Teleinfo_data.s3db")
+        access_log_file = 'access.log'
+
+        #Run http test server on port 8080
+        myport = "8080"
+        #myserver = MultiCherryPyServerDebug
+        myserver = 'wsgiref'
+        
+    else:
+        #Sqlite db file
+        mydbfile_solarmax = DB_FILE_SOLAR
+        mydbfile_teleinfo = DB_FILE_TELEINFO
+        access_log_file = VAR_LOG_ACCESS
+
+        #Run CherryPy http and https server
+        myport = 443
+        myserver = MultiCherryPyServer
+
     #Create default bottle application
     app = default_app()
     myapp = SessionMiddleware(app, session_opts)
-    
-    if debug:
-        local_db_file = os.path.join(ROOT_PATH, "Solarmax_data2.s3db")
-        local_db_file2 = os.path.join(ROOT_PATH, "../teleinfo/Teleinfo_data.s3db")
-       
-        #Plugins : SQLitePlugin give a connection in each functions with a db parameter
-        install(SQLitePlugin(dbfile=local_db_file))
-        
-        p2 = SQLitePlugin(dbfile=local_db_file2, keyword='db2')
-        p2.name = "sqlite2"
-        install(p2)
-        
-        #Run http test server on port 8080
-        run(app=myapp, host='127.0.0.1', port="8080")
-    else:
-        #Plugins : SQLitePlugin give a connection in each functions with a db parameter
-        #install(SQLitePlugin(dbfile=DB_FILE))
-       
-        #Plugins : SQLitePlugin give a connection in each functions with a db parameter
-        install(SQLitePlugin(dbfile=DB_FILE_SOLAR))
-        
-        p2 = SQLitePlugin(dbfile=DB_FILE_TELEINFO, keyword='db2')
-        p2.name = "sqlite2"
-        install(p2)
 
-        #Run CherryPy http and https server
-        run(app=myapp, host='0.0.0.0', port=443, server=MultiCherryPyServer)
+    handlers = [TimedRotatingFileHandler(access_log_file, 'd', 7), ]
+    loggingapp = WSGILogger(myapp, handlers, ApacheFormatter())
+    
+    #Plugins : SQLitePlugin give a connection in each functions with a db parameter
+    install(SQLitePlugin(dbfile=mydbfile_solarmax))
+    
+    plugin2 = SQLitePlugin(dbfile=mydbfile_teleinfo, keyword='db2')
+    plugin2.name = "sqlite2"
+    install(plugin2)
+    
+    #Run server
+    run(app=loggingapp, host='0.0.0.0', port=myport, server=myserver)
 
 
 if __name__ == "__main__":
