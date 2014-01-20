@@ -46,10 +46,10 @@ def teleinfo_setCounterId(db2):
             retVal = "Le nom du compteur n°%s a été modifié : '%s'." % (counterId, counterName)
     
     return json.dumps(retVal)
-   
 
-@route("/teleinfo_all_data.json", apply=authenticated)
-def teleinfo_all_data(db2):
+
+@route("/teleinfo_values_byday.json", apply=authenticated)
+def teleinfo_values_byday(db2):
     #Get parameters from request
     date1 = request.query.get('date1')
     date2 = request.query.get('date2')
@@ -62,51 +62,37 @@ def teleinfo_all_data(db2):
     #Format dates
     dStart = date1.replace('_', '-')
     dEnd = date2.replace('_', '-')
-    #print "%s - %s" % (dStart, dEnd)
 
     #Query db
-    data = []
+    data_value = []
+    #data_index = []
     series_label = []
     
     if counterId == "-1":
-        query1 = "SELECT distinct(counterId) from TeleinfoDaily"
+        query1 = "SELECT distinct(counterId) from TeleinfoByday"
         c1 = db2.execute(query1)
     else:
         c1 = [[counterId]]
         
     for row1 in c1:
-        query2 = "SELECT \
-                date(T1.date) as d1, max(T1.indexBase), d2, m2, m2 - max(T1.indexBase) as diff \
-                \
-                FROM TeleinfoDaily as T1,\
-                  (SELECT date(T2.date) as d2, max(T2.indexBase)  as m2\
-                  FROM TeleinfoDaily as T2\
-                  WHERE T2.counterId = ?\
-                  and d2 between ? and ?\
-                  group by date(T2.date))\
-                \
-                where T1.counterId = ?\
-                and d1 between ? and ?\
-                and d1 = date(d2, '-1 day')\
-                group by date(T1.date)"
+        query2 = "SELECT dateDay, counterId, indexBase, value FROM TeleinfoByday where dateDay between ? and ? and counterId = ?"
         
-        c2 = db2.execute(query2, (row1[0], dStart, dEnd, row1[0], dStart, dEnd))
+        c2 = db2.execute(query2, (dStart, dEnd, row1[0]))
         d1 = []
-        d2 = []
+        #d2 = []
         for row in c2:
-            d1.append((row[0], row[4]))
-            d2.append(row[0])
-            #print "%s %s" % (row[0], row[4])
+            d1.append((row[0], row[3]))
+            #d2.append((row[0], row[2]))
         
         series_label.append(str(row1[0]))
-        data.append(d1)
+        data_value.append(d1)
+        #data_index.append(d2)
     
-    #print json.dumps([series_label, d2, data])
-    return json.dumps([series_label, d2, data])
+    return json.dumps([series_label, data_value])
 
 
-@route("/teleinfo_rawdata.json", apply=authenticated)
-def teleinfo_rawdata(db2):
+@route("/teleinfo_index_byday.json", apply=authenticated)
+def teleinfo_index_byday(db2):
     #Get parameters from request
     date1 = request.query.get('date1')
     date2 = request.query.get('date2')
@@ -121,34 +107,32 @@ def teleinfo_rawdata(db2):
     dEnd = date2.replace('_', '-')
 
     #Query db
-    data = []
+    data_index = []
     series_label = []
     
     if counterId == "-1":
-        query1 = "SELECT distinct(counterId) from TeleinfoDaily"
+        query1 = "SELECT distinct(counterId) from TeleinfoByday"
         c1 = db2.execute(query1)
     else:
         c1 = [[counterId]]
         
     for row1 in c1:
-        query2 = "SELECT date, indexBase from TeleinfoDaily where counterId = ? and date between ? and ? order by date asc"
-
-        c2 = db2.execute(query2, (row1[0], dStart, dEnd))
-    
+        query2 = "SELECT dateDay, counterId, indexBase, value FROM TeleinfoByday where dateDay between ? and ? and counterId = ? ORDER BY dateDay ASC"
+        
+        c2 = db2.execute(query2, (dStart, dEnd, row1[0]))
+        
         offset = 0
-        d1 = []
         d2 = []
         for row in c2:
             if counterId == "-1" and offset == 0:
-                offset = row[1]
-                
-            d1.append((row[0], row[1] - offset))
-            d2.append(row[0])
-            
+                offset = row[2]
+
+            d2.append((row[0], row[2] - offset))
+        
         series_label.append(str(row1[0]))
-        data.append(d1)
+        data_index.append(d2)
     
-    return json.dumps([series_label, d2, data])
+    return json.dumps([series_label, data_index])
 
 
 @route("/teleinfo_delta_from_date.json", apply=authenticated)
@@ -165,24 +149,20 @@ def teleinfo_delta_from_date(db2):
     #Format dates
     dStart = date1.replace('_', '-')
     dEnd = date2.replace('_', '-')
-    print dStart, dEnd
+    #print dStart, dEnd
     
     #Query db
     if counterId == "-1":
-        query1 = "SELECT distinct(counterId) from TeleinfoDaily"
+        query1 = "SELECT distinct(counterId) from TeleinfoByDay"
         c1 = db2.execute(query1)
     else:
         c1 = [[counterId]]
         
     d1 = {}
     for row1 in c1:
-        query2 = "SELECT date(T1_date) as d1, max_indexBase as i1 FROM \
-                (SELECT T1.date as T1_date, max(T1.indexBase) as max_indexBase \
-                  FROM TeleinfoDaily as T1 where counterId=? group by date (T1.date)) \
-                WHERE d1 = ? OR d1=? ORDER BY d1 ASC"
-        
-        c2 = db2.execute(query2, (row1[0], dStart, dEnd))
-        
+        query2 = "SELECT dateDay, indexBase FROM TeleinfoByDay WHERE (dateDay=? OR dateDay=?) AND counterId=? ORDER BY dateDay ASC"
+
+        c2 = db2.execute(query2, (dStart, dEnd, row1[0]))
         row = c2.fetchall()
         
         delta = 0
@@ -197,4 +177,3 @@ def teleinfo_delta_from_date(db2):
     
     #print json.dumps(d1)
     return json.dumps(d1)
-

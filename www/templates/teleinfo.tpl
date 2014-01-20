@@ -59,12 +59,7 @@ $(document).ready(function() {
           dataType:"json",
           success: function(data) {
         	  plot.legend.labels = data[0];
-        	  //plot.axes.xaxis.ticks = data[1];
-              ret = data[2];
-              
-              //console.log(data[0]);
-              //console.log(data[1]);
-              //console.log(data[2]);
+              ret = data[1];
           }
         });
 
@@ -97,52 +92,11 @@ $(document).ready(function() {
           });
     };
       
-
+    
     function updateGraph1() {
         if (plot1) { plot1.destroy(); }
         
-        plot1 = $.jqplot('chart1', "/teleinfo_all_data.json", {
-            dataRenderer: ajaxDataRendererValue,
-            dataRendererOptions: { 
-                date1: formatDate($("#datepicker1").datepicker("getDate")),
-                date2: formatDate($("#datepicker2").datepicker("getDate")),
-                counterId:$('#cbCounter1 option:selected').val()
-            },
-            title:'Evolution journalière (Wh)',
-            seriesDefaults:{
-                renderer:$.jqplot.BarRenderer,
-                rendererOptions: {fillToZero: true},
-                pointLabels: { show: false, formatString: '%d'},
-                rendererOptions: {barPadding: 0, barMargin: 2, barWidth:8 },
-            },
-            axes:{
-                xaxis:{
-                renderer:$.jqplot.DateAxisRenderer,
-                tickRenderer: $.jqplot.CanvasAxisTickRenderer ,
-                tickOptions:{angle: 90, formatString:'%#d %b'},
-                tickInterval: '1 day',
-                },
-            },
-            highlighter: {
-                   show: true,
-                   sizeAdjust: 0
-            },
-            cursor:{
-                show: true,
-                zoom:true,
-                constrainZoomTo: 'x',
-            },
-            legend: {
-                show: true,
-                placement: 'outsideGrid',
-            },
-        });
-    }
-    
-    function updateGraph1_line() {
-        if (plot1) { plot1.destroy(); }
-        
-        plot1 = $.jqplot('chart1', "/teleinfo_all_data.json", {
+        plot1 = $.jqplot('chart1', "/teleinfo_values_byday.json", {
             dataRenderer: ajaxDataRendererValue,
             dataRendererOptions: { 
                 date1: formatDate($("#datepicker1").datepicker("getDate")),
@@ -154,6 +108,7 @@ $(document).ready(function() {
                 lineWidth:2, 
                 markerOptions:{style:'square'}
             },
+           
             axes:{
                 xaxis:{
                 renderer:$.jqplot.DateAxisRenderer,
@@ -177,10 +132,11 @@ $(document).ready(function() {
             },
         });
     }    
+    
     function updateGraph2() {
         if (plot2) { plot2.destroy(); }
         
-        plot2 = $.jqplot('chart2', "/teleinfo_rawdata.json", {
+        plot2 = $.jqplot('chart2', "/teleinfo_index_byday.json", {
             dataRenderer: ajaxDataRendererValue,
             dataRendererOptions: { 
                 date1: formatDate($("#datepicker1").datepicker("getDate")), 
@@ -196,7 +152,7 @@ $(document).ready(function() {
                 xaxis:{
                 renderer:$.jqplot.DateAxisRenderer,
                 tickRenderer: $.jqplot.CanvasAxisTickRenderer ,
-                tickOptions:{angle: 90, },
+                tickOptions:{angle: 90, formatString:'%#d %b'},
                 tickInterval:'1 day'
                 },
             },
