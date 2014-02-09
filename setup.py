@@ -4,6 +4,12 @@ from distutils.core import setup
 import os
 import imp
 
+#TODO:
+# Add docs
+# Add logging.conf
+# Add cron
+# Add supervisord
+
 
 def main():
     data_files = (
@@ -12,6 +18,15 @@ def main():
         non_python_files(os.path.join('www', 'scripts')) +
         non_python_files(os.path.join('www', 'templates'))
         )
+
+    conf_files = ([("teleinfo", ["conf_prod/logging_teleinfo.conf"]),
+                  ("pysolarmax", ["conf_prod/logging_pysolarmax.conf"]),
+                  ("/etc/cron.d", ["conf_prod/pysolarmax.cron"]),
+                  ("/etc/supervisor/conf.d", ["conf_prod/charts.conf"]),
+                  ("data", ["data/Placeholder.txt"])
+         ])
+    #conf_files = ("teleinfo", "conf_prod/logging_teleinfo.conf")
+    
     setup(name='PySolarmax',
           version='0.2',
           description='Python Solarmax monitoring',
@@ -19,7 +34,7 @@ def main():
           author_email='bonzai133@sourceforge.net',
           url='',
           packages=['pysolarmax', 'teleinfo', 'www'],
-          data_files=data_files,
+          data_files=data_files + conf_files,
          )
 
 
