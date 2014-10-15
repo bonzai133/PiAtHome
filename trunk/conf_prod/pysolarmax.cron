@@ -10,3 +10,5 @@ MAILTO=""
 #Get data from teleinfo
 0 * * * * root /opt/pysolarmax/teleinfo/teleinfo.py -i 0 -d /opt/pysolarmax/data/Teleinfo_data.s3db;/opt/pysolarmax/teleinfo/teleinfo.py -i 1 -d /opt/pysolarmax/data/Teleinfo_data.s3db
 
+#Aggregate teleinfo data
+7 1 * * * root /opt/pysolarmax/teleinfo/teleinfo_aggr.py -d /opt/pysolarmax/data/Teleinfo_data.s3db

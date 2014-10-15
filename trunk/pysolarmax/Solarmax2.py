@@ -14,7 +14,7 @@ from SqliteDBManager import *
 
 #Logger
 ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
-LOGCONF_PATH = os.path.join(ROOT_PATH, 'logging.conf')
+LOGCONF_PATH = os.path.join(ROOT_PATH, 'logging_pysolarmax.conf')
 
 logging.config.fileConfig(LOGCONF_PATH)
 logger = logging.getLogger(__name__)
@@ -97,7 +97,7 @@ class DataConverter:
         20132: "Diode de surtempérature",
         20134: "Ventilateur défectueux",
         20165: "TODO Error 20165",
-        20173: "TODO Error 20173",
+        20173: "Tension secteur trop basse (?)",
 }
 
     m_DeviceType = {

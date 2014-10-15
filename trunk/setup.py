@@ -33,6 +33,9 @@ def main():
           author='bonzai133',
           author_email='bonzai133@sourceforge.net',
           url='',
+          scripts=['pysolarmax/Solarmax2.py',
+                   'teleinfo/teleinfo.py', 'teleinfo/teleinfo_aggr.py',
+                   'www/Charts.py'],
           packages=['pysolarmax', 'teleinfo', 'www'],
           data_files=data_files + conf_files,
          )
