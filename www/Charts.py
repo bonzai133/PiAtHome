@@ -7,6 +7,7 @@ Created on 18 mars 2013
 '''
 import os
 import sys
+import argparse
 
 from bottle import default_app, ServerAdapter, run, install, TEMPLATE_PATH
 from bottle import route, template, static_file, request, response, redirect, abort
@@ -34,6 +35,7 @@ TEMPLATE_PATH.insert(0, os.path.join(ROOT_PATH, "templates"))
 DB_FILE_SOLAR = os.path.join("/opt/pysolarmax/data", "Solarmax_data2.s3db")
 DB_FILE_TELEINFO = os.path.join("/opt/pysolarmax/data", "Teleinfo_data.s3db")
 VAR_LOG_ACCESS = os.path.join("/var/log", "access.log")
+VAR_LOG_ACCESS_SSL = os.path.join("/var/log", "access_ssl.log")
 
 #SSL Certificate
 SSL_CERTIFICATE = os.path.join(ROOT_PATH, "ssl/cacert.pem")
@@ -43,6 +45,7 @@ SSL_PRIVATE_KEY = os.path.join(ROOT_PATH, "ssl/privkey.pem")
 SCRIPTS_ROOT = os.path.join(ROOT_PATH, "scripts")
 SCRIPTS_CSS = os.path.join(ROOT_PATH, "css")
 SSL_FILES = os.path.join(ROOT_PATH, "ssl")
+IMAGES_FILES = os.path.join(ROOT_PATH, "images")
 
 USERSFILE = os.path.join(ROOT_PATH, "users.txt")
 
@@ -162,6 +165,11 @@ def send_css(filename):
     return static_file(filename, root=SCRIPTS_CSS)
 
 
+@route('/favicon.png')
+def send_favicon():
+    return static_file('favicon.png', root=IMAGES_FILES)
+
+
 #===============================================================================
 # MAIN
 #===============================================================================
@@ -178,64 +186,10 @@ class SSLCherryPyServer(ServerAdapter):
             server.stop()
 
 
-class MultiCherryPyServer(ServerAdapter):
-    def run(self, handler):
-        import cherrypy
-        from cherrypy import wsgiserver
-        from cherrypy import _cpserver
-       
-        cherrypy.server.unsubscribe()
-       
-        #HTTP server
-        server1 = wsgiserver.CherryPyWSGIServer((self.host, 80), handler)
-        adapter1 = _cpserver.ServerAdapter(cherrypy.engine, server1)
-        adapter1.subscribe()
-        
-        #HTTPS server
-        server2 = wsgiserver.CherryPyWSGIServer((self.host, 443), handler)
-        server2.ssl_certificate = SSL_CERTIFICATE
-        server2.ssl_private_key = SSL_PRIVATE_KEY
-        
-        adapter2 = _cpserver.ServerAdapter(cherrypy.engine, server2)
-        adapter2.subscribe()
-       
-        #Start all servers
-        cherrypy.engine.start()
-        #cherrypy.engine.block()
-
-
-class MultiCherryPyServerDebug(ServerAdapter):
-    def run(self, handler):
-        import cherrypy
-        from cherrypy import wsgiserver
-        from cherrypy import _cpserver
-       
-        cherrypy.server.unsubscribe()
-        
-        #Logs
-        cherrypy.config.update({'log.access_file': 'access.log',
-                               'log.error_file': 'error.log',
-                               'log.wsgi': True})
-        
-        #HTTP server
-        server1 = wsgiserver.CherryPyWSGIServer((self.host, 8080), handler)
-        adapter1 = _cpserver.ServerAdapter(cherrypy.engine, server1)
-        adapter1.subscribe()
-        
-        #HTTPS server
-        server2 = wsgiserver.CherryPyWSGIServer((self.host, 8443), handler)
-        server2.ssl_certificate = SSL_CERTIFICATE
-        server2.ssl_private_key = SSL_PRIVATE_KEY
-        
-        adapter2 = _cpserver.ServerAdapter(cherrypy.engine, server2)
-        adapter2.subscribe()
-       
-        #Start all servers
-        cherrypy.engine.start()
-        #cherrypy.engine.block()
-        
-        
-def main(debug=False):
+#------------------------------------------------------------------------------
+# main : start the right server
+#------------------------------------------------------------------------------
+def main(port):
     #Beaker options
     session_opts = {
       'session.type': 'file',
@@ -244,32 +198,35 @@ def main(debug=False):
       'session.auto': True
     }
     
-    if debug:
+    #Debug mode ?
+    if port != 80 or port != 443:
         #Sqlite db file
         mydbfile_solarmax = os.path.join(ROOT_PATH, "Solarmax_data2.s3db")
         mydbfile_teleinfo = os.path.join(ROOT_PATH, "../teleinfo/Teleinfo_data.s3db")
         access_log_file = 'access.log'
 
-        #Run http test server on port 8080
-        myport = "8080"
-        #myserver = MultiCherryPyServerDebug
+        #Run http test server on given port
         myserver = 'wsgiref'
         
     else:
         #Sqlite db file
         mydbfile_solarmax = DB_FILE_SOLAR
         mydbfile_teleinfo = DB_FILE_TELEINFO
-        access_log_file = VAR_LOG_ACCESS
+        
 
-        #Run CherryPy http and https server
-        myport = 443
-        myserver = MultiCherryPyServer
+        #Run CherryPy http or https server
+        if port == 80:
+            myserver = 'cherrypy'
+            access_log_file = VAR_LOG_ACCESS
+        elif port == 443:
+            myserver = SSLCherryPyServer
+            access_log_file = VAR_LOG_ACCESS_SSL
 
     #Create default bottle application
     app = default_app()
     myapp = SessionMiddleware(app, session_opts)
 
-    handlers = [TimedRotatingFileHandler(access_log_file, 'd', 7), ]
+    handlers = [TimedRotatingFileHandler(access_log_file, 'd', 7, 90), ]
     loggingapp = WSGILogger(myapp, handlers, ApacheFormatter())
     
     #Plugins : SQLitePlugin give a connection in each functions with a db parameter
@@ -280,13 +237,16 @@ def main(debug=False):
     install(plugin2)
     
     #Run server
-    run(app=loggingapp, host='0.0.0.0', port=myport, server=myserver)
+    run(app=loggingapp, host='0.0.0.0', port=port, server=myserver)
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        #Debug mode
-        main(True)
-    else:
-        #Production mode running Cherrypy
-        main()
+    #Get parameters
+    parser = argparse.ArgumentParser(description='Web server displaying charts for Solarmax and Teleinfo')
+
+    parser.add_argument('-p', '--port', dest='port', type=int, action='store',
+                        help='Listening port for the web server', default=8080)
+
+    args = parser.parse_args()
+
+    main(args.port)

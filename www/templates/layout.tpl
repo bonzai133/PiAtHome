@@ -4,6 +4,7 @@
 <head>
     <title>{{title or 'No title'}}</title>
   
+    <link rel="shortcut icon" type="image/png" href="favicon.png?v=2" />
     <link class="include" rel="stylesheet" type="text/css" href="../css/jquery.jqplot.css" />
     <link rel="stylesheet" type="text/css" href="../css/examples.css" />
 
