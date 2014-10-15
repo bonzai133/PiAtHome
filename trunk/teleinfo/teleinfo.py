@@ -236,11 +236,16 @@ def readFrame(serPort):
 
     frame = ""
     rcv = ""
-    while frame == "":
+    retryNb = 0
+    while frame == "" and retryNb < 5:
         rcv += serPort.read(255)
         if len(rcv) == 0:
-            logger.warning("No data received")
+            retryNb += 1
+            logger.warning("No data received (%d)" % retryNb)
         else:
+            #Reset retry
+            retryNb = 0
+            
             logger.debug('%d bytes received' % len(rcv))
             logger.debug(repr(rcv))
 
@@ -443,13 +448,14 @@ def readTeleinfo(serialPortName, interface, dbFileName):
         #Setup of ports
         setupGPIO(interface)
         serPort = setupSerial(serialPortName)
-        
-        #Read frame
-        frame = readFrame(serPort)
-        data = parseFrame(frame)
-        
-        #Write data
-        exportData(data, dbFileName)
+
+        if serPort:
+            #Read frame
+            frame = readFrame(serPort)
+            data = parseFrame(frame)
+            
+            #Write data
+            exportData(data, dbFileName)
         
     except Exception:
         logger.exception("Unexpected exception")
@@ -464,7 +470,7 @@ def readTeleinfo(serialPortName, interface, dbFileName):
 def main():
     #Get parameters
     parser = argparse.ArgumentParser(description='Read values from teleinfo interface')
-    
+
     parser.add_argument('-p', '--portName', dest='serialPortName', action='store',
                         help='Serial port name', default=SERIAL_PORT_NAME)
     parser.add_argument('-i', '--interface', dest='interface', type=int, action='store',
@@ -475,7 +481,7 @@ def main():
     args = parser.parse_args()
 
     logger.info("Args: %s" % repr(args))
-    
+
     #Check arguments
     if args.interface < 0 or args.interface > 1:
         logger.error("Interface must be 0 or 1")
