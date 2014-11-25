@@ -199,7 +199,7 @@ def main(port):
     }
     
     #Debug mode ?
-    if port != 80 or port != 443:
+    if port != 80 and port != 443:
         #Sqlite db file
         mydbfile_solarmax = os.path.join(ROOT_PATH, "Solarmax_data2.s3db")
         mydbfile_teleinfo = os.path.join(ROOT_PATH, "../teleinfo/Teleinfo_data.s3db")

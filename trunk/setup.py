@@ -4,12 +4,12 @@ from distutils.core import setup
 import os
 import imp
 
+#Howto: to build source distribution, call this script with "sdist" parameter
+
 #TODO:
 # Add docs
-# Add logging.conf
-# Add cron
-# Add supervisord
-
+# script part doesn't work : imports are not found
+# When using scripts not in bin path, they are not executable
 
 def main():
     data_files = (
@@ -25,10 +25,9 @@ def main():
                   ("/etc/supervisor/conf.d", ["conf_prod/charts.conf"]),
                   ("data", ["data/Placeholder.txt"])
          ])
-    #conf_files = ("teleinfo", "conf_prod/logging_teleinfo.conf")
     
     setup(name='PySolarmax',
-          version='0.2',
+          version='0.3',
           description='Python Solarmax monitoring',
           author='bonzai133',
           author_email='bonzai133@sourceforge.net',
