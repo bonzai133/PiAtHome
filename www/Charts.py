@@ -213,7 +213,6 @@ def main(port):
         mydbfile_solarmax = DB_FILE_SOLAR
         mydbfile_teleinfo = DB_FILE_TELEINFO
         
-
         #Run CherryPy http or https server
         if port == 80:
             myserver = 'cherrypy'
