@@ -21,7 +21,7 @@ def main():
 
     conf_files = ([("teleinfo", ["conf_prod/logging_teleinfo.conf"]),
                   ("pysolarmax", ["conf_prod/logging_pysolarmax.conf"]),
-                  ("/etc/cron.d", ["conf_prod/pysolarmax.cron"]),
+                  ("/etc/cron.d", ["conf_prod/pysolarmax"]),
                   ("/etc/supervisor/conf.d", ["conf_prod/charts.conf"]),
                   ("data", ["data/Placeholder.txt"])
          ])
