@@ -76,7 +76,7 @@ $(document).ready(function() {
     	  $("#datepicker1").datepicker( "setDate", "-1m" );
     	  $("#datepicker2").datepicker( "setDate", "0" );
           $("#datepicker3").datepicker( "setDate", "-1y" );
-          $("#datepicker4").datepicker( "setDate", "0" );
+          $("#datepicker4").datepicker( "setDate", "-1d" );
           
           $.getJSON('teleinfo_counter_id.json', {}, function(data) {
               var select1 = $('#cbCounter1');
