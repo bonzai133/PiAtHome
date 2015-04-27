@@ -1,8 +1,7 @@
 %def rightblock():
     <h1>Teleinfo</h1>
-    <div style="border:2px solid;border-radius:12px;padding:10px;">
-        <h2 style="margin-top:-12px;margin-right:-12px;margin-left:-12px; border-top-left-radius:12px; border-top-right-radius:12px;text-align:center; color: gray; background-color:lightgray;">
-        Relevés</h2>
+    <div class="borderRound">
+        <h2>Relevés</h2>
 	    Date de contrat: <input type="text" id="datepicker3" style="width:100px;"/>
 	                     <input type="text" id="datepicker4" style="width:100px;"/>
 	                     <input type='button' value='Calculer' id='btnGetContractInfo'>
@@ -20,9 +19,8 @@
 	    </table>
     </div>
     <br>
-    <div style="border:2px solid;border-radius:12px;padding:10px;">
-        <h2 style="margin-top:-12px;margin-right:-12px;margin-left:-12px; border-top-left-radius:12px; border-top-right-radius:12px;text-align:center; color: gray; background-color:lightgray;">
-        Graphique</h2>
+    <div class="borderRound">
+        <h2>Graphique</h2>
 	    <p>Date de début: <input type="text" id="datepicker1" style="width:100px;"/>
 	       Date de fin: <input type="text" id="datepicker2" style="width:100px;"/>
 	       <input type='button' value='Rafraichir' id='btnRefreshGraph'>

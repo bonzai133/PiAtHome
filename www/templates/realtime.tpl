@@ -1,6 +1,8 @@
 %def rightblock():
 	<h1>Temps réel</h1>
 
+    <div class="borderRound">
+    <h2>Rafraichissement</h2>
     Rafraichissement de la page:
     <select id="select_refresh">
         <option value="0">Désactivé</option>
@@ -11,20 +13,37 @@
         <option value="600">10 mn</option>
     </select>
     <div id="div_refresh">Rechargement des données dans <span id="span_timer">0</span> secondes.</div>
-    
-    <div></div>
+    </div>
     <br/>
     
+    <div class="borderRound">
+    <h2>Statut</h2>
+    Dernière mise à jour: <span id="div_lastUpdate"></span>
     <div id="div_status"></div>
-    <div></div>
-    <div id="chart1" style="height:200px;width:250px;display: inline-block;"></div>
-    <div></div>
-    <div id="chart2" style="height:200px;width:250px;display: inline-block;"></div>
-    <div id="chart3" style="height:200px;width:250px;display: inline-block;"></div>
-    <div></div>
-    <div id="chart4" style="height:200px;width:250px;display: inline-block;"></div>
-    <div id="chart5" style="height:200px;width:250px;display: inline-block;"></div>
+    </div>
     
+    <br/>
+
+    <div class="borderRound">
+    <h2>Puissance</h2>
+    <div id="chart2" class="chartGauge"></div>
+    <div id="chart3" class="chartGauge"></div>
+    </div>
+    
+    <br/>
+    
+    <div class="borderRound">
+    <h2>Courant / Tension</h2>
+    <div id="chart4" class="chartGauge"></div>
+    <div id="chart5" class="chartGauge"></div>
+    </div>    
+
+    <br/>
+    
+    <div class="borderRound">
+    <h2>Température</h2>
+    <div id="chart1" class="chartGauge"></div>
+    </div>    
 	<!--http://www.jqplot.com/deploy/dist/examples/meterGauge.html-->
 %end
 
@@ -95,6 +114,24 @@ $(document).ready(function(){
 	};
 
 	function updateStatus() {
+	    //Get last update time
+	    var lastUpdate = ajaxDataRendererValue("/real_time_data.json", null, { key: "LastUpdate" });
+	    timeStamp = parseInt($(lastUpdate)[0]);
+	    
+	    var options = {
+            weekday: 'long',
+            month: 'short',
+            year: 'numeric',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            second: 'numeric'
+            },
+        intlDate = new Intl.DateTimeFormat( undefined, options );
+        formattedDate = intlDate.format(new Date(1000 * timeStamp));   
+	    
+	    $("#div_lastUpdate").text(formattedDate);
+
 	    //Get status
 	    var current_status = ajaxDataRendererValue("/real_time_data.json", null, { key: "SYS" });
 	    $("#div_status").text($(current_status)[0]);
@@ -136,7 +173,7 @@ $(document).ready(function(){
 	               min: 0,
 	               max: 100,
 	               intervals:[25, 75, 100],
-	               intervalColors:['#cc6666', '#E7E658', '#93b75f'],
+	               intervalColors:['#93b75f', '#E7E658', '#cc6666'],
 	           }
 	       }
 	   });

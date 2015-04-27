@@ -1,10 +1,15 @@
 %def rightblock():
 	<h1>Statistiques</h1>
-
+    <div class="borderRound">
+    <h2>Total</h2>
     <div id="total">Energie totale: </div>
     <div id="hours">Heures de fonctionnement: </div>
+    </div>
+
     <br>
     
+    <div class="borderRound">
+    <h2>Période</h2>
     <table border="1">
 	    <tr>
 		    <th></th>
@@ -27,7 +32,7 @@
             <td id='last_year'></td>
         </tr>    
     </table>
-	
+	</div>
 %end
 
 %def jscript():
