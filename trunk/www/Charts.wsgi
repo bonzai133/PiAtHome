@@ -125,10 +125,10 @@ def prod_realtime():
     return template("realtime", title="Pi@Home", login=getLogin())
 
 
-@route("/prod_historic")
-@authenticated
-def prod_historic():
-    return template("historic", title="Pi@Home", login=getLogin())
+#@route("/prod_historic")
+#@authenticated
+#def prod_historic():
+#    return template("historic", title="Pi@Home", login=getLogin())
 
 
 @route("/prod_statistics")

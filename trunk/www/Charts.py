@@ -128,10 +128,10 @@ def prod_realtime():
     return template("realtime", title="Pi@Home", login=getLogin())
 
 
-@route("/prod_historic")
-@authenticated
-def prod_historic():
-    return template("historic", title="Pi@Home", login=getLogin())
+#@route("/prod_historic")
+#@authenticated
+#def prod_historic():
+#    return template("historic", title="Pi@Home", login=getLogin())
 
 
 @route("/prod_statistics")
@@ -201,8 +201,10 @@ def main(port):
     #Debug mode ?
     if port != 80 and port != 443:
         #Sqlite db file
-        mydbfile_solarmax = os.path.join(ROOT_PATH, "Solarmax_data2.s3db")
-        mydbfile_teleinfo = os.path.join(ROOT_PATH, "../teleinfo/Teleinfo_data.s3db")
+        #mydbfile_solarmax = os.path.join(ROOT_PATH, "Solarmax_data2.s3db")
+        #mydbfile_teleinfo = os.path.join(ROOT_PATH, "../teleinfo/Teleinfo_data.s3db")
+        mydbfile_solarmax = os.path.join(ROOT_PATH, "../data/Solarmax_data2.s3db")
+        mydbfile_teleinfo = os.path.join(ROOT_PATH, "../data/Teleinfo_data.s3db")
         access_log_file = 'access.log'
 
         #Run http test server on given port
@@ -236,7 +238,7 @@ def main(port):
     install(plugin2)
     
     #Run server
-    run(app=loggingapp, host='0.0.0.0', port=port, server=myserver)
+    run(app=loggingapp, host='0.0.0.0', port=port, server=myserver, reload=True)
 
 
 if __name__ == "__main__":

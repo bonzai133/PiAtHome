@@ -5,11 +5,33 @@ Created on 8 déc. 2013
 
 @author: laurent
 '''
-from bottle import route
+from bottle import route, template
 import json
 import datetime
 
 from Charts_Authentication import *
+
+
+# route to historic
+@route("/prod_historic", apply=authenticated)
+def prod_historic(db):
+    #Month names
+    MONTHES_SHORT_NAME = ['Jan', 'Fev', 'Mar', 'Avr', 'Mai', 'Jui', 'Jul', 'Aou', 'Sep', 'Oct', 'Nov', 'Dec']
+    MONTHES_LONG_NAME = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre']
+
+    #Get current month
+    currentMonth = datetime.datetime.now().month
+    
+    #Get years available in stats
+    c = db.execute('SELECT distinct year FROM EnergyByMonth ORDER BY year DESC')
+    
+    availYears = []
+    for row in c:
+        availYears.append(row[0])
+
+    #Render template
+    t = template("historic", title="Pi@Home", login=getLogin(), monthesLong=MONTHES_LONG_NAME, monthesShort=MONTHES_SHORT_NAME, years=availYears, currentMonth=currentMonth)
+    return t
 
 
 #===============================================================================
@@ -76,6 +98,12 @@ def energy_by_month(db):
     for row in c:
         d2.append((row[0], row[1]))
     
+    #Jqplot need None instead of empty list    
+    if len(d1) == 0:
+        d1 = [None]
+    if len(d2) == 0:
+        d2 = [None]
+
     return json.dumps([d1, d2])
 
 
@@ -114,40 +142,26 @@ def combobox_years_data(db):
     return json.dumps(data)
 
 
-@route("/ticks_monthes.json")
-def ticks_monthes():
-    data = ['Jan', 'Fev', 'Mar', 'Avr', 'Mai', 'Jui', 'Jul', 'Aou', 'Sep', 'Oct', 'Nov', 'Dec']
-    return json.dumps(data)
-
-
-@route("/ticks_monthes_full.json")
-def ticks_monthes_full():
-    data = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre']
-    return json.dumps(data)
-
-
 @route("/real_time_data.json", apply=authenticated)
 def real_time_data(db):
     #Get parameters from request
     key = request.query.get('key')
 
-    c = db.execute('SELECT value FROM Realtime where key=?', (key, ))
-
-    try:
-        data = []
-        for row in c:
-            #print row
-            try:
-                #print "append float"
-                data.append(float(row[0]))
-            except:
-                #print "append str"
-                data.append(row[0])
-    except:
-        #print "in except"
-        pass
+    data = []
+    if key == "LastUpdate":
+        #TODO : Get this value from database
+        data.append(datetime.datetime.now().strftime("%s"))
+    else:
+        c = db.execute('SELECT value FROM Realtime where key=?', (key, ))
+        try:
+            for row in c:
+                try:
+                    data.append(float(row[0]))
+                except:
+                    data.append(row[0])
+        except:
+            pass
     
-    #print data
     return json.dumps([data])
 
 
@@ -161,18 +175,13 @@ def statistics_data(db):
     try:
         data = []
         for row in c:
-            #print row
             try:
-                #print "append float"
                 data.append(float(row[0]))
             except:
-                #print "append str"
                 data.append(row[0])
     except:
-        #print "in except"
         pass
     
-    #print data
     return json.dumps([data])
 
 

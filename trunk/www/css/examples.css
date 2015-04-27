@@ -216,3 +216,26 @@ h1 {
 	color: #fff;
     background: #E0771C;
 }
+
+h2 {
+    margin-top:-12px;
+    margin-right:-12px;
+    margin-left:-12px;
+    border-top-left-radius:12px;
+    border-top-right-radius:12px;
+    text-align:center;
+    color:gray;
+    background-color:lightgray;
+}
+
+div.borderRound {
+    border:2px solid;
+    border-radius:12px;
+    padding:10px;
+}
+
+div.chartGauge {
+    height:200px;
+    width:250px;
+    display:inline-block;
+}
