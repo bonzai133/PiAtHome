@@ -10,6 +10,8 @@ import imp
 # Add docs
 # script part doesn't work : imports are not found
 # When using scripts not in bin path, they are not executable
+# => Charts.wsgi is copied in ./bin but works only from ./www
+
 
 def main():
     data_files = (
@@ -27,14 +29,14 @@ def main():
          ])
     
     setup(name='PySolarmax',
-          version='0.3',
+          version='0.4',
           description='Python Solarmax monitoring',
           author='bonzai133',
           author_email='bonzai133@sourceforge.net',
           url='',
           scripts=['pysolarmax/Solarmax2.py',
                    'teleinfo/teleinfo.py', 'teleinfo/teleinfo_aggr.py',
-                   'www/Charts.py'],
+                   'www/Charts.py', 'www/Charts.wsgi'],
           packages=['pysolarmax', 'teleinfo', 'www'],
           data_files=data_files + conf_files,
          )
