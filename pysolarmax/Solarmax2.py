@@ -13,10 +13,13 @@ from time import *
 from SqliteDBManager import *
 
 #Logger
-ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
-LOGCONF_PATH = os.path.join(ROOT_PATH, 'logging_pysolarmax.conf')
-
-logging.config.fileConfig(LOGCONF_PATH)
+try:
+    ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
+    LOGCONF_PATH = os.path.join(ROOT_PATH, 'logging_pysolarmax.conf')
+    
+    logging.config.fileConfig(LOGCONF_PATH)
+except Exception, e:
+    print "Can't read logger configuration: %s" % e
 logger = logging.getLogger(__name__)
 
 #Output colors
@@ -634,6 +637,34 @@ def setTimeToCurrentTime(my_sock, dataConverter):
 
 
 #===============================================================================
+# addLastUpdateInDb
+#===============================================================================
+def addLastUpdateInDb(dbm, action):
+    table = None
+    if dbm.connectFailure == 0:
+        if action == "Stats":
+            table = "Statistics"
+        elif action == "Realtime":
+            table = "Realtime"
+
+        key = "LastUpdate"
+        value = datetime.now().strftime("%s")
+        descr = "Last Update"
+        
+        if table is not None:
+            #Prepare request
+            sqlRequest = 'REPLACE INTO %s ' % table
+            sqlRequest += '(key, value, desc) '
+            sqlRequest += 'VALUES ("%s", "%s", "%s")' % (key, value, descr)
+            
+            #Execute request
+            logger.debug("Will execute: %s" % sqlRequest)
+            dbm.ExecuteRequest(sqlRequest)
+            
+            dbm.Commit()
+    
+    
+#===============================================================================
 # requestAndPrintCommands
 #===============================================================================
 def requestAndPrintCommands(my_sock, dataConverter, cmds):
@@ -786,6 +817,10 @@ def main():
 
             #Commit data to DB
             dataConverter.CommitDataToDb()
+            
+            #Add last update time in database
+            addLastUpdateInDb(dbm, args.action)
+            
             #Close database
             dbm.Close()
 
@@ -836,7 +871,17 @@ def testRsp():
     dc.GetCurrentValue("TNF")
     dc.GetCurrentValue("UL1")
     dc.GetCurrentValue("IL1")
+
+
+#===============================================================================
+# testInsertLastUpdateInDb
+#===============================================================================
+def testInsertLastUpdateInDb():
+    dbm = DBManager("../data/Solarmax_data2.s3db")
     
+    addLastUpdateInDb(dbm, "Realtime")
+    addLastUpdateInDb(dbm, "Stats")
+
 
 if __name__ == "__main__":
     main()

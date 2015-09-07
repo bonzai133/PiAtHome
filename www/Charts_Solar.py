@@ -30,7 +30,9 @@ def prod_historic(db):
         availYears.append(row[0])
 
     #Render template
-    t = template("historic", title="Pi@Home", login=getLogin(), monthesLong=MONTHES_LONG_NAME, monthesShort=MONTHES_SHORT_NAME, years=availYears, currentMonth=currentMonth)
+    t = template("historic", title="Pi@Home", login=getLogin(),
+                 monthesLong=MONTHES_LONG_NAME, monthesShort=MONTHES_SHORT_NAME,
+                 years=availYears, currentMonth=currentMonth)
     return t
 
 
@@ -148,19 +150,16 @@ def real_time_data(db):
     key = request.query.get('key')
 
     data = []
-    if key == "LastUpdate":
-        #TODO : Get this value from database
-        data.append(datetime.datetime.now().strftime("%s"))
-    else:
-        c = db.execute('SELECT value FROM Realtime where key=?', (key, ))
-        try:
-            for row in c:
-                try:
-                    data.append(float(row[0]))
-                except:
-                    data.append(row[0])
-        except:
-            pass
+
+    c = db.execute('SELECT value FROM Realtime where key=?', (key, ))
+    try:
+        for row in c:
+            try:
+                data.append(float(row[0]))
+            except:
+                data.append(row[0])
+    except:
+        pass
     
     return json.dumps([data])
 

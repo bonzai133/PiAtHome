@@ -1,5 +1,13 @@
 %def rightblock():
 	<h1>Statistiques</h1>
+
+    <div class="borderRound">
+    <h2>Statut</h2>
+    Dernière mise à jour: <span id="div_lastUpdate"></span>
+    </div>
+    
+    <br/>
+    
     <div class="borderRound">
     <h2>Total</h2>
     <div id="total">Energie totale: </div>
@@ -79,6 +87,22 @@ $(document).ready(function(){
     json_value = ajaxDataRendererValue("/statistics_data.json", null, { key: "KHR" });
     $("#hours").append($(json_value)[0] + " h");
 
+    var lastUpdate = ajaxDataRendererValue("/statistics_data.json", null, { key: "LastUpdate" });
+    timeStamp = parseInt($(lastUpdate)[0]);
+    
+    var options = {
+        weekday: 'long',
+        month: 'short',
+        year: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric'
+        },
+    intlDate = new Intl.DateTimeFormat( undefined, options );
+    formattedDate = intlDate.format(new Date(1000 * timeStamp));   
+        
+    $("#div_lastUpdate").text(formattedDate);
 });
 </script>
 %end
