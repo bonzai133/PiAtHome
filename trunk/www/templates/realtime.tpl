@@ -116,7 +116,8 @@ $(document).ready(function(){
 	function updateStatus() {
 	    //Get last update time
 	    var lastUpdate = ajaxDataRendererValue("/real_time_data.json", null, { key: "LastUpdate" });
-	    timeStamp = parseInt($(lastUpdate)[0]);
+	    //Set timestamp to 0 if parseInt return Nan
+	    timeStamp = parseInt($(lastUpdate)[0]) || 0;
 	    
 	    var options = {
             weekday: 'long',

@@ -88,7 +88,8 @@ $(document).ready(function(){
     $("#hours").append($(json_value)[0] + " h");
 
     var lastUpdate = ajaxDataRendererValue("/statistics_data.json", null, { key: "LastUpdate" });
-    timeStamp = parseInt($(lastUpdate)[0]);
+    //Set timestamp to 0 if parseInt return Nan
+    timeStamp = parseInt($(lastUpdate)[0]) || 0;
     
     var options = {
         weekday: 'long',
