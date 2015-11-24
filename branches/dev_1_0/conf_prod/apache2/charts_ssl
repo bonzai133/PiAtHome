@@ -1,0 +1,48 @@
+# This needs to be in your server's config somewhere, probably
+# the main httpd.conf
+# NameVirtualHost *:8080
+
+# This line also needs to be in your server's config.
+# LoadModule wsgi_module modules/mod_wsgi.so
+
+# You need to manually edit this file to fit your needs.
+# This configuration assumes the default installation prefix
+# of /opt/pysolarmax/, if you installed pysolarmax somewhere else
+# you will need to change all the occurances of /opt/pysolarmax/
+# in this file to your chosen install location.
+
+
+# XXX You need to set this up!
+# Read http://code.google.com/p/modwsgi/wiki/ConfigurationDirectives#WSGISocketPrefix
+WSGISocketPrefix /etc/httpd/wsgi/
+<IfModule mod_ssl.c>
+
+<VirtualHost *:443>
+        ServerName charts
+        DocumentRoot "/opt/pysolarmax/www"
+        ErrorLog /opt/pysolarmax/log/webapp/error.log
+        CustomLog /opt/pysolarmax/log/webapp/ssl_access.log combined
+
+        WSGIDaemonProcess charts_ssl user=www-data group=www-data processes=1 threads=5
+        WSGIScriptAlias / /opt/pysolarmax/www/Charts.wsgi 
+        <Directory /opt/pysolarmax/www>
+            WSGIProcessGroup charts_ssl
+            WSGIApplicationGroup %{GLOBAL}
+            Order deny,allow
+            Allow from all
+        </Directory>
+
+	#   SSL Engine Switch:
+	#   Enable/Disable SSL for this virtual host.
+	SSLEngine on
+
+	#   A self-signed (snakeoil) certificate can be created by installing
+	#   the ssl-cert package. See
+	#   /usr/share/doc/apache2.2-common/README.Debian.gz for more info.
+	#   If both key and certificate are stored in the same file, only the
+	#   SSLCertificateFile directive is needed.
+	SSLCertificateFile    /etc/ssl/certs/ssl-cert-snakeoil.pem
+	SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
+
+</VirtualHost>
+</IfModule>

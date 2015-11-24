@@ -1,0 +1,247 @@
+"""
+    { 'descr' => 'Address',            'name' => 'ADR', 'convert' => sub { return hex($_[0]); } }, # 0
+    { 'descr' => 'Type',            'name' => 'TYP', 'convert' => sub { return "0x" . $_[0]; } }, # 1
+    { 'descr' => 'Software version',    'name' => 'SWV', 'convert' => sub { return sprintf("%1.1f", hex($_[0]) / 10 ); } }, # 2
+    { 'descr' => 'Date day',        'name' => 'DDY', 'convert' => sub { return hex($_[0]); } }, # 3
+    { 'descr' => 'Date month',        'name' => 'DMT', 'convert' => sub { return hex($_[0]); } }, # 4
+    { 'descr' => 'Date year',        'name' => 'DYR', 'convert' => sub { return hex($_[0]); } }, # 5
+    { 'descr' => 'Time hours',        'name' => 'THR', 'convert' => sub { return hex($_[0]); } }, # 6
+    { 'descr' => 'Time minutes',        'name' => 'TMI', 'convert' => sub { return hex($_[0]); } }, # 7
+    { 'descr' => '???Error 1, number???',    'name' => 'E11', 'convert' => sub { return hex($_[0]); } }, # 8
+    { 'descr' => '???Error 1, day???',    'name' => 'E1D', 'convert' => sub { return hex($_[0]); } }, # 9
+    { 'descr' => '???Error 1, month???',    'name' => 'E1M', 'convert' => sub { return hex($_[0]); } }, # 10
+    { 'descr' => '???Error 1, hour???',    'name' => 'E1h', 'convert' => sub { return hex($_[0]); } }, # 11
+    { 'descr' => '???Error 1, minute???',    'name' => 'E1m', 'convert' => sub { return hex($_[0]); } }, # 12
+    { 'descr' => '???Error 2, number???',    'name' => 'E21', 'convert' => sub { return hex($_[0]); } }, # 13
+    { 'descr' => '???Error 2, day???',    'name' => 'E2D', 'convert' => sub { return hex($_[0]); } }, # 14
+    { 'descr' => '???Error 2, month???',    'name' => 'E2M', 'convert' => sub { return hex($_[0]); } }, # 15
+    { 'descr' => '???Error 2, hour???',    'name' => 'E2h', 'convert' => sub { return hex($_[0]); } }, # 16
+    { 'descr' => '???Error 2, minute???',    'name' => 'E2m', 'convert' => sub { return hex($_[0]); } }, # 17
+    { 'descr' => '???Error 3, number???',    'name' => 'E31', 'convert' => sub { return hex($_[0]); } }, # 18
+    { 'descr' => '???Error 3, day???',    'name' => 'E3D', 'convert' => sub { return hex($_[0]); } }, # 19
+    { 'descr' => '???Error 3, month???',    'name' => 'E3M', 'convert' => sub { return hex($_[0]); } }, # 20
+    { 'descr' => '???Error 3, hour???',    'name' => 'E3h', 'convert' => sub { return hex($_[0]); } }, # 21
+    { 'descr' => '???Error 3, minute???',    'name' => 'E3m', 'convert' => sub { return hex($_[0]); } }, # 22
+    { 'descr' => 'Operating hours',        'name' => 'KHR', 'convert' => sub { return hex($_[0]); } }, # 23
+    { 'descr' => 'Energy today [Wh]',    'name' => 'KDY', 'convert' => sub { return (hex($_[0]) * 100); } }, # 24
+    { 'descr' => 'Energy yesterday [Wh]',    'name' => 'KLD', 'convert' => sub { return (hex($_[0]) * 100); } }, # 25
+    { 'descr' => 'Energy this month [kWh]',    'name' => 'KMT', 'convert' => sub { return hex($_[0]); } }, # 26
+    { 'descr' => 'Energy last monh [kWh]',    'name' => 'KLM', 'convert' => sub { return hex($_[0]); } }, # 27
+    { 'descr' => 'Energy this year [kWh]',    'name' => 'KYR', 'convert' => sub { return hex($_[0]); } }, # 28
+    { 'descr' => 'Energy last year [kWh]',    'name' => 'KLY', 'convert' => sub { return hex($_[0]); } }, # 29
+    { 'descr' => 'Energy total [kWh]',    'name' => 'KT0', 'convert' => sub { return hex($_[0]); } }, # 30
+    { 'descr' => 'Language',        'name' => 'LAN', 'convert' => sub { return hex($_[0]); } }, # 31
+    { 'descr' => 'DC voltage [mV]',        'name' => 'UDC', 'convert' => sub { return (hex($_[0]) * 100); } }, # 32
+    { 'descr' => 'AC voltage [mV]',        'name' => 'UL1', 'convert' => sub { return (hex($_[0]) * 100); } }, # 33
+    { 'descr' => 'DC current [mA]',        'name' => 'IDC', 'convert' => sub { return (hex($_[0]) * 10); } }, # 34
+    { 'descr' => 'AC current [mA]',        'name' => 'IL1', 'convert' => sub { return (hex($_[0]) * 10); } }, # 35
+    { 'descr' => 'AC power [mW]',        'name' => 'PAC', 'convert' => sub { return (hex($_[0]) * 500); } }, # 36
+    { 'descr' => 'Power installed [mW]',    'name' => 'PIN', 'convert' => sub { return (hex($_[0]) * 500); } }, # 37
+    { 'descr' => 'AC power [%]',        'name' => 'PRL', 'convert' => sub { return hex($_[0]); } }, # 38
+    { 'descr' => 'Start ups',        'name' => 'CAC', 'convert' => sub { return hex($_[0]); } }, # 39
+    { 'descr' => '???',            'name' => 'FRD', 'convert' => sub { return "0x" . $_[0]; } }, # 40
+    { 'descr' => '???',            'name' => 'SCD', 'convert' => sub { return "0x" . $_[0]; } }, # 41
+    { 'descr' => '???',            'name' => 'SE1', 'convert' => sub { return "0x" . $_[0]; } }, # 42
+    { 'descr' => '???',            'name' => 'SE2', 'convert' => sub { return "0x" . $_[0]; } }, # 43
+    { 'descr' => '???',            'name' => 'SPR', 'convert' => sub { return "0x" . $_[0]; } }, # 44
+    { 'descr' => 'Temerature Heat Sink',    'name' => 'TKK', 'convert' => sub { return hex($_[0]); } }, # 45
+    { 'descr' => 'AC Frequency',        'name' => 'TNF', 'convert' => sub { return (hex($_[0]) / 100); } }, # 46
+    { 'descr' => 'Operation State',        'name' => 'SYS', 'convert' => sub { return hex($_[0]); } }, # 47
+    { 'descr' => 'Build number',        'name' => 'BDN', 'convert' => sub { return hex($_[0]); } }, # 48
+    { 'descr' => 'Error-Code(?) 00',    'name' => 'EC00', 'convert' => sub { return hex($_[0]); } }, # 49
+    { 'descr' => 'Error-Code(?) 01',    'name' => 'EC01', 'convert' => sub { return hex($_[0]); } }, # 50
+    { 'descr' => 'Error-Code(?) 02',    'name' => 'EC02', 'convert' => sub { return hex($_[0]); } }, # 51
+    { 'descr' => 'Error-Code(?) 03',    'name' => 'EC03', 'convert' => sub { return hex($_[0]); } }, # 52
+    { 'descr' => 'Error-Code(?) 04',    'name' => 'EC04', 'convert' => sub { return hex($_[0]); } }, # 53
+    { 'descr' => 'Error-Code(?) 05',    'name' => 'EC05', 'convert' => sub { return hex($_[0]); } }, # 54
+    { 'descr' => 'Error-Code(?) 06',    'name' => 'EC06', 'convert' => sub { return hex($_[0]); } }, # 55
+    { 'descr' => 'Error-Code(?) 07',    'name' => 'EC07', 'convert' => sub { return hex($_[0]); } }, # 56
+    { 'descr' => 'Error-Code(?) 08',    'name' => 'EC08', 'convert' => sub { return hex($_[0]); } }, # 57
+"""
+
+"""
+the unit is responding to the next commands
+but i don’t hnow what they mean
+
+BU1,BU2,BU3,CSU,ENS,ETH,FAN,FID,FRD,IAM,IEA,IED,IEE,IM1,IM2,
+IW1,IW2,IDCP,KFS,KHS,KTS,MDT,PAE,PBC,PDC,PWB,PWF,RCH,RND,SAL,
+SDV,SL1,SL2,SL3,SRD,SRS,TB1,TB2,TCP,THR,TI1,TI2,TL1,TL2,TL3,
+TMI,TSH,TV0..TV9,UGD,UHA,UHD,UI1,UI2,UI3,UM1,UM2,UM3,URH,URL,
+UZK,UDCP
+"""
+
+"""
+The protocol is structured as follows:
+STX Src-Add FS Dest-Add FS Length FRS Port US Data FRS Crc ETX
+
+STX Start of Text; indicates the start of a data packet {
+ETX End of Text; indicates the end of a data packet if no further packets associated with
+this transmission follow }
+FRS Frame Separator; indicates start / end of frame data |
+US Union Separator; separator between unions :
+FS Field Separator; separator for fields within a union ;
+Src-Add Address of the sending device 00 … FF
+Dest-Add Address of the target device 00 … FF
+Length Length of all characters of the data packet 00 … FF
+Crc Sum of the ASCII values of all characters from the address up to and including the
+FRS, before the Crc 0000 … FFFF
+Port Port number for determining the target or the origin of the user data 0 … FFFF
+Data User data, 
+
+The Src-Add field contains the device address of the data packet source. The Dest-Add
+field contains the address of the device for which the data packet is intended. There are
+several predefined addresses which cannot be assigned to SolarMax devices.
+Address (dec) Designation Description
+0 Broadcast The Broadcast address can only occur as a destination address. All devices connected to the
+bus respond to it. It may only be used for point-point connections.
+250 Network master The address of the network master (MaxComm Basic, MaxWeb).
+251 Host The address of an alternative network master that is connected in addition to the network
+master.1)
+252 MaxDisplay Reserved address for large displays with the MaxDisplay interface.
+253 reserved -
+254 reserved -
+255 Uninitialized Default value for non-configured network nodes
+
+The address range of the MaxComm protocol is 0 (0×00) to 255 (0xFF). Each address
+may only occur once in the network. For SolarMax devices, addresses between 1 and 249
+can be used. In respect of SolarMax devices, the network address is set either via their
+display or a DIP switch.
+
+AC output PAC Power
+Operating hours KHR
+Date year DYR
+Date month DMT
+Date day DDY
+Energy year KYR
+Energy month KMT
+Energy day KDY
+Energy total KT0
+Installed capacity PIN
+Mains cycle duration TNP
+Network address ADR
+Relative output PRL
+Software version SWV
+Solar energy year RYR
+Solar energy day RDY
+Solar energy total RT0
+Solar radiation RAD
+Voltage DC UDC
+Voltage phase 1 UL1
+Voltage phase 2 UL2
+Voltage phase 3 UL3
+Current DC IDC
+Current phase 1 IL1
+Current phase 2 IL2
+Current phase 3 IL3
+Temperature power unit 1 TKK
+Temperature power unit 2 TK2
+Temperature power unit 3 TK3
+Temperature solar cells TSZ
+Type Type
+Time minute TMI
+Time hour THR 
+
+The TYPE key provides a value for identifying the device type associated with a network
+node. The following values are currently defined:
+Device type TYPE (dec)
+SolarMax 2000 E 2001
+SolarMax 20C 20
+MaxMeteo 10210
+SolarMax 3000 E 3001
+SolarMax 25C 25
+MaxCount 10300
+SolarMax 4000 E 4000
+SolarMax 30C 30
+SolarMax 6000 E 6000
+SolarMax 35C 35
+SolarMax 2000C 2010
+SolarMax 50C 50
+SolarMax 3000C 3010
+SolarMax 80C 80
+SolarMax 4000C 4010
+SolarMax 100C 100
+SolarMax 4200C 4200
+SolarMax 300C 300
+SolarMax 6000 C 6010
+SolarMax 20S 20100
+SolarMax 2000 S 20010
+SolarMax 35S 20110
+SolarMax 3000 S 20020
+SolarMax 4200 S 20030
+SolarMax 6000 S 20040
+SolarMax 6000C 6010
+"""
+
+"""
+SYS
+
+* 20001,0 En service
+* 20002,0 Rayonnement trop faible
+* 20003,0 Démarrer
+* 20004,0 Exploitation MPP
+* 20005,0 Ventilateur tourne
+* 20006,0 Exploitation Puissance max
+* 20007,0 Limitation température
+* 20008,0 Sur secteur
+* 20009,0 Courant DC limité
+* 20010,0 Courant AC limité
+* 20011,0 Mode test
+* 20012,0 Télécommandé
+* 20013,0 Retard au démarrage
+
+* 20110,0 Tension cct interm. trop élevée
+* 20111,0 Surtension
+* 20112,0 Surcharge
+* 20114,0 Courant de fuite trop élevé
+* 20115,0 Pas de secteur
+* 20116,0 Fréq. secteur trop élevée
+* 20117,0 Fréq. secteur trop basse
+* 20118,0 Fonctionnement en îlot
+* 20119,0 Mauvaise qualité du secteur
+* 20122,0 Tension secteur trop élevée
+* 20123,0 Tension secteur trop basse
+* 20124,0 Température trop élevée
+* 20125,0 Courant secteur dissym.
+* 20126,0 Erreur entrée ext. 1
+* 20127,0 Erreur entrée ext. 2
+* 20129,0 Sens de rotation incorrect
+* 20130,0 Faux type d’appareil
+* 20131,0 Commut. général hors
+* 20132,0 Diode de surtempérature
+* 20134,0 Ventilateur défectueux
+
+SAL Ces codes sont en binaire bit par bit. Si plusieurs bits sont présents, les alarmes se combinent
+These codes are binary per bit. If more than one bit is set, alarms combine.
+
+Exemple : SAL=9 (8 + 1) => Alarme externe 1, Rupture fusible de la terre centrale
+
+* 0 = OK
+* 1 = Alarme externe 1
+* 2 = Erreur d’isolation côté DC
+* 4 = Courant fuite de terre top élevé
+* 8 = Rupture fusible de la terre centrale
+* 16 = Alarme externe 2
+* 32 = Limitation température longue
+* 64 = Erreur d’alimentation AC
+* 128 = Alarme externe 4
+* 256 = Ventilateur défectueux
+* 512 = Rupture de fusible
+* 1024 = Panne du capteur temp.
+* 2048 = Alarm 12
+* …
+* 65536 = Alarm 17
+"""
+
+"""
+(SM00;SM01;SM02;SM03;SM04;SM05;SM06;SM07;SM08;SM09;SM0A;SM0B;SM0C;SM0D;SM0E;SM0F;MCSY;
+SYS)
+
+DD00=7DB0111,3C,2002,30
+DM05=7DA0800,1168,2ED6,DD6
+
+The first two values are clear: date (7DB=2011, 01=january, 11=17th) and energy. 
+
+DD00 ansers : date,total watt,piek watt,houres sunshine , all on day base
+
+ try “DD00″ to “DD30″, or “DM00″ to “DM11″, or “DY00″ to “DY09″
+"""
