@@ -6,7 +6,7 @@ Created on Wed Nov 25 18:51:48 2015
 """
 
 import unittest
-import Inverter
+from pysolarmax.Inverter import Inverter
 
 class TestConnection(unittest.TestCase):
     def test_connect_ok(self):
