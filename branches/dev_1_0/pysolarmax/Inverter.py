@@ -1,12 +1,23 @@
 # -*- coding: utf-8 -*-
 
 import socket
+import logging
 
+#===============================================================================
+# Logs
+#===============================================================================
+log = logging.getLogger()
+
+
+#===============================================================================
+# Inverter
+#===============================================================================
 class Inverter():
     def __init__(self, hostname, port):
         self.hostname = hostname
         self.port = port
         self.m_sock = None
+        self.connected = False
     
     def __del__(self):
         self.disconnect()
@@ -19,17 +30,18 @@ class Inverter():
             self.m_sock = my_sock
             
             my_sock.connect((self.hostname, self.port))
-    
-            my_sock.send("Hello")
-            rspData = my_sock.recv(255)
-        except socket.error, e:
-            res = False
+            
+            self.connected = True
+        except IOError, e:
+            log.debug("Socket error: %s", e)
+            self.connected = False
         
-        return res
+        return self.connected
     
     def disconnect(self):
         if self.m_sock is not None:
             self.m_sock.close()
+            self.connected = False
             
         return True
     

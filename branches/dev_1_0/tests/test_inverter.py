@@ -6,27 +6,86 @@ Created on Wed Nov 25 18:51:48 2015
 """
 
 import unittest
+import mock
+from mock import MagicMock
 from pysolarmax.Inverter import Inverter
+import socket
 
+#===============================================================================
+# Logging
+#===============================================================================
+import logging
+logging.basicConfig(level=logging.INFO)
+
+
+#===============================================================================
+# TestConnection
+#===============================================================================
 class TestConnection(unittest.TestCase):
-    def test_connect_ok(self):
-        inverter = Inverter("127.0.0.1", 12345)
-        res = inverter.connect()
+    @mock.patch('pysolarmax.Inverter.socket')
+    def test_connect_ok(self, sock):
+        #Patch
+        #sock.return_value = MagicMock()
+        #sock.side_effect = Exception("Boom")
+        sock_mock = MagicMock()
+        sock_mock.recv.return_value = "World"
+        sock.socket.return_value = sock_mock
         
-        self.assertTrue(res)
-
-    def test_disconnect_ok(self):
+        #Test
         inverter = Inverter("127.0.0.1", 12345)
         res = inverter.connect()
+
+        #Result
+        self.assertTrue(sock.socket.called)
+        sock_mock.connect.assert_called_once_with(("127.0.0.1", 12345))
+        self.assertTrue(res)
+        
+        self.assertTrue(inverter.connected)
+        
+    @mock.patch('pysolarmax.Inverter.socket')
+    def test_disconnect_connected_socket(self, sock):
+        #Patch
+        sock_mock = MagicMock()
+        sock.socket.return_value = sock_mock
+
+        #Tests
+        inverter = Inverter("127.0.0.1", 12345)
+        res = inverter.connect()
+        self.assertTrue(res)
         
         res = inverter.disconnect()
         self.assertTrue(res)
 
-    def test_connect_error(self):
+    @mock.patch('pysolarmax.Inverter.socket')
+    def test_disconnect_not_connected_socket(self, sock):
+        #Patch
+        sock_mock = MagicMock()
+        sock_mock.connect.side_effect = socket.error(10061, "Connection refused")
+        sock.socket.return_value = sock_mock
+
+        #Tests
+        inverter = Inverter("127.0.0.1", 12345)
+        res = inverter.connect()
+        self.assertFalse(res)
+        
+        res = inverter.disconnect()
+        self.assertTrue(res)
+        
+    @mock.patch('pysolarmax.Inverter.socket')
+    def test_connect_error(self, sock):
+        #Patch
+        sock_mock = MagicMock()
+        sock_mock.connect.side_effect = socket.error(10061, "Connection refused")
+        sock.socket.return_value = sock_mock
+        
+        #Test
         inverter = Inverter("127.0.0.1", 12346)
         res = inverter.connect()
 
+        #Result
         self.assertFalse(res)
+        self.assertFalse(inverter.connected)
+       
 
 if __name__ == '__main__':
     unittest.main()
