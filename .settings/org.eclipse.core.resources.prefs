@@ -1,6 +1,9 @@
 eclipse.preferences.version=1
+encoding//pysolarmax/Inverter.py=utf-8
 encoding//pysolarmax/Solarmax.py=utf-8
 encoding//pysolarmax/Solarmax2.py=utf-8
+encoding//tests/tcp_server.py=utf-8
+encoding//tests/test_inverter.py=utf-8
 encoding//www/ApplicationUsers.py=utf-8
 encoding//www/Charts.py=utf-8
 encoding//www/Charts.wsgi=utf-8
