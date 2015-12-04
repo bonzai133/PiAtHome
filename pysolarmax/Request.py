@@ -1,56 +1,56 @@
 # -*- coding: utf-8 -*-
+from MessageData import MessageData
+from MessageData import MessageDataException
+
+import logging
+logger = logging.getLogger(__name__)
+
 
 #===============================================================================
 # Request
 #===============================================================================
 class Request:
-    GET = "64"
-    SET = "C8"
-    
-    def __init__(self, cmdList, way=GET, attr=None, fFormat=None):
+    def __init__(self, cmdList, action=MessageData.GET, attr=None, fFormat=None):
         self.srcAddr = "FB"
         self.destAddr = "01"
-        self.way = way
+        self.action = action
         
         #Check if we have a list or a single command
-        if not isinstance(cmdList, str):
-            self.cmdName = ";".join(cmdList)
+        if isinstance(cmdList, list):
+            self.cmdList = cmdList
         else:
-            self.cmdName = cmdList
-            
+            self.cmdList = [cmdList]
+ 
         self.attr = attr
         self.fFormat = fFormat
         
-    def CheckSum16(self, sText):
-        '''Calculate the cheksum 16 of the given argument'''
-        #Convert string to char array
-        cArray = list(sText)
-        iSum = 0
-        for c in cArray:
-            iSum += ord(c)
-            iSum %= 2 ** 16
-            
-        return iSum
-                
-    def BuildCommand(self):
+    def buildRequest(self):
+        '''
+        Return the request string build from cmd list and parameters given in constructor.
+        '''
         #Build body
-        if(self.way == Request.GET):
+        if(self.action == MessageData.GET):
             #Build a GET command
-            sBody = "%s:%s" % (self.way, self.cmdName)
+            payload = ';'.join(self.cmdList)
         else:
             #Build a SET command
+            if len(self.cmdList) > 1 and self.action != MessageData.GET:
+                raise RequestException("Multiple commands request is only supported for GET action.")
+
+            if self.attr is None or self.fFormat is None:
+                raise RequestException("SET action require attributes and formatting function.")
+            
             if(self.fFormat):
                 sFormattedAttr = self.fFormat(self.attr)
             else:
                 sFormattedAttr = self.attr
             
-            sBody = "%s:%s=%s" % (self.way, self.cmdName, sFormattedAttr)
+            payload = "%s=%s" % (self.cmdList[0], sFormattedAttr)
           
-        #Calculate length
-        totalLen = len("{00;00;00||0000}") + len(sBody)
-        
-        #Format message and calculate checksum
-        msg = "%s;%s;%02X|%s|" % (self.srcAddr, self.destAddr, totalLen, sBody)
-        checksum = self.CheckSum16(msg)
-        
-        return "{%s%04X}" % (msg, checksum)
+        msg = MessageData(self.srcAddr, self.destAddr, self.action, payload)
+
+        return str(msg)
+
+
+class RequestException(Exception):
+    pass
