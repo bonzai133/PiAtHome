@@ -27,7 +27,6 @@ class Inverter():
         self.disconnect()
     
     def connect(self):
-        res = True
         try:
             my_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             my_sock.settimeout(15)

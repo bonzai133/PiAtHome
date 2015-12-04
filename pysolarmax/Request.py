@@ -2,8 +2,11 @@
 from MessageData import MessageData
 from MessageData import MessageDataException
 
+#===============================================================================
+# Logs
+#===============================================================================
 import logging
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 
 #===============================================================================

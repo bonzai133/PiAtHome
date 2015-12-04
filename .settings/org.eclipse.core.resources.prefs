@@ -10,6 +10,7 @@ encoding//pysolarmax/Response.py=utf-8
 encoding//pysolarmax/Solarmax.py=utf-8
 encoding//pysolarmax/Solarmax2.py=utf-8
 encoding//tests/tcp_server.py=utf-8
+encoding//tests/test_converter.py=utf-8
 encoding//tests/test_format.py=utf-8
 encoding//tests/test_inverter.py=utf-8
 encoding//tests/test_message.py=utf-8
