@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 
 import socket
-import logging
+from Request import *
+from Response import *
+from datetime import datetime
+from Format import Format
 
 #===============================================================================
 # Logs
 #===============================================================================
-log = logging.getLogger()
+import logging
+logger = logging.getLogger()
 
 
 #===============================================================================
@@ -33,7 +37,7 @@ class Inverter():
             
             self.connected = True
         except IOError, e:
-            log.debug("Socket error: %s", e)
+            logger.debug("Socket error: %s", e)
             self.connected = False
         
         return self.connected
@@ -45,8 +49,63 @@ class Inverter():
             
         return True
     
-    def getValues(self):
-        pass
+    def _sendDataAndWaitResponse(self, cmdData):
+        self.m_sock.send(cmdData)
+        rspData = self.m_sock.recv(255)
+        rsp = Response(rspData)
+        while len(rspData) == 255:
+            rspData = self.m_sock.recv(255)
+            rsp.addBlock(rspData)
+
+        return rsp
+        
+    def getValues(self, cmdList):
+        logger.debug("getValues: %s" % repr(cmdList))
+        commands = {}
+        
+        try:
+            cmd = Request(cmdList)
+            cmdData = cmd.buildRequest()
+        except Exception, e:
+            logger.error("Build request command error: %s" % e)
+            return commands
     
-    def setDateTime(self):
-        pass
+        logger.debug("%d %s" % (len(cmdData), cmdData))
+    
+        if len(cmdData) < 128:
+            rsp = self._sendDataAndWaitResponse(cmdData)
+    
+            commands = rsp.getCommands()
+            
+            for cmd, values in commands.items():
+                #TODO
+                #dataConverter.TreatResponse(cmd, values)
+                logger.debug("%s: %s" % (cmd, values))
+        else:
+            logger.error("Command too large")
+            return commands
+            
+        return commands
+            
+    def setDateTime(self, datetimeToSet=datetime.now()):
+        result = False
+        #Request values
+        logger.debug("setTimeToCurrentTime")
+        cmd = Request(["SDAT"], way=Request.SET, attr=datetimeToSet, fFormat=Format.DateTime2Hex)
+        cmdData = cmd.buildRequest()
+    
+        logger.debug("%d %s" % (len(cmdData), cmdData))
+    
+        if len(cmdData) < 128:
+            rsp = self._sendDataAndWaitResponse(cmdData)
+    
+            commands = rsp.getCommands()
+            if 'return' in commands.keys() and commands['return'] == 'Ok':
+                logger.info("Inverter set to current time.")
+                result = True
+            else:
+                logger.error("Inverter was NOT set to current time.")
+        else:
+            logger.error("Command too large")
+
+        return result

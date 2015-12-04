@@ -1,45 +1,46 @@
 # -*- coding: utf-8 -*-
 
+from MessageData import MessageData
+from MessageData import MessageDataException
+
+import logging
+logger = logging.getLogger(__name__)
+
+
 #===============================================================================
 # Response
 #===============================================================================
 class Response:
-    def __init__(self, respData):
-        self.body = ""
-        self.AddBlock(respData)
+    def __init__(self, respData=None):
+        self.messageData = None
         
-    def AddBlock(self, respData):
+        if respData is not None:
+            self.addBlock(respData)
+    
+    def addBlock(self, respData):
         logger.debug("AddBlock: %s" % respData)
         
-        parts = respData.split("|")
+        #Parse message
+        try:
+            msg = MessageData()
+            msg.parseMessage(respData)
+        except MessageDataException, e:
+            raise
         
-        #self.header = parts[0]
-        self.body += parts[1]
-        #self.checksum = parts[2]
+        #Concatenate messages
+        if self.messageData is None:
+            self.messageData = msg
+        else:
+            self.messageData.concatenate(msg)
 
-        #Parse body if it exists
-        if self.body:
-            parts = self.body.split(':')
-            
-            if len(parts) < 2:
-                print RED + "Error in body: %s" % self.body + ENDC
-                logger.error("Error in body: %s" % self.body)
-
-                self.port = 0
-                self.data = ""
-                self.cmdList = []
-            else:
-                self.port = parts[0]
-                self.data = parts[1]
-                
-                #separate each command response
-                self.cmdList = self.data.split(';')
-
-    def ParseCommandResponse(self):
+    def _parseCommands(self):
+        cmdList = self.messageData.payload.split(';')
+        return cmdList
+    
+    def getCommands(self):
         rsp = {}
         
-        logger.debug("cmdList: %s" % repr(self.cmdList))
-        for cmd in self.cmdList:
+        for cmd in self._parseCommands():
             if '=' in cmd:
                 cmd_array = cmd.split('=')
                 key = cmd_array[0]
