@@ -5,6 +5,8 @@ from Request import *
 from Response import *
 from datetime import datetime
 from Format import Format
+from DataConverter import DataConverter
+
 
 #===============================================================================
 # Logs
@@ -60,14 +62,14 @@ class Inverter():
         
     def getValues(self, cmdList):
         logger.debug("getValues: %s" % repr(cmdList))
-        commands = {}
+        convertedValues = {}
         
         try:
             cmd = Request(cmdList)
             cmdData = cmd.buildRequest()
         except Exception, e:
             logger.error("Build request command error: %s" % e)
-            return commands
+            return convertedValues
     
         logger.debug("%d %s" % (len(cmdData), cmdData))
     
@@ -76,15 +78,17 @@ class Inverter():
     
             commands = rsp.getCommands()
             
-            for cmd, values in commands.items():
-                #TODO
+            dc = DataConverter()
+            convertedValues.update(dc.convertValues(commands))
+            
+            #for cmd, values in commands.items():
                 #dataConverter.TreatResponse(cmd, values)
-                logger.debug("%s: %s" % (cmd, values))
+            #    logger.debug("%s: %s" % (cmd, values))
         else:
             logger.error("Command too large")
-            return commands
+            return convertedValues
             
-        return commands
+        return convertedValues
             
     def setDateTime(self, datetimeToSet=datetime.now()):
         result = False
