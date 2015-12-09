@@ -29,7 +29,7 @@ def main():
          ])
     
     setup(name='PySolarmax',
-          version='0.4',
+          version='1.0',
           description='Python Solarmax monitoring',
           author='bonzai133',
           author_email='bonzai133@sourceforge.net',
