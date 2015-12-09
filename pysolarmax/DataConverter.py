@@ -297,20 +297,19 @@ class DataConverter:
         #return date + " : " + total + " kWh, " + peak + " W peak, " + hours + " hours"
         return (date, total, peak, hours)
 
-            
     #===========================================================================
     # convertValues
     # commands: dictionary of commands: key=command value=hex_value
     # returns: list of Commands with converted values
     #===========================================================================
     def convertValues(self, commands):
-        convertedCommands = []
+        convertedCommands = {}
         for command, value in commands.items():
             try:
                 cmd = self.m_Commands[command]
                 cmd.SetRawValue(value)
                 
-                convertedCommands.append(cmd)
+                convertedCommands[command] = cmd
                 
                 logger.debug("convertValues: %s" % repr(cmd.Value))
             except KeyError:

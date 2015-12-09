@@ -2,7 +2,6 @@
 
 import unittest
 from DataConverter import DataConverter
-from Command import Command
 
 #===============================================================================
 # Logging
@@ -18,8 +17,8 @@ class TestConverter(unittest.TestCase):
         
         result = dc.convertValues(cmds)
         
-        self.assertEqual(result[0].Name, 'SYS')
-        self.assertEqual(result[0].Value, 'Exploitation MPP')
+        self.assertEqual(result['SYS'].Name, 'SYS')
+        self.assertEqual(result['SYS'].Value, 'Exploitation MPP')
 
     def test_convertType(self):
         dc = DataConverter()
@@ -27,8 +26,8 @@ class TestConverter(unittest.TestCase):
         
         result = dc.convertValues(cmds)
         
-        self.assertEqual(result[0].Name, 'TYP')
-        self.assertEqual(result[0].Value, 'SolarMax 3000 S')
+        self.assertEqual(result['TYP'].Name, 'TYP')
+        self.assertEqual(result['TYP'].Value, 'SolarMax 3000 S')
 
     def test_convertDate(self):
         dc = DataConverter()
@@ -36,8 +35,8 @@ class TestConverter(unittest.TestCase):
         
         result = dc.convertValues(cmds)
         
-        self.assertEqual(result[0].Name, 'FRD')
-        self.assertEqual(result[0].Value, '2011-02-06')
+        self.assertEqual(result['FRD'].Name, 'FRD')
+        self.assertEqual(result['FRD'].Value, '2011-02-06')
 
     def test_convertD2(self):
         dc = DataConverter()
@@ -45,8 +44,8 @@ class TestConverter(unittest.TestCase):
         
         result = dc.convertValues(cmds)
         
-        self.assertEqual(result[0].Name, 'PAC')
-        self.assertEqual(result[0].Value, '1675.0')
+        self.assertEqual(result['PAC'].Name, 'PAC')
+        self.assertEqual(result['PAC'].Value, '1675.0')
 
     def test_convertD10(self):
         dc = DataConverter()
@@ -54,8 +53,8 @@ class TestConverter(unittest.TestCase):
         
         result = dc.convertValues(cmds)
         
-        self.assertEqual(result[0].Name, 'UL1')
-        self.assertEqual(result[0].Value, '234.7')
+        self.assertEqual(result['UL1'].Name, 'UL1')
+        self.assertEqual(result['UL1'].Value, '234.7')
 
     def test_convertD100(self):
         dc = DataConverter()
@@ -63,8 +62,8 @@ class TestConverter(unittest.TestCase):
         
         result = dc.convertValues(cmds)
         
-        self.assertEqual(result[0].Name, 'IL1')
-        self.assertEqual(result[0].Value, '7.21')
+        self.assertEqual(result['IL1'].Name, 'IL1')
+        self.assertEqual(result['IL1'].Value, '7.21')
         
     def test_convertX1(self):
         dc = DataConverter()
@@ -72,8 +71,8 @@ class TestConverter(unittest.TestCase):
         
         result = dc.convertValues(cmds)
         
-        self.assertEqual(result[0].Name, 'PRL')
-        self.assertEqual(result[0].Value, '58')
+        self.assertEqual(result['PRL'].Name, 'PRL')
+        self.assertEqual(result['PRL'].Value, '58')
         
     def test_convertX100(self):
         dc = DataConverter()
@@ -81,8 +80,8 @@ class TestConverter(unittest.TestCase):
         
         result = dc.convertValues(cmds)
         
-        self.assertEqual(result[0].Name, 'KDY')
-        self.assertEqual(result[0].Value, '4500')
+        self.assertEqual(result['KDY'].Name, 'KDY')
+        self.assertEqual(result['KDY'].Value, '4500')
 
     def test_convertError(self):
         dc = DataConverter()
@@ -90,8 +89,8 @@ class TestConverter(unittest.TestCase):
         
         result = dc.convertValues(cmds)
         
-        self.assertEqual(result[0].Name, 'EC00')
-        self.assertEqual(result[0].Value, ('2012-02-25', '01:17:40', 20002, 'Rayonnement trop faible'))
+        self.assertEqual(result['EC00'].Name, 'EC00')
+        self.assertEqual(result['EC00'].Value, ('2012-02-25', '01:17:40', 20002, 'Rayonnement trop faible'))
         
     def test_convertDateEnergy(self):
         dc = DataConverter()
@@ -99,5 +98,5 @@ class TestConverter(unittest.TestCase):
         
         result = dc.convertValues(cmds)
         
-        self.assertEqual(result[0].Name, 'DD00')
-        self.assertEqual(result[0].Value, ('2012-02-25', '4.5', '2672.0', '7.7'))
+        self.assertEqual(result['DD00'].Name, 'DD00')
+        self.assertEqual(result['DD00'].Value, ('2012-02-25', '4.5', '2672.0', '7.7'))

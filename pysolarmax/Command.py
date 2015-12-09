@@ -14,6 +14,9 @@ class Command():
         
     def __str__(self):
         return "%s (%s) = %s" % (self.Name, self.Descr, self.Value)
+
+    def __repr__(self):
+        return "%s (%s) = %s" % (self.Name, self.Descr, self.Value)
     
     def SetRawValue(self, rawValue):
         self.RawValue = rawValue
