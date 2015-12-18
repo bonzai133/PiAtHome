@@ -80,10 +80,6 @@ class Inverter():
             
             dc = DataConverter()
             convertedValues.update(dc.convertValues(commands))
-            
-            #for cmd, values in commands.items():
-                #dataConverter.TreatResponse(cmd, values)
-            #    logger.debug("%s: %s" % (cmd, values))
         else:
             logger.error("Command too large")
             return convertedValues
