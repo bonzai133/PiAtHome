@@ -4,6 +4,7 @@ import unittest
 import mock
 from mock import MagicMock
 from pysolarmax.Solarmax import process
+from pysolarmax.Command import Command
 
 #===============================================================================
 # Logging
@@ -17,18 +18,50 @@ logging.basicConfig(level=logging.INFO)
 #===============================================================================
 class TestMain(unittest.TestCase):
     @mock.patch('pysolarmax.Solarmax.Inverter')
-    def test_screen_output(self, inverter):
+    def test_connect_error(self, inverter):
+        #Args
+        args = MagicMock()
+        #args.action = 'Realtime'
+        #args.output = 'Screen'
+        
+        #Patch
+        instance = inverter.return_value
+        instance.connect.return_value = False
+        
+        with self.assertRaises(SystemExit) as cm:
+            process(args)
+
+        self.assertEqual(cm.exception.code, 1)
+
+    @mock.patch('pysolarmax.Solarmax.Inverter')
+    def test_connect_ok(self, inverter):
         #Args
         args = MagicMock()
         args.action = 'Realtime'
         args.output = 'Screen'
+        args.dbFileName = 'Solarmax_data2.s3db'
+        args.host = '192.168.0.123'
+        args.port = '12345'
         
         #Patch
-        inverter.connect.return_value = False
+        instance = inverter.return_value
+        instance.connect.return_value = True
+        
+        cmdValues = {}
+        cmd = Command("UDC", "UDC value", None)
+        cmd.Value = "258.3"
+        cmdValues.update({cmd.Name: cmd})
+        
+        cmd = Command("SYS", "SYS value", None)
+        cmd.Value = "Démarrer"
+        cmdValues.update({cmd.Name: cmd})
+        
+        instance.getValues.return_value = cmdValues
         
         process(args)
-        
-        self.assertTrue(False)
 
+        instance.getValues.assert_called_once_with(["UDC", "SYS"])
+        
+        
 if __name__ == '__main__':
     unittest.main()
