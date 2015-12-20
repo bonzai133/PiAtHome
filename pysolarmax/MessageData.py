@@ -19,13 +19,12 @@ class MessageData:
     
     def parseMessage(self, respData):
         #self.rawData = respData
-        
-        if not respData.startswith('{') or not respData.endswith('}'):
+        if not respData.startswith('{') or (not respData.endswith('}') and not respData.endswith(')')):
             logger.debug("Missing brackets around message data")
             raise MessageDataException("Missing brackets around message data")
         
         #Remove brackets and split message
-        respData = respData.replace('{', '').replace('}', '')
+        respData = respData[1:-1]
         msgParts = respData.split("|")
         
         if len(msgParts) != 3:
@@ -37,13 +36,18 @@ class MessageData:
         checksum = int(msgParts[2], 16)
         
         #Split body
-        bodyParts = body.split(':')
-        if len(bodyParts) != 2:
-            logger.debug("Can't split body data")
-            raise MessageDataException("Can't split body data")
-        
-        self.action = bodyParts[0]
-        self.payload = bodyParts[1]
+        if ':' in body:
+            bodyParts = body.split(':')
+            if len(bodyParts) != 2:
+                logger.debug("Can't split body data")
+                raise MessageDataException("Can't split body data")
+            
+            self.action = bodyParts[0]
+            self.payload = bodyParts[1]
+        else:
+            #Continuation body, we don't have the action
+            self.action = None
+            self.payload = body
 
         #Split header
         headerParts = header.split(";")
@@ -61,8 +65,10 @@ class MessageData:
         self._verifyChecksum(checksum)
     
     def __str__(self):
-        
-        return '{%s;%s;%02X|%s:%s|%04X}' % (self.srcAddr, self.destAddr, self.calculateLength(), self.action, self.payload, self.calculateChecksum())
+        if self.action is not None:
+            return '{%s;%s;%02X|%s:%s|%04X}' % (self.srcAddr, self.destAddr, self.calculateLength(), self.action, self.payload, self.calculateChecksum())
+        else:
+            return '{%s;%s;%02X|%s|%04X}' % (self.srcAddr, self.destAddr, self.calculateLength(), self.payload, self.calculateChecksum())
         
     @staticmethod
     def _checkSum16(sText):
@@ -77,12 +83,20 @@ class MessageData:
         return iSum
             
     def calculateChecksum(self):
-        msg = "%s;%s;%02X|%s:%s|" % (self.srcAddr, self.destAddr, self.calculateLength(), self.action, self.payload)
+        if self.action is not None:
+            msg = "%s;%s;%02X|%s:%s|" % (self.srcAddr, self.destAddr, self.calculateLength(), self.action, self.payload)
+        else:
+            msg = "%s;%s;%02X|%s|" % (self.srcAddr, self.destAddr, self.calculateLength(), self.payload)
+            
         checksum = MessageData._checkSum16(msg)
         return checksum
 
     def calculateLength(self):
-        totalLen = len("{00;00;00|00:|0000}") + len(self.payload)
+        if self.action is not None:
+            totalLen = len("{00;00;00|00:|0000}") + len(self.payload)
+        else:
+            totalLen = len("{00;00;00||0000}") + len(self.payload)
+            
         return totalLen
             
     def _verifyLength(self, givenLen):
@@ -106,7 +120,7 @@ class MessageData:
         if self.srcAddr != msgData.srcAddr or self.destAddr != msgData.destAddr:
             raise MessageDataException("Source or destination address mismatch")
 
-        if self.action != msgData.action:
+        if self.action is not None and msgData.action is not None and self.action != msgData.action:
             raise MessageDataException("Direction mismatch")
         
         self.payload += msgData.payload
