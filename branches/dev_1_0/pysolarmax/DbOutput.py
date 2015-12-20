@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from SqliteDBManager import DBManager
+from SqliteDBManager import GlobalData
+from datetime import datetime
+
 #===============================================================================
 # Logs
 #===============================================================================
@@ -11,13 +15,42 @@ logger = logging.getLogger()
 # DbOutput
 #===============================================================================
 class DbOutput:
-    def __init__(self, dbm=None):
+    OUTPUT_METHODS = [
+                      ('OutputRealtime',
+                       ['SYS', 'UDC', 'UL1', 'IDC', 'IL1', 'PAC', 'PIN', 'PRL', 'TKK', 'TNF']),
+                      
+                       ('OutputStatistics',
+                       ['KHR', 'KDY', 'KLD', 'KMT', 'KLM', 'KYR', 'KLY', 'KT0']),
+
+                       ('OutputError',
+                       ['EC%02d' % index for index in range(0, 20)]),
+                      
+                       ('OutputStatsYear',
+                       ['DY%02d' % index for index in range(0, 10)]),
+                      
+                       ('OutputStatsMonth',
+                       ['DM%02d' % index for index in range(0, 12)]),
+                      
+                       ('OutputStatsDay',
+                       ['DD%02d' % index for index in range(0, 31)]),
+                      ]
+
+    #===========================================================================
+    # __init__
+    #===========================================================================
+    def __init__(self, dbFileName):
         self.m_sqlRequestList = []
-        self.m_dbm = dbm
+        self.dbFileName = dbFileName
         
+    #===========================================================================
+    # OutputPrint
+    #===========================================================================
     def OutputPrint(self, cmd):
         print "%s = %s" % (cmd, cmd.Value)
 
+    #===========================================================================
+    # OutputRealtime
+    #===========================================================================
     def OutputRealtime(self, cmd):
         logger.debug("%s = %s" % (cmd, cmd.Value))
         print "%s = %s" % (cmd, cmd.Value)
@@ -30,6 +63,9 @@ class DbOutput:
 
         self.m_sqlRequestList.append(sqlRequest)
 
+    #===========================================================================
+    # OutputStatistics
+    #===========================================================================
     def OutputStatistics(self, cmd):
         logger.debug("%s = %s" % (cmd, cmd.Value))
         print "%s = %s" % (cmd, cmd.Value)
@@ -42,6 +78,9 @@ class DbOutput:
 
         self.m_sqlRequestList.append(sqlRequest)
         
+    #===========================================================================
+    # OutputError
+    #===========================================================================
     def OutputError(self, cmd):
         logger.debug("%s = %s" % (cmd, cmd.Value))
         print "%s = %s" % (cmd, cmd.Value)
@@ -58,6 +97,9 @@ class DbOutput:
 
         self.m_sqlRequestList.append(sqlRequest)
 
+    #===========================================================================
+    # OutputStatsYear
+    #===========================================================================
     def OutputStatsYear(self, cmd):
         logger.debug("%s = %s" % (cmd, cmd.Value))
         #Split values
@@ -83,6 +125,9 @@ class DbOutput:
 
             self.m_sqlRequestList.append(sqlRequest)
 
+    #===========================================================================
+    # OutputStatsMonth
+    #===========================================================================
     def OutputStatsMonth(self, cmd):
         logger.debug("%s = %s" % (cmd, cmd.Value))
 
@@ -109,6 +154,9 @@ class DbOutput:
 
             self.m_sqlRequestList.append(sqlRequest)
 
+    #===========================================================================
+    # OutputStatsDay
+    #===========================================================================
     def OutputStatsDay(self, cmd):
         logger.debug("%s = %s" % (cmd, cmd.Value))
 
@@ -132,11 +180,82 @@ class DbOutput:
             logger.debug("Request generated: %s" % sqlRequest)
 
             self.m_sqlRequestList.append(sqlRequest)
+
+    #===========================================================================
+    # _buildRequests
+    #===========================================================================
+    def _buildRequests(self, cmdsValues):
+        for cmdName, cmd in cmdsValues.items():
+            logger.debug('Command %s' % cmdName)
+            for (outputMethod, cmdList) in self.OUTPUT_METHODS:
+                if cmdName in cmdList:
+                    logger.debug('Output to %s' % outputMethod)
+                    method = getattr(self, outputMethod)
+                    method(cmd)
             
-    def CommitDataToDb(self):
-        if self.m_dbm.connectFailure == 0:
+    #===========================================================================
+    # CommitDataToDb
+    #===========================================================================
+    def CommitDataToDb(self, dbm):
+        if dbm.connectFailure == 0:
             for req in self.m_sqlRequestList:
                 logger.debug("Will execute: %s" % req)
-                self.m_dbm.ExecuteRequest(req)
+                dbm.ExecuteRequest(req)
             
-            self.m_dbm.Commit()
+            dbm.Commit()
+
+    #===============================================================================
+    # addLastUpdateInDb
+    #===============================================================================
+    def addLastUpdateInDb(self, dbm, action):
+        table = None
+        if dbm.connectFailure == 0:
+            if action == "Stats":
+                table = "Statistics"
+            elif action == "Realtime":
+                table = "Realtime"
+    
+            key = "LastUpdate"
+            value = datetime.now().strftime("%s")
+            descr = "Last Update"
+            
+            if table is not None:
+                #Prepare request
+                sqlRequest = 'REPLACE INTO %s ' % table
+                sqlRequest += '(key, value, desc) '
+                sqlRequest += 'VALUES ("%s", "%s", "%s")' % (key, value, descr)
+                
+                #Execute request
+                logger.debug("Will execute: %s" % sqlRequest)
+                dbm.ExecuteRequest(sqlRequest)
+                
+                dbm.Commit()
+                        
+    #===========================================================================
+    # TreatCommandsResults
+    #===========================================================================
+    def TreatCommandsResults(self, action, cmdsValues):
+        #Open DB
+        dbm = DBManager(self.dbFileName)
+
+        if dbm.connectFailure == 1:
+            logger.error("Can't connect to database '%s'" % self.dbFileName)
+            return False
+        
+        #Create tables if not exists
+        dbm.CreateTables(GlobalData.dbTables)
+        
+        #Add values to request list
+        self._buildRequests(cmdsValues)
+        
+        #Execute requests and Commit
+        self.CommitDataToDb(dbm)
+        
+        #Add last update time in database
+        self.addLastUpdateInDb(dbm, action)
+        
+        #Close database
+        dbm.Close()
+        
+        #End
+        return True

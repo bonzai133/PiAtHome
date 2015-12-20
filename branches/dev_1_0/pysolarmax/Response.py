@@ -25,6 +25,7 @@ class Response:
             msg = MessageData()
             msg.parseMessage(respData)
         except MessageDataException, e:
+            #TODO: handle error
             raise
         
         #Concatenate messages
