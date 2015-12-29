@@ -25,7 +25,7 @@ class Response:
             msg = MessageData()
             msg.parseMessage(respData)
         except MessageDataException, e:
-            #TODO: handle error
+            logger.error("AddBlock exception: %s" % e)
             raise
         
         #Concatenate messages
