@@ -16,24 +16,24 @@ logger = logging.getLogger()
 #===============================================================================
 class DbOutput:
     OUTPUT_METHODS = [
-                      ('OutputRealtime',
-                       ['SYS', 'UDC', 'UL1', 'IDC', 'IL1', 'PAC', 'PIN', 'PRL', 'TKK', 'TNF']),
-                      
-                       ('OutputStatistics',
-                       ['KHR', 'KDY', 'KLD', 'KMT', 'KLM', 'KYR', 'KLY', 'KT0']),
-
-                       ('OutputError',
-                       ['EC%02d' % index for index in range(0, 20)]),
-                      
-                       ('OutputStatsYear',
-                       ['DY%02d' % index for index in range(0, 10)]),
-                      
-                       ('OutputStatsMonth',
-                       ['DM%02d' % index for index in range(0, 12)]),
-                      
-                       ('OutputStatsDay',
-                       ['DD%02d' % index for index in range(0, 31)]),
-                      ]
+        ('OutputRealtime',
+         ['SYS', 'UDC', 'UL1', 'IDC', 'IL1', 'PAC', 'PIN', 'PRL', 'TKK', 'TNF']),
+        
+        ('OutputStatistics',
+         ['KHR', 'KDY', 'KLD', 'KMT', 'KLM', 'KYR', 'KLY', 'KT0']),
+        
+        ('OutputError',
+         ['EC%02d' % index for index in range(0, 20)]),
+        
+        ('OutputStatsYear',
+         ['DY%02d' % index for index in range(0, 10)]),
+        
+        ('OutputStatsMonth',
+         ['DM%02d' % index for index in range(0, 12)]),
+        
+        ('OutputStatsDay',
+         ['DD%02d' % index for index in range(0, 31)]),
+    ]
 
     #===========================================================================
     # __init__

@@ -15,6 +15,7 @@ import logging.config
 import argparse
 from Inverter import Inverter
 from ScreenOutput import ScreenOutput
+from DbOutput import DbOutput
 
 #===============================================================================
 # Logger
@@ -123,10 +124,8 @@ def process(args):
     #Request commands
     if args.action == "SetTime":
         logger.info("Action: SetTime")
-        #TODO
         result = inverter.setDateTime()
         logger.info("SetTime result=%s" % str(result))
-        
     else:
         groupsCommands = init_groupsCommands()
         allCmds = []
@@ -144,11 +143,13 @@ def process(args):
         #Do outputs
         if args.output == 'Screen':
             output = ScreenOutput()
-            output.TreatCommandsResults(allValues)
         elif args.output == 'Database':
-            print "TODO"
+            output = DbOutput()
         else:
             print "No output"
+            
+        if output is not None:
+            output.TreatCommandsResults(allValues)
     
     #Disconnect
     inverter.disconnect()
