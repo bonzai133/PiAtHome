@@ -74,12 +74,16 @@ class Inverter():
         logger.debug("%d %s" % (len(cmdData), cmdData))
     
         if len(cmdData) < 128:
-            rsp = self._sendDataAndWaitResponse(cmdData)
-    
-            commands = rsp.getCommands()
+            commands = None
+            try:
+                rsp = self._sendDataAndWaitResponse(cmdData)
+                commands = rsp.getCommands()
+            except MessageDataException, e:
+                logger.error("Error in received message: %s" % e)
             
-            dc = DataConverter()
-            convertedValues.update(dc.convertValues(commands))
+            if commands is not None:
+                dc = DataConverter()
+                convertedValues.update(dc.convertValues(commands))
         else:
             logger.error("Command too large")
             return convertedValues
