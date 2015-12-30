@@ -15,7 +15,16 @@ def main():
         non_python_files(os.path.join('piathome', 'scripts')) +
         non_python_files(os.path.join('piathome', 'templates'))
     )
-    
+
+    conf_files = ([("conf_sample", ["conf_prod/logging_teleinfo.conf",
+                                    "conf_prod/logging_pysolarmax.conf",
+                                    "conf_prod/apache2/charts",
+                                    "conf_prod/apache2/charts_ssl"]),
+                  ("conf_sample", ["conf_prod/pysolarmax"]),
+                  #("/etc/cron.d", ["conf_prod/pysolarmax"]),
+                  ("data", ["data/Placeholder.txt"])
+         ])
+        
     setup(
         name='PiAtHome',
         version='1.0',
@@ -24,7 +33,8 @@ def main():
         author_email='bonzai133@sourceforge.net',
         url='http://sourceforge.net/projects/pysolarmax/',
         packages=['piathome'],
-        data_files=data_files
+        scripts=['bin/Charts.wsgi', 'bin/Start_server.py'],
+        data_files=data_files + conf_files
     )
 
 
