@@ -60,7 +60,7 @@ class TestMain(unittest.TestCase):
         
         process(args)
 
-        instance.getValues.assert_called_once_with(["UDC", "SYS"])
+        instance.getValues.assert_called_once_with(['UDC', 'UL1', 'IDC', 'IL1', 'PAC', 'PIN', 'PRL', 'TNF', 'TKK', 'SYS'])
         
         
 if __name__ == '__main__':
