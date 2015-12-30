@@ -16,14 +16,17 @@ def main():
         non_python_files(os.path.join('piathome', 'templates'))
     )
 
-    conf_files = ([("conf_sample", ["conf_prod/logging_teleinfo.conf",
-                                    "conf_prod/logging_pysolarmax.conf",
-                                    "conf_prod/apache2/charts",
-                                    "conf_prod/apache2/charts_ssl"]),
-                  ("conf_sample", ["conf_prod/pysolarmax"]),
-                  #("/etc/cron.d", ["conf_prod/pysolarmax"]),
-                  ("data", ["data/Placeholder.txt"])
-         ])
+    conf_files = ([
+        ("conf_sample", ["conf_prod/logging_teleinfo.conf",
+                         "conf_prod/logging_pysolarmax.conf",
+                         "conf_prod/apache2/piathome",
+                         "conf_prod/apache2/piathome_ssl"]),
+        ("conf_sample", ["conf_prod/cron_piathome"]),
+        ("/etc/apache2/sites-available", ["conf_prod/apache2/piathome",
+                                          "conf_prod/apache2/piathome_ssl"]),
+        #("/etc/cron.d", ["conf_prod/cron_piathome"]),
+        ("data", ["data/Placeholder.txt"]),
+    ])
         
     setup(
         name='PiAtHome',
