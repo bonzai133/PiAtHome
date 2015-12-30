@@ -8,7 +8,7 @@ MAILTO=""
 50 10 * * sun root /usr/local/bin/Solarmax.py -a SetTime -d /opt/piathome/data/Solarmax_data2.s3db
 
 #Get data from teleinfo
-0 * * * * root /opt/piathome/teleinfo/teleinfo.py -i 0 -d /opt/piathome/data/Teleinfo_data.s3db;/opt/piathome/teleinfo/teleinfo.py -i 1 -d /opt/piathome/data/Teleinfo_data.s3db
+0 * * * * root /usr/local/bin/teleinfo.py -i 0 -d /opt/piathome/data/Teleinfo_data.s3db;/opt/piathome/teleinfo/teleinfo.py -i 1 -d /opt/piathome/data/Teleinfo_data.s3db
 
 #Aggregate teleinfo data
-7 1 * * * root /opt/piathome/teleinfo/teleinfo_aggr.py -d /opt/piathome/data/Teleinfo_data.s3db
+7 1 * * * root /usr/local/bin/teleinfo_aggr.py -d /opt/piathome/data/Teleinfo_data.s3db
