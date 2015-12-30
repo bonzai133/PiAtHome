@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from DataConverter import DataConverter
+from pysolarmax.DataConverter import DataConverter
 
 #===============================================================================
 # Logging

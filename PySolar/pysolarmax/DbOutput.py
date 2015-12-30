@@ -2,7 +2,7 @@
 
 from SqliteDBManager import DBManager
 from SqliteDBManager import GlobalData
-from datetime import datetime
+import time
 
 #===============================================================================
 # Logs
@@ -216,7 +216,7 @@ class DbOutput:
                 table = "Realtime"
     
             key = "LastUpdate"
-            value = datetime.now().strftime("%s")
+            value = str(int(time.time()))
             descr = "Last Update"
             
             if table is not None:

@@ -149,7 +149,7 @@ def process(args):
             print "No output"
             
         if output is not None:
-            output.TreatCommandsResults(allValues)
+            output.TreatCommandsResults(args.action, allValues)
     
     #Disconnect
     inverter.disconnect()
