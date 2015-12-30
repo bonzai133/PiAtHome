@@ -13,9 +13,9 @@ import logging
 import logging.config
 
 import argparse
-from Inverter import Inverter
-from ScreenOutput import ScreenOutput
-from DbOutput import DbOutput
+from pysolarmax.Inverter import Inverter
+from pysolarmax.ScreenOutput import ScreenOutput
+from pysolarmax.DbOutput import DbOutput
 
 #===============================================================================
 # Logger

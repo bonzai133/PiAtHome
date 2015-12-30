@@ -3,7 +3,7 @@
 import unittest
 import mock
 from mock import MagicMock
-from pysolarmax.Solarmax import process
+from bin.Solarmax import process
 from pysolarmax.Command import Command
 
 #===============================================================================
@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.INFO)
 # TestConnection
 #===============================================================================
 class TestMain(unittest.TestCase):
-    @mock.patch('pysolarmax.Solarmax.Inverter')
+    @mock.patch('bin.Solarmax.Inverter')
     def test_connect_error(self, inverter):
         #Args
         args = MagicMock()
@@ -33,7 +33,7 @@ class TestMain(unittest.TestCase):
 
         self.assertEqual(cm.exception.code, 1)
 
-    @mock.patch('pysolarmax.Solarmax.Inverter')
+    @mock.patch('bin.Solarmax.Inverter')
     def test_connect_ok(self, inverter):
         #Args
         args = MagicMock()

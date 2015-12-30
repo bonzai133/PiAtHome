@@ -2,13 +2,13 @@
 MAILTO=""
 
 #Execute script to retrieve data from inverter
-0 9-20 * * * root /opt/pysolarmax/pysolarmax/Solarmax2.py -a History -d /opt/pysolarmax/data/Solarmax_data2.s3db
-*/5 6-22 * * * root /opt/pysolarmax/pysolarmax/Solarmax2.py -a Realtime -d /opt/pysolarmax/data/Solarmax_data2.s3db
-*/5 6-22 * * * root /opt/pysolarmax/pysolarmax/Solarmax2.py -a Stats -d /opt/pysolarmax/data/Solarmax_data2.s3db
-50 10 * * sun root /opt/pysolarmax/pysolarmax/Solarmax2.py -a SetTime -d /opt/pysolarmax/data/Solarmax_data2.s3db
+0 9-20 * * * root /usr/local/bin/Solarmax.py -a History -d /opt/piathome/data/Solarmax_data2.s3db
+*/5 6-22 * * * root /usr/local/bin/Solarmax.py -a Realtime -d /opt/piathome/data/Solarmax_data2.s3db
+*/5 6-22 * * * root /usr/local/bin/Solarmax.py -a Stats -d /opt/piathome/data/Solarmax_data2.s3db
+50 10 * * sun root /usr/local/bin/Solarmax.py -a SetTime -d /opt/piathome/data/Solarmax_data2.s3db
 
 #Get data from teleinfo
-0 * * * * root /opt/pysolarmax/teleinfo/teleinfo.py -i 0 -d /opt/pysolarmax/data/Teleinfo_data.s3db;/opt/pysolarmax/teleinfo/teleinfo.py -i 1 -d /opt/pysolarmax/data/Teleinfo_data.s3db
+0 * * * * root /opt/piathome/teleinfo/teleinfo.py -i 0 -d /opt/piathome/data/Teleinfo_data.s3db;/opt/piathome/teleinfo/teleinfo.py -i 1 -d /opt/piathome/data/Teleinfo_data.s3db
 
 #Aggregate teleinfo data
-7 1 * * * root /opt/pysolarmax/teleinfo/teleinfo_aggr.py -d /opt/pysolarmax/data/Teleinfo_data.s3db
+7 1 * * * root /opt/piathome/teleinfo/teleinfo_aggr.py -d /opt/piathome/data/Teleinfo_data.s3db

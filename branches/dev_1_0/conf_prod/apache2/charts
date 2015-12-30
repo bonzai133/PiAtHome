@@ -18,13 +18,13 @@ WSGISocketPrefix /etc/httpd/wsgi/
 
 <VirtualHost *:80>
         ServerName charts
-        DocumentRoot "/opt/pysolarmax/www"
-        ErrorLog /opt/pysolarmax/log/webapp/error.log
-        CustomLog /opt/pysolarmax/log/webapp/access.log common
+        DocumentRoot "/opt/piathome/piathome"
+        ErrorLog /opt/piathome/log/error.log
+        CustomLog /opt/piathome/log/access.log common
 
         WSGIDaemonProcess charts user=www-data group=www-data processes=1 threads=5
-        WSGIScriptAlias / /opt/pysolarmax/www/Charts.wsgi 
-        <Directory /opt/pysolarmax/www>
+        WSGIScriptAlias / /opt/piathome/piathome/Charts.wsgi 
+        <Directory /opt/piathome/piathome>
             WSGIProcessGroup charts
             WSGIApplicationGroup %{GLOBAL}
             Order deny,allow

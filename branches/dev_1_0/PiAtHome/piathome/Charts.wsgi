@@ -35,8 +35,8 @@ ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE_PATH.insert(0, os.path.join(ROOT_PATH, "templates"))
 
 #DB_FILE = os.path.join(ROOT_PATH, "Solarmax_data2.s3db")
-DB_FILE_SOLAR = os.path.join("/opt/pysolarmax/data", "Solarmax_data2.s3db")
-DB_FILE_TELEINFO = os.path.join("/opt/pysolarmax/data", "Teleinfo_data.s3db")
+DB_FILE_SOLAR = os.path.join("/opt/piathome/data", "Solarmax_data2.s3db")
+DB_FILE_TELEINFO = os.path.join("/opt/piathome/data", "Teleinfo_data.s3db")
 
 #Folders
 SCRIPTS_ROOT = os.path.join(ROOT_PATH, "scripts")
