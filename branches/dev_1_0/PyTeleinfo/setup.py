@@ -14,7 +14,8 @@ def main():
         author='bonzai133',
         author_email='bonzai133@sourceforge.net',
         url='http://sourceforge.net/projects/pysolarmax/',
-        packages=['teleinfo'],
+        scripts=['teleinfo/teleinfo.py',
+                 'teleinfo/teleinfo_aggr.py'],
     )
 
 
