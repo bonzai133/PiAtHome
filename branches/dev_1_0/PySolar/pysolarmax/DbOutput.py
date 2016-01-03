@@ -43,17 +43,11 @@ class DbOutput:
         self.dbFileName = dbFileName
         
     #===========================================================================
-    # OutputPrint
-    #===========================================================================
-    def OutputPrint(self, cmd):
-        print "%s = %s" % (cmd, cmd.Value)
-
-    #===========================================================================
     # OutputRealtime
     #===========================================================================
     def OutputRealtime(self, cmd):
         logger.debug("%s = %s" % (cmd, cmd.Value))
-        print "%s = %s" % (cmd, cmd.Value)
+
         #Build request
         sqlRequest = 'REPLACE INTO Realtime '
         sqlRequest += '(key, value, desc) '
@@ -68,7 +62,7 @@ class DbOutput:
     #===========================================================================
     def OutputStatistics(self, cmd):
         logger.debug("%s = %s" % (cmd, cmd.Value))
-        print "%s = %s" % (cmd, cmd.Value)
+
         #Build request
         sqlRequest = 'REPLACE INTO Statistics '
         sqlRequest += '(key, value, desc) '
@@ -83,7 +77,6 @@ class DbOutput:
     #===========================================================================
     def OutputError(self, cmd):
         logger.debug("%s = %s" % (cmd, cmd.Value))
-        print "%s = %s" % (cmd, cmd.Value)
 
         #Split values
         (date_str, time_str, errCode, desc) = cmd.Value

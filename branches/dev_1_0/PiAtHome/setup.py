@@ -26,6 +26,10 @@ def main():
                                           "conf_prod/apache2/piathome_ssl"]),
         #("/etc/cron.d", ["conf_prod/cron_piathome"]),
         ("data", ["data/Placeholder.txt"]),
+        #TODO: chown www-data or chmod
+        #("data/.cache", ["data/Placeholder.txt"]),
+        #("log", ["data/Placeholder.txt"]),
+        #("piathome/users.txt", ["users.txt"]),
     ])
         
     setup(
