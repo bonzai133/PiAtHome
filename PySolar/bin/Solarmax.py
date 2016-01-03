@@ -144,7 +144,7 @@ def process(args):
         if args.output == 'Screen':
             output = ScreenOutput()
         elif args.output == 'Database':
-            output = DbOutput()
+            output = DbOutput(args.dbFileName)
         else:
             print "No output"
             

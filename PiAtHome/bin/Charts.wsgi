@@ -9,22 +9,11 @@ import os
 import sys
 import argparse
 
-sys.path = [os.path.dirname(__file__)] + sys.path
 os.chdir(os.path.dirname(__file__))
 
 from bottle import default_app, ServerAdapter, run, install, TEMPLATE_PATH
-from bottle import route, template, static_file, request, response, redirect, abort
 from bottle_sqlite import SQLitePlugin
 from beaker.middleware import SessionMiddleware
-
-from ApplicationUsers import ApplicationUsers
-
-from Charts_Authentication import *
-from Charts_Solar import *
-from Charts_Teleinfo import *
-
-from requestlogger import WSGILogger, ApacheFormatter
-from logging.handlers import TimedRotatingFileHandler
 
 #Set file path
 ROOT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../piathome')
