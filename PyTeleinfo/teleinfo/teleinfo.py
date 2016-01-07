@@ -127,7 +127,6 @@ PAPP 00070 (
 
 
 '''
-import os
 import re
 import logging
 import logging.config
@@ -159,14 +158,9 @@ except ImportError, e:
     
 import serial
 
-#Logger
-ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
-LOGCONF_PATH = os.path.join(ROOT_PATH, 'logging.conf')
-
-logging.config.fileConfig(LOGCONF_PATH)
-logger = logging.getLogger(__name__)
-
-
+#===============================================================================
+# Global definitions
+#===============================================================================
 #Counter position (teleinfo input)
 COUNTER_POS_PROD = 0
 COUNTER_POS_CONSO = 1
@@ -212,9 +206,9 @@ def setupSerial(serialPortName):
     
         wainting_chars = serial_port.inWaiting()
         if wainting_chars != 0:
-            logger.warning("There is some chars in the buffer. We are not alone !")
+            logging.warning("There is some chars in the buffer. We are not alone !")
     except Exception, e:
-        logger.error("Exception in setupSerial: %s" % e)
+        logging.error("Exception in setupSerial: %s" % e)
     
     return serial_port
 
@@ -241,20 +235,20 @@ def readFrame(serPort):
         rcv += serPort.read(255)
         if len(rcv) == 0:
             retryNb += 1
-            logger.warning("No data received (%d)" % retryNb)
+            logging.warning("No data received (%d)" % retryNb)
         else:
             #Reset retry
             retryNb = 0
             
-            logger.debug('%d bytes received' % len(rcv))
-            logger.debug(repr(rcv))
+            logging.debug('%d bytes received' % len(rcv))
+            logging.debug(repr(rcv))
 
             frames_grp = str(rcv).split(chr(0x02))
             if len(frames_grp) < 3:
-                logger.info("Not enought data received")
+                logging.info("Not enought data received")
             else:
-                logger.debug("Groups: %d" % len(frames_grp))
-                logger.debug(repr(frames_grp))
+                logging.debug("Groups: %d" % len(frames_grp))
+                logging.debug(repr(frames_grp))
                 
                 #Skip first and last group (incomplete)
                 for index in range(1, len(frames_grp) - 1):
@@ -263,7 +257,7 @@ def readFrame(serPort):
                         frame = frm_grp.rstrip(chr(0x03))
                         break
                     else:
-                        logger.info("No end tag in frame (%d) : %s" % (index, frm_grp))
+                        logging.info("No end tag in frame (%d) : %s" % (index, frm_grp))
            
     return frame
 
@@ -275,7 +269,7 @@ def verifyCheksum(code, val, ctrl):
         
     chk = (chk & 0x3F) + 0x20
     
-    logger.debug("verifyCheksum: calculated[%d], received[%d]" % (chk, ord(ctrl)))
+    logging.debug("verifyCheksum: calculated[%d], received[%d]" % (chk, ord(ctrl)))
     if chk == ord(ctrl):
         return True
     else:
@@ -299,17 +293,17 @@ def parseFrame(frame):
                 val = splitted[2]
                 ctrl = splitted[3]
 
-                logger.debug("%s: %s" % (code, val))
+                logging.debug("%s: %s" % (code, val))
             
                 if not verifyCheksum(code, val, ctrl):
-                    logger.warning("Checksum doesn't match for msg: %s" % msg)
+                    logging.warning("Checksum doesn't match for msg: %s" % msg)
 
                 data[code] = val
             else:
-                logger.warning("Badly splitted: %s" % msg)
+                logging.warning("Badly splitted: %s" % msg)
         except Exception, e:
             if msg != "":
-                logger.warning("Can't split: %s" % msg)
+                logging.warning("Can't split: %s" % msg)
 
     return data
 
@@ -319,10 +313,10 @@ def parseFrame(frame):
 #===============================================================================
 def exportData(data, dbFileName):
     if dbFileName == "":
-        logger.info("Will print data")
+        logging.info("Will print data")
         displayData(data)
     else:
-        logger.info("Will store data in %s" % dbFileName)
+        logging.info("Will store data in %s" % dbFileName)
         writeDataToDb(data, dbFileName)
 
 
@@ -331,11 +325,11 @@ def displayData(data):
 
   
 def writeDataToDb(data, dbFileName):
-    logger.debug("%s -> %s" % (data, dbFileName))
+    logging.debug("%s -> %s" % (data, dbFileName))
     
     db = DBManager(dbFileName)
     if db.connectFailure == 1:
-        logger.error("Can't connect to database '%s'" % dbFileName)
+        logging.error("Can't connect to database '%s'" % dbFileName)
     else:
         db.CreateTables(Teleinfo_dbTables)
         
@@ -353,7 +347,7 @@ def writeDataToDb(data, dbFileName):
             db.Commit()
             
         except KeyError, e:
-            logger.error("Can't store data. Missing key: '%s'" % e)
+            logging.error("Can't store data. Missing key: '%s'" % e)
 
         db.Close()
         
@@ -361,13 +355,16 @@ def writeDataToDb(data, dbFileName):
 #===========================================================================
 # TODO: à supprimer : utiliser module externe
 #===========================================================================
-Teleinfo_dbTables = {"TeleinfoDaily": [('date', "d", "Date"),
-                        ('counterId', "n", "Counter identifier (serial number)"),
-                        ('indexBase', "n", "Base index (Wh)"),
-                        ('iMax', "n", "Maximal intensity")],
-                     "TeleinfoCounters": [('counterId', "i", "Counter identifier (serial number)"),
-                                          ('counterName', "t", "Counter name"), ]
-                     }
+Teleinfo_dbTables = {
+    "TeleinfoDaily": [
+        ('date', "d", "Date"),
+        ('counterId', "n", "Counter identifier (serial number)"),
+        ('indexBase', "n", "Base index (Wh)"),
+        ('iMax', "n", "Maximal intensity")],
+    "TeleinfoCounters": [
+        ('counterId', "i", "Counter identifier (serial number)"),
+        ('counterName', "t", "Counter name"), ]
+}
 
 
 class DBManager:
@@ -418,7 +415,7 @@ class DBManager:
         self.Commit()
     
     def ExecuteRequest(self, req):
-        logger.debug("Request: %s" % req)
+        logging.debug("Request: %s" % req)
         try:
             self.cursor.execute(req)
         except Exception, err:
@@ -458,7 +455,7 @@ def readTeleinfo(serialPortName, interface, dbFileName):
             exportData(data, dbFileName)
         
     except Exception:
-        logger.exception("Unexpected exception")
+        logging.exception("Unexpected exception")
     finally:
         cleanupSerial(serPort)
         cleanupGPIO()
@@ -471,25 +468,33 @@ def main():
     #Get parameters
     parser = argparse.ArgumentParser(description='Read values from teleinfo interface')
 
-    parser.add_argument('-p', '--portName', dest='serialPortName', action='store',
-                        help='Serial port name', default=SERIAL_PORT_NAME)
-    parser.add_argument('-i', '--interface', dest='interface', type=int, action='store',
-                        help='Teleinfo interface : 0 for Production, 1 for Consumption', default=COUNTER_POS_CONSO)
-    parser.add_argument('-d', '--dbname', dest='dbFileName', action='store',
-                        help='Database filename', default='')
+    parser.add_argument('-p', '--portName', dest='serialPortName', action='store', help='Serial port name', default=SERIAL_PORT_NAME)
+    parser.add_argument('-i', '--interface', dest='interface', type=int, action='store', help='Teleinfo interface : 0 for Production, 1 for Consumption', default=COUNTER_POS_CONSO)
+    parser.add_argument('-d', '--dbname', dest='dbFileName', action='store', help='Database filename', default='')
+    parser.add_argument('-l', '--log-config', dest='logConfig', action='store', help='Log configuration file')
 
     args = parser.parse_args()
 
-    logger.info("Args: %s" % repr(args))
+    #Create logger with basic config
+    logging.basicConfig()
+    
+    #Use configuration file ?
+    if args.logConfig is not None:
+        try:
+            logging.config.fileConfig(args.logConfig)
+        except Exception, e:
+            logging.error("Can't read logger configuration: %s" % e)
+
+    logging.info("Args: %s" % repr(args))
 
     #Check arguments
     if args.interface < 0 or args.interface > 1:
-        logger.error("Interface must be 0 or 1")
+        logging.error("Interface must be 0 or 1")
         parser.error("Interface must be 0 or 1")
     
     readTeleinfo(args.serialPortName, args.interface, args.dbFileName)
     
-    logger.info("----- End of treatment")
+    logging.info("----- End of treatment")
 
 
 if __name__ == "__main__":

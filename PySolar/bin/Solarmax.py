@@ -20,14 +20,7 @@ from pysolarmax.DbOutput import DbOutput
 #===============================================================================
 # Logger
 #===============================================================================
-try:
-    ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
-    LOGCONF_PATH = os.path.join(ROOT_PATH, 'logging_pysolarmax.conf')
-    
-    logging.config.fileConfig(LOGCONF_PATH)
-except Exception, e:
-    print "Can't read logger configuration: %s" % e
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 
 #===============================================================================
@@ -119,6 +112,10 @@ def process(args):
     
     if not inverter.connect():
         logger.error("Can't connect to inverter")
+        
+        if args.output == 'Screen':
+            print "Can't connect to inverter"
+            
         exit(1)
         
     #Request commands
@@ -166,8 +163,21 @@ def main():
 
     parser.add_argument('-o', '--output', dest='output', action='store', help='Output (Output to screen or to database)', choices=['Screen', 'Database'], default='Screen')
 
+    parser.add_argument('-l', '--log-config', dest='logConfig', action='store', help='Log configuration file')
+
     args = parser.parse_args()
     
+    #Create logger with basic config
+    logging.basicConfig()
+    
+    #Use configuration file ?
+    if args.logConfig is not None:
+        try:
+            logging.config.fileConfig(args.logConfig)
+        except Exception, e:
+            logging.error("Can't read logger configuration: %s" % e)
+    
+    #Process
     process(args)
     
 

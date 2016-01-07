@@ -13,24 +13,17 @@ import argparse
 import sqlite3
 import datetime
 
-#Logger
-ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
-LOGCONF_PATH = os.path.join(ROOT_PATH, 'logging_teleinfo.conf')
-
-logging.config.fileConfig(LOGCONF_PATH)
-logger = logging.getLogger(__name__)
-
-
 #===============================================================================
 # DBManager
 #===============================================================================
-Teleinfo_aggr_dbTables = {"TeleinfoByDay": [
-                        ('id', 'i', "Primary key"),
-                        ('date', "t", "Date"),
-                        ('counterId', "n", "Counter identifier (serial number)"),
-                        ('indexBase', "n", "Base index (Wh)"),
-                        ('value', "n", "daily value (diff from previous day)")],
-                     }
+Teleinfo_aggr_dbTables = {
+    "TeleinfoByDay": [
+        ('id', 'i', "Primary key"),
+        ('date', "t", "Date"),
+        ('counterId', "n", "Counter identifier (serial number)"),
+        ('indexBase', "n", "Base index (Wh)"),
+        ('value', "n", "daily value (diff from previous day)")],
+}
 
 
 class DBManager:
@@ -81,7 +74,7 @@ class DBManager:
         self.Commit()
     
     def ExecuteRequest(self, req):
-        logger.debug("Request: %s" % req)
+        logging.debug("Request: %s" % req)
         try:
             self.cursor.execute(req)
         except Exception, err:
@@ -109,7 +102,7 @@ def process(dbFileName, dateStart, dateEnd, createTables=False):
     db = DBManager(dbFileName)
     
     if db.connectFailure == 1:
-        logger.error("Can't connect to database '%s'" % dbFileName)
+        logging.error("Can't connect to database '%s'" % dbFileName)
     else:
         if createTables:
             doCreateTables(db)
@@ -137,11 +130,11 @@ def doCreateTables(db):
 # doAggregation
 #===============================================================================
 def doAggregation(db, dateStart, dateEnd):
-#insert into TeleinfoDelta (counterId, date, value, ...)
-
-#SELECT T1.counterId, date(T1.date) as d1, max(T1.indexBase) as m1, d2, m2, m2 - max(T1.indexBase) as diff
-#FROM TeleinfoDaily as T1, (SELECT T2.counterId as cid2, date(T2.date) as d2, max(T2.indexBase) as m2 FROM TeleinfoDaily as T2 group by date(T2.date), T2.counterId)
-#where T1.counterId=cid2 and d1 = date(d2, '-1 day') group by date(T1.date), T1.counterId;
+    #insert into TeleinfoDelta (counterId, date, value, ...)
+    
+    #SELECT T1.counterId, date(T1.date) as d1, max(T1.indexBase) as m1, d2, m2, m2 - max(T1.indexBase) as diff
+    #FROM TeleinfoDaily as T1, (SELECT T2.counterId as cid2, date(T2.date) as d2, max(T2.indexBase) as m2 FROM TeleinfoDaily as T2 group by date(T2.date), T2.counterId)
+    #where T1.counterId=cid2 and d1 = date(d2, '-1 day') group by date(T1.date), T1.counterId;
     query_insert = "INSERT OR REPLACE INTO TeleinfoByDay (dateDay, counterId, indexBase, value) "
     query_select1 = "SELECT date(T1.date, '+1 day') as d1, T1.counterId, m2, m2 - max(T1.indexBase) as diff "
     query_from1 = "FROM TeleinfoDaily as T1, "
@@ -151,7 +144,7 @@ def doAggregation(db, dateStart, dateEnd):
     query_groupby = "GROUP BY date(T1.date), T1.counterId"
     
     query = query_insert + query_select1 + query_from1 + \
-                "(" + query_select2 + query_from2 + ") " + query_where + query_groupby
+        "(" + query_select2 + query_from2 + ") " + query_where + query_groupby
     
     db.ExecuteRequest(query % (dateStart, dateEnd, dateStart, dateEnd))
                     
@@ -165,16 +158,23 @@ def main():
     
     parser.add_argument('-s', '--startDate', dest='dateStart', help='Start date', required=False)
     parser.add_argument('-e', '--endDate', dest='dateEnd', help='End date', required=False)
-    
-    parser.add_argument('-d', '--dbname', dest='dbFileName', action='store',
-                        help='Database filename', required=True)
-    
-    parser.add_argument('-c', '--createTables', dest='createTables', action='store_true',
-                        help='Create required tables in database')
+    parser.add_argument('-d', '--dbname', dest='dbFileName', action='store', help='Database filename', required=True)
+    parser.add_argument('-c', '--createTables', dest='createTables', action='store_true', help='Create required tables in database')
+    parser.add_argument('-l', '--log-config', dest='logConfig', action='store', help='Log configuration file')
 
     args = parser.parse_args()
 
-    logger.info("Input Args: %s" % repr(args))
+    #Create logger with basic config
+    logging.basicConfig()
+    
+    #Use configuration file ?
+    if args.logConfig is not None:
+        try:
+            logging.config.fileConfig(args.logConfig)
+        except Exception, e:
+            logging.error("Can't read logger configuration: %s" % e)
+
+    logging.info("Input Args: %s" % repr(args))
     
     #Check date format
     if args.dateStart is not None:
@@ -189,10 +189,10 @@ def main():
     else:
         args.dateEnd = (datetime.date.today() - datetime.timedelta(1)).strftime("%Y-%m-%d")
 
-    logger.debug("Computed Args: %s" % repr(args))
+    logging.debug("Computed Args: %s" % repr(args))
     process(args.dbFileName, args.dateStart, args.dateEnd, args.createTables)
     
-    logger.info("----- End of treatment")
+    logging.info("----- End of treatment")
 
 if __name__ == '__main__':
     main()
