@@ -17,11 +17,11 @@ def main():
     )
 
     conf_files = ([
-        ("conf_sample", ["conf_prod/logging_teleinfo.conf",
+        ("config", ["conf_prod/logging_teleinfo.conf",
                          "conf_prod/logging_pysolarmax.conf",
                          "conf_prod/apache2/piathome",
                          "conf_prod/apache2/piathome_ssl"]),
-        ("conf_sample", ["conf_prod/cron_piathome"]),
+        ("config", ["conf_prod/cron_piathome"]),
         ("/etc/apache2/sites-available", ["conf_prod/apache2/piathome",
                                           "conf_prod/apache2/piathome_ssl"]),
         #("/etc/cron.d", ["conf_prod/cron_piathome"]),
