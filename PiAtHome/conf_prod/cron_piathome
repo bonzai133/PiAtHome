@@ -8,7 +8,7 @@ MAILTO=""
 50 10 * * sun root /usr/local/bin/Solarmax.py -a SetTime -l /opt/piathome/config/logging_pysolarmax.conf
 
 #Get data from teleinfo
-0 * * * * root /usr/local/bin/teleinfo.py -i 0 -d /opt/piathome/data/Teleinfo_data.s3db /home/laurent/dev/pysolarmax/PiAtHome/dist/PiAtHome-1.0.tar.gz;/usr/local/bin/teleinfo.py -i 1 -d /opt/piathome/data/Teleinfo_data.s3db -l /opt/piathome/config/logging_teleinfo.conf
+0 * * * * root /usr/local/bin/teleinfo.py -i 0 -d /opt/piathome/data/Teleinfo_data.s3db -l /opt/piathome/config/logging_teleinfo.conf;/usr/local/bin/teleinfo.py -i 1 -d /opt/piathome/data/Teleinfo_data.s3db -l /opt/piathome/config/logging_teleinfo.conf
 
 #Aggregate teleinfo data
 7 1 * * * root /usr/local/bin/teleinfo_aggr.py -d /opt/piathome/data/Teleinfo_data.s3db -l /opt/piathome/config/logging_teleinfo.conf
