@@ -94,7 +94,7 @@ class Inverter():
         result = False
         #Request values
         logger.debug("setTimeToCurrentTime")
-        cmd = Request(["SDAT"], way=Request.SET, attr=datetimeToSet, fFormat=Format.DateTime2Hex)
+        cmd = Request(["SDAT"], action=MessageData.SET, attr=datetimeToSet, fFormat=Format.DateTime2Hex)
         cmdData = cmd.buildRequest()
     
         logger.debug("%d %s" % (len(cmdData), cmdData))
