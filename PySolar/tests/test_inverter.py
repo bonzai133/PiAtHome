@@ -86,6 +86,23 @@ class TestConnection(unittest.TestCase):
         self.assertFalse(res)
         self.assertFalse(inverter.connected)
        
+    @mock.patch('pysolarmax.Inverter.socket')
+    def test_set_datetime(self, sock):
+        #Patch
+        sock_mock = MagicMock()
+        sock_mock.recv.return_value = "{01;FB;15|C8:Ok|042C}"
+        sock.socket.return_value = sock_mock
+        
+        #Test
+        inverter = Inverter("127.0.0.1", 12345)
+        res = inverter.connect()
+        self.assertTrue(inverter.connected)
+        
+        res = inverter.setDateTime()
 
+        #Result
+        self.assertTrue(res)
+
+        
 if __name__ == '__main__':
     unittest.main()
