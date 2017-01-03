@@ -34,7 +34,7 @@ def main():
         
     setup(
         name='PiAtHome',
-        version='1.0',
+        version='1.1',
         description='PiAtHome web site',
         author='bonzai133',
         author_email='bonzai133@sourceforge.net',

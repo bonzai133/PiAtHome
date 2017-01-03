@@ -3,8 +3,8 @@ MAILTO=""
 
 #Execute script to retrieve data from inverter
 0 9-20 * * * root /usr/local/bin/Solarmax.py -a History -o Database -d /opt/piathome/data/Solarmax_data2.s3db -l /opt/piathome/config/logging_pysolarmax.conf
-*/5 6-22 * * * root /usr/local/bin/Solarmax.py -a Realtime -o Database -d /opt/piathome/data/Solarmax_data2.s3db -l /opt/piathome/config/logging_pysolarmax.conf
-*/5 6-22 * * * root /usr/local/bin/Solarmax.py -a Stats -o Database -d /opt/piathome/data/Solarmax_data2.s3db -l /opt/piathome/config/logging_pysolarmax.conf
+*/5 6-22 * * * root /usr/local/bin/Solarmax.py -a Realtime -o Database -d /var/run/shm/Solarmax_rtstats.s3db -l /opt/piathome/config/logging_pysolarmax.conf
+*/5 6-22 * * * root /usr/local/bin/Solarmax.py -a Stats -o Database -d /var/run/shm/Solarmax_rtstats.s3db -l /opt/piathome/config/logging_pysolarmax.conf
 50 10 * * sun root /usr/local/bin/Solarmax.py -a SetTime -l /opt/piathome/config/logging_pysolarmax.conf
 
 #Store teleinfo data
