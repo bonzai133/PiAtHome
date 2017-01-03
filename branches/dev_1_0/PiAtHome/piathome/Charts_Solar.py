@@ -100,7 +100,7 @@ def energy_by_month(db):
     for row in c:
         d2.append((row[0], row[1]))
     
-    #Jqplot need None instead of empty list    
+    #Jqplot need None instead of empty list
     if len(d1) == 0:
         d1 = [None]
     if len(d2) == 0:
@@ -145,13 +145,13 @@ def combobox_years_data(db):
 
 
 @route("/real_time_data.json", apply=authenticated)
-def real_time_data(db):
+def real_time_data(db_rtstats):
     #Get parameters from request
     key = request.query.get('key')
 
     data = []
 
-    c = db.execute('SELECT value FROM Realtime where key=?', (key, ))
+    c = db_rtstats.execute('SELECT value FROM Realtime where key=?', (key, ))
     try:
         for row in c:
             try:
@@ -165,11 +165,11 @@ def real_time_data(db):
 
 
 @route("/statistics_data.json", apply=authenticated)
-def statistics_data(db):
+def statistics_data(db_rtstats):
     #Get parameters from request
     key = request.query.get('key')
 
-    c = db.execute('SELECT value FROM Statistics where key=?', (key, ))
+    c = db_rtstats.execute('SELECT value FROM Statistics where key=?', (key, ))
 
     try:
         data = []

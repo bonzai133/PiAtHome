@@ -27,6 +27,7 @@ TEMPLATE_PATH.insert(0, os.path.join(ROOT_PATH, "templates"))
 
 #DB_FILE = os.path.join(ROOT_PATH, "Solarmax_data2.s3db")
 DB_FILE_SOLAR = os.path.join("/opt/piathome/data", "Solarmax_data2.s3db")
+DB_FILE_RTSTATS = "/var/run/shm/Solarmax_rtstats.s3db"
 DB_FILE_TELEINFO = os.path.join("/opt/piathome/data", "Teleinfo_data.s3db")
 
 #===============================================================================
@@ -46,6 +47,7 @@ def main():
     
     #Sqlite db file
     mydbfile_solarmax = DB_FILE_SOLAR
+    mydbfile_rtstats = DB_FILE_RTSTATS
     mydbfile_teleinfo = DB_FILE_TELEINFO
         
     #Create default bottle application
@@ -55,9 +57,13 @@ def main():
     #Plugins : SQLitePlugin give a connection in each functions with a db parameter
     install(SQLitePlugin(dbfile=mydbfile_solarmax))
     
-    plugin2 = SQLitePlugin(dbfile=mydbfile_teleinfo, keyword='db2')
-    plugin2.name = "sqlite2"
-    install(plugin2)
+    plugin_teleinfo = SQLitePlugin(dbfile=mydbfile_teleinfo, keyword='db_teleinfo')
+    plugin_teleinfo.name = "sqlite_teleinfo"
+    install(plugin_teleinfo)
+
+    plugin_rtstats = SQLitePlugin(dbfile=mydbfile_rtstats, keyword='db_rtstats')
+    plugin_rtstats.name = "sqlite_rtstats"
+    install(plugin_rtstats)
     
     #Run server
     return myapp

@@ -24,6 +24,8 @@ TEMPLATE_PATH.insert(0, os.path.join(ROOT_PATH, "templates"))
 
 DB_FILE_SOLAR = os.path.join("/opt/pysolarmax/data", "Solarmax_data2.s3db")
 DB_FILE_TELEINFO = os.path.join("/opt/pysolarmax/data", "Teleinfo_data.s3db")
+DB_FILE_RTSTATS = "/var/run/shm/Solarmax_rtstats.s3db"
+
 VAR_LOG_ACCESS = os.path.join("/var/log", "access.log")
 VAR_LOG_ACCESS_SSL = os.path.join("/var/log", "access_ssl.log")
 
@@ -64,6 +66,7 @@ def main(port):
     if port != 80 and port != 443:
         #Sqlite db file
         mydbfile_solarmax = os.path.join(ROOT_PATH, "../data/Solarmax_data2.s3db")
+        mydbfile_rtstats = os.path.join(ROOT_PATH, "../data/Solarmax_rtstats.s3db")
         mydbfile_teleinfo = os.path.join(ROOT_PATH, "../data/Teleinfo_data.s3db")
         access_log_file = 'access.log'
 
@@ -73,6 +76,7 @@ def main(port):
     else:
         #Sqlite db file
         mydbfile_solarmax = DB_FILE_SOLAR
+        mydbfile_rtstats = DB_FILE_RTSTATS
         mydbfile_teleinfo = DB_FILE_TELEINFO
         
         #Run CherryPy http or https server
@@ -93,9 +97,13 @@ def main(port):
     #Plugins : SQLitePlugin give a connection in each functions with a db parameter
     install(SQLitePlugin(dbfile=mydbfile_solarmax))
     
-    plugin2 = SQLitePlugin(dbfile=mydbfile_teleinfo, keyword='db2')
-    plugin2.name = "sqlite2"
-    install(plugin2)
+    plugin_teleinfo = SQLitePlugin(dbfile=mydbfile_teleinfo, keyword='db_teleinfo')
+    plugin_teleinfo.name = "sqlite_teleinfo"
+    install(plugin_teleinfo)
+
+    plugin_rtstats = SQLitePlugin(dbfile=mydbfile_rtstats, keyword='db_rtstats')
+    plugin_rtstats.name = "sqlite_rtstats"
+    install(plugin_rtstats)
     
     #Run server
     run(app=loggingapp, host='0.0.0.0', port=port, server=myserver, reload=True)

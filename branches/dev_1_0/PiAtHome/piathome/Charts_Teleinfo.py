@@ -12,9 +12,9 @@ from Charts_Authentication import *
 
 
 @route("/teleinfo_counter_id.json", apply=authenticated)
-def teleinfo_counterId(db2):
+def teleinfo_counterId(db_teleinfo):
     query = "SELECT distinct(TeleinfoDaily.counterId), counterName from TeleinfoDaily, TeleinfoCounters WHERE TeleinfoDaily.counterId=TeleinfoCounters.counterId"
-    c = db2.execute(query)
+    c = db_teleinfo.execute(query)
     d1 = []
 
     for row in c:
@@ -24,7 +24,7 @@ def teleinfo_counterId(db2):
 
 
 @route("/teleinfo_set_counter_id.json", apply=authenticated)
-def teleinfo_setCounterId(db2):
+def teleinfo_setCounterId(db_teleinfo):
     if not current_user().has('admin'):
         retVal = "Seul l'administrateur peut exécuter cette commande."
     else:
@@ -34,14 +34,14 @@ def teleinfo_setCounterId(db2):
         query_exists = "SELECT EXISTS (SELECT 1 FROM TeleinfoDaily WHERE counterId=?)"
         query = "REPLACE INTO TeleinfoCounters (counterId, counterName) VALUES (?, ?)"
         
-        c = db2.execute(query_exists, (counterId, ))
+        c = db_teleinfo.execute(query_exists, (counterId, ))
         row = c.fetchone()
     
         if row and row[0] != 1:
             retVal = "Impossible de changer le nom du compteur n°%s." % (counterId)
         else:
-            db2.execute(query, (counterId, counterName))
-            db2.commit()
+            db_teleinfo.execute(query, (counterId, counterName))
+            db_teleinfo.commit()
         
             retVal = "Le nom du compteur n°%s a été modifié : '%s'." % (counterId, counterName)
     
@@ -49,7 +49,7 @@ def teleinfo_setCounterId(db2):
 
 
 @route("/teleinfo_values_byday.json", apply=authenticated)
-def teleinfo_values_byday(db2):
+def teleinfo_values_byday(db_teleinfo):
     #Get parameters from request
     date1 = request.query.get('date1')
     date2 = request.query.get('date2')
@@ -70,14 +70,14 @@ def teleinfo_values_byday(db2):
     
     if counterId == "-1":
         query1 = "SELECT distinct(counterId) from TeleinfoByday"
-        c1 = db2.execute(query1)
+        c1 = db_teleinfo.execute(query1)
     else:
         c1 = [[counterId]]
         
     for row1 in c1:
         query2 = "SELECT dateDay, counterId, indexBase, value FROM TeleinfoByday where dateDay between ? and ? and counterId = ?"
         
-        c2 = db2.execute(query2, (dStart, dEnd, row1[0]))
+        c2 = db_teleinfo.execute(query2, (dStart, dEnd, row1[0]))
         d1 = []
         #d2 = []
         for row in c2:
@@ -92,7 +92,7 @@ def teleinfo_values_byday(db2):
 
 
 @route("/teleinfo_index_byday.json", apply=authenticated)
-def teleinfo_index_byday(db2):
+def teleinfo_index_byday(db_teleinfo):
     #Get parameters from request
     date1 = request.query.get('date1')
     date2 = request.query.get('date2')
@@ -112,14 +112,14 @@ def teleinfo_index_byday(db2):
     
     if counterId == "-1":
         query1 = "SELECT distinct(counterId) from TeleinfoByday"
-        c1 = db2.execute(query1)
+        c1 = db_teleinfo.execute(query1)
     else:
         c1 = [[counterId]]
         
     for row1 in c1:
         query2 = "SELECT dateDay, counterId, indexBase, value FROM TeleinfoByday where dateDay between ? and ? and counterId = ? ORDER BY dateDay ASC"
         
-        c2 = db2.execute(query2, (dStart, dEnd, row1[0]))
+        c2 = db_teleinfo.execute(query2, (dStart, dEnd, row1[0]))
         
         offset = 0
         d2 = []
@@ -136,7 +136,7 @@ def teleinfo_index_byday(db2):
 
 
 @route("/teleinfo_delta_from_date.json", apply=authenticated)
-def teleinfo_delta_from_date(db2):
+def teleinfo_delta_from_date(db_teleinfo):
     #Get parameters from request
     date1 = request.query.get('date1')
     date2 = request.query.get('date2')
@@ -154,7 +154,7 @@ def teleinfo_delta_from_date(db2):
     #Query db
     if counterId == "-1":
         query1 = "SELECT distinct(counterId) from TeleinfoByDay"
-        c1 = db2.execute(query1)
+        c1 = db_teleinfo.execute(query1)
     else:
         c1 = [[counterId]]
         
@@ -162,7 +162,7 @@ def teleinfo_delta_from_date(db2):
     for row1 in c1:
         query2 = "SELECT dateDay, indexBase FROM TeleinfoByDay WHERE (dateDay=? OR dateDay=?) AND counterId=? ORDER BY dateDay ASC"
 
-        c2 = db2.execute(query2, (dStart, dEnd, row1[0]))
+        c2 = db_teleinfo.execute(query2, (dStart, dEnd, row1[0]))
         row = c2.fetchall()
         
         delta = 0
