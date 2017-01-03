@@ -9,13 +9,13 @@ from distutils.core import setup
 def main():
     setup(
         name='PyTeleinfo',
-        version='1.0',
+        version='1.1',
         description='Python Teleinfo monitoring',
         author='bonzai133',
         author_email='bonzai133@sourceforge.net',
         url='http://sourceforge.net/projects/pysolarmax/',
         scripts=['teleinfo/teleinfo.py',
-                 'teleinfo/teleinfo_aggr.py'],
+                 'teleinfo/teleinfo_store.py'],
     )
 
 
