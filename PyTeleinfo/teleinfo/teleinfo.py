@@ -133,6 +133,8 @@ import logging.config
 import argparse
 import sqlite3
 from datetime import datetime
+import time
+import json
 
 try:
     import RPi.GPIO as GPIO
@@ -169,7 +171,7 @@ COUNTER_POS_CONSO = 1
 CHANNEL_GPIO = 7
 
 #Serial port
-SERIAL_PORT_NAME = "/dev/ttyAMA0"
+SERIAL_PORT_NAME = "/dev/serial0"
 SERIAL_PORT_BAUDRATE = 1200
 SERIAL_PORT_DATABITS = serial.SEVENBITS
 SERIAL_PORT_PARITY = serial.PARITY_EVEN
@@ -311,19 +313,40 @@ def parseFrame(frame):
 #===============================================================================
 # Data export
 #===============================================================================
-def exportData(data, dbFileName):
-    if dbFileName == "":
-        logging.info("Will print data")
-        displayData(data)
-    else:
-        logging.info("Will store data in %s" % dbFileName)
+def exportData(data, dbFileName, filename):
+    if dbFileName != "":
+        logging.debug("Will store data in %s" % dbFileName)
         writeDataToDb(data, dbFileName)
 
+    if filename and 'ADCO' in data.keys():
+        file_path = filename + data['ADCO']
+        logging.debug("Will write to file %s" % file_path)
+        
+        writeDataToDisk(data, file_path)
+                        
+    if dbFileName == "" and filename == "":
+        logging.debug("Will print data")
+        displayData(data)
 
+
+#===============================================================================
+# displayData
+#===============================================================================
 def displayData(data):
     print data
 
-  
+
+#===============================================================================
+# writeDataToDisk
+#===============================================================================
+def writeDataToDisk(data, filename):
+    with open(filename, 'w') as fp:
+        json.dump(data, fp)
+        
+
+#===============================================================================
+# writeDataToDb
+#===============================================================================
 def writeDataToDb(data, dbFileName):
     logging.debug("%s -> %s" % (data, dbFileName))
     
@@ -439,7 +462,7 @@ class DBManager:
 #===============================================================================
 # Read teleinfo main function
 #===============================================================================
-def readTeleinfo(serialPortName, interface, dbFileName):
+def readTeleinfo(serialPortName, interface, dbFileName, filename):
     serPort = None
     try:
         #Setup of ports
@@ -452,7 +475,7 @@ def readTeleinfo(serialPortName, interface, dbFileName):
             data = parseFrame(frame)
             
             #Write data
-            exportData(data, dbFileName)
+            exportData(data, dbFileName, filename)
         
     except Exception:
         logging.exception("Unexpected exception")
@@ -471,7 +494,9 @@ def main():
     parser.add_argument('-p', '--portName', dest='serialPortName', action='store', help='Serial port name', default=SERIAL_PORT_NAME)
     parser.add_argument('-i', '--interface', dest='interface', type=int, action='store', help='Teleinfo interface : 0 for Production, 1 for Consumption', default=COUNTER_POS_CONSO)
     parser.add_argument('-d', '--dbname', dest='dbFileName', action='store', help='Database filename', default='')
+    parser.add_argument('-f', '--filename', dest='filename', action='store', help='Path and prefix of file to write. Counter label will be append. Use /var/run/shm/teleinfo_ for example.', default='')
     parser.add_argument('-l', '--log-config', dest='logConfig', action='store', help='Log configuration file')
+    parser.add_argument('-s', '--service', action='store_true', help='Start as a service (infinite loop)')
 
     args = parser.parse_args()
 
@@ -487,15 +512,25 @@ def main():
 
     logging.info("Args: %s" % repr(args))
 
-    #Check arguments
-    if args.interface < 0 or args.interface > 1:
-        logging.error("Interface must be 0 or 1")
-        parser.error("Interface must be 0 or 1")
-    
-    readTeleinfo(args.serialPortName, args.interface, args.dbFileName)
+    #Check if we run as a service
+    if args.service:
+        #Inifinite loop
+        while(1):
+            readTeleinfo(args.serialPortName, COUNTER_POS_PROD, args.dbFileName, args.filename)
+            time.sleep(15)
+            readTeleinfo(args.serialPortName, COUNTER_POS_CONSO, args.dbFileName, args.filename)
+            time.sleep(15)
+    else:
+        #Check arguments
+        if args.interface < 0 or args.interface > 1:
+            logging.error("Interface must be 0 or 1")
+            parser.error("Interface must be 0 or 1")
+            
+        readTeleinfo(args.serialPortName, args.interface, args.dbFileName, args.filename)
     
     logging.info("----- End of treatment")
 
+#TODO : Plus besoin d'être root pour le port serie.
 
 if __name__ == "__main__":
     main()
