@@ -22,8 +22,8 @@ def main():
                          "conf_prod/apache2/piathome.conf",
                          "conf_prod/apache2/piathome_ssl.conf"]),
         ("config", ["conf_prod/cron_piathome"]),
-        ("/etc/apache2/sites-available", ["conf_prod/apache2/piathome",
-                                          "conf_prod/apache2/piathome_ssl"]),
+        ("/etc/apache2/sites-available", ["conf_prod/apache2/piathome.conf",
+                                          "conf_prod/apache2/piathome_ssl.conf"]),
         #("/etc/cron.d", ["conf_prod/cron_piathome"]),
         ("data", ["data/Placeholder.txt"]),
         #TODO: chown www-data or chmod
