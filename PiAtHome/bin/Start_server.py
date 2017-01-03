@@ -56,7 +56,7 @@ def main(port):
     session_opts = {
         'session.type': 'file',
         'session.cookie_expires': True,
-        'session.data_dir': './.cache',
+        'session.data_dir': '/var/run/shm/cache_piathome',
         'session.auto': True
     }
     
