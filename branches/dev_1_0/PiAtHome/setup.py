@@ -21,7 +21,8 @@ def main():
                          "conf_prod/logging_pysolarmax.conf",
                          "conf_prod/apache2/piathome.conf",
                          "conf_prod/apache2/piathome_ssl.conf"]),
-        ("config", ["conf_prod/cron_piathome"]),
+        ("config", ["conf_prod/cron_piathome",
+                    "conf_prod/cron_backup"]),
         ("/etc/apache2/sites-available", ["conf_prod/apache2/piathome.conf",
                                           "conf_prod/apache2/piathome_ssl.conf"]),
         #("/etc/cron.d", ["conf_prod/cron_piathome"]),
@@ -40,7 +41,7 @@ def main():
         author_email='bonzai133@sourceforge.net',
         url='http://sourceforge.net/projects/pysolarmax/',
         packages=['piathome'],
-        scripts=['bin/Charts.wsgi', 'bin/Start_server.py'],
+        scripts=['bin/Charts.wsgi', 'bin/Start_server.py', 'bin/backup.sh'],
         data_files=data_files + conf_files
     )
 

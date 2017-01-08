@@ -1,0 +1,6 @@
+#Don't send mail
+MAILTO=""
+
+#Execut backup script
+15 2 * * * root /opt/piathome/backup.sh
+
