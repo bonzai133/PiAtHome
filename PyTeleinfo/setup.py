@@ -5,6 +5,8 @@ from distutils.core import setup
 
 #===============================================================================
 # main
+# Will be installed in /usr/local/bin
+# Service must be in /etc/systemd/system/multi-user.target.wants/pyteleinfo.service
 #===============================================================================
 def main():
     setup(

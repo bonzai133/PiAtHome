@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 # -*- coding: UTF-8 -*-
 '''
 Created on 26 sept. 2013
@@ -233,6 +233,7 @@ def readFrame(serPort):
     frame = ""
     rcv = ""
     retryNb = 0
+    noEndTag = 0
     while frame == "" and retryNb < 5:
         rcv += serPort.read(255)
         if len(rcv) == 0:
@@ -259,7 +260,10 @@ def readFrame(serPort):
                         frame = frm_grp.rstrip(chr(0x03))
                         break
                     else:
-                        logging.info("No end tag in frame (%d) : %s" % (index, frm_grp))
+                        logging.info("No end tag in [%d] frame (%d) : %s" % (noEndTag, index, frm_grp))
+                        noEndTag += 1
+        if noEndTag > 10:
+            break
            
     return frame
 

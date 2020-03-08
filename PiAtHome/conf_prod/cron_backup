@@ -1,6 +1,6 @@
 #Don't send mail
-MAILTO=""
+MAILTO=bonzai133@free.fr
+SHELL=/bin/bash
 
 #Execut backup script
-15 2 * * * root /opt/piathome/backup.sh
-
+15 02 * * * root /opt/piathome/bin/backup.sh >> /var/log/backup.log 2>&1
