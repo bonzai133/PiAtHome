@@ -1,0 +1,5 @@
+#Don't send mail
+MAILTO=""
+
+# Check that lan is available or restart it
+*/5 * * * * root /opt/piathome/bin/restart_lan.sh >> /var/log/restart_lan.log 2>&1
