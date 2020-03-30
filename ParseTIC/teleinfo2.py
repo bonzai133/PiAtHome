@@ -55,6 +55,17 @@ except ImportError as e:
     print("RPi module not installed: will continue for testing")
 
 
+class DataLine:
+    def __init__(self):
+        pass
+
+    def parse(self, line):
+        pass
+
+    def checksup(self):
+        pass
+
+
 class FrameParser:
     def __init__(self):
         pass
@@ -62,7 +73,15 @@ class FrameParser:
     def parse(self, frame):
         raise NotImplemented
 
-    def checkSum(self):
+    def verifyChecksum(self, tag, horodate, data, checksum):
+        calculatedChecksum = self.checkSum(tag, horodate, data)
+
+        if calculatedChecksum == checksum:
+            return True
+
+        return False
+
+    def checkSum(self, tag, horodate, data):
         '''
          Le principe de calcul de la Checksum est le suivant :
          - calcul de la somme « S1 » de tous les caractères allant du début du champ « Etiquette » jusqu’au délimiteur (inclus) entre les
@@ -75,9 +94,22 @@ class FrameParser:
 
          :return:
          '''
+        checksum = 0
+
+        sep = chr(self.separator)
+        if horodate == "":
+            line = tag + sep + data + sep
+        else:
+            line = tag + sep + horodate + sep + data + sep
+
+        for c in line:
+            checksum += ord(c)
+
+        checksum = (checksum & 0x3F) + 0x20
+        return checksum
 
 
-class HistoricParser:
+class HistoricParser(FrameParser):
     '''
     Parse historic teleinfo frame
     <LF> (0x0A) | Etiquette | <SP> (0x20) | Donnée | <SP> (0x20) | Checksum | <CR> (0x0D)
@@ -85,6 +117,7 @@ class HistoricParser:
     '''
     startTag = 0x0a
     endTag = 0x0d
+    separator = 0x20
 
     def __init__(self):
         pass
@@ -93,30 +126,49 @@ class HistoricParser:
         raise NotImplemented
 
 
-class LinkyParser:
+class LinkyParser(FrameParser):
     '''
     Parse linky (TIC v2) teleinfo frame
     STX (0x02) | Data Set | Date Set  | ... | Data Set | ETX (0x03)
 
     Dataset with Horodate:
     <LF> (0x0A) | Etiquette | <HT> (0x09) | Horodate | <HT> (0x09) | Donnée | <HT> (0x09) | Checksum | <CR> (0x0D)
-                | Zone contrôlée par le checksum                                          |
+                | Zone contrôlée par le checksum                            |
 
     Dataset without Horodate:
     <LF> (0x0A) | Etiquette | <HT> (0x09) | Donnée | <HT> (0x09) | Checksum | <CR> (0x0D)
-                | Zone contrôlée par le checksum                 |
+                | Zone contrôlée par le checksum   |
     '''
     startTag = 0x02
     endTag = 0x03
-
-    def __init__(self):
-        pass
+    separator = 0x09
 
     def parse(self, frame):
         if frame == "":
             return {}
 
-        raise NotImplemented
+        dataLines = {}
+        for line in frame.split('\n'):
+            if line:
+                d = DataLine(line)
+                dataLines[d.tag] = d
+
+    def parseline(self, line):
+        group= line.split(chr(self.separator))
+
+        if len(group) == 3:
+            (tag, data, checksum) = group
+            horodate = ""
+        elif len(group) == 4:
+            (tag, horodate, data, checksum) = group
+        else:
+            raise ValueError("Wrong line format: %s" % group)
+
+        checksum = ord(checksum)
+        if not self.verifyChecksum(tag, horodate, data, checksum):
+            raise ValueError("Wrong cheksum: %s" % group)
+
+        return (tag, horodate, data, checksum)
 
 
 class SerialPortFile:
