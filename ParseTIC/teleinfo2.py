@@ -79,6 +79,12 @@ class DataLine:
 
         self._parse(line)
 
+    def __str__(self):
+        return self.toJson()
+
+    def __repr__(self):
+        return "%s: %s|%s|%s" % (self.tag, self.horodate, self.data, self.checksumValue)
+
     def toJson(self):
         if self.horodate != "":
             return self.horodate + '|' + self.data
@@ -152,7 +158,7 @@ class FrameParser:
         dataLines = {}
         for line in frame.split('\n'):
             if line:
-                d = DataLine(line, self.separator)
+                d = DataLine(line.strip('\r'), self.separator)
                 dataLines[d.tag] = d
 
         return dataLines
@@ -164,8 +170,8 @@ class HistoricParser(FrameParser):
     <LF> (0x0A) | Etiquette | <SP> (0x20) | Donnée | <SP> (0x20) | Checksum | <CR> (0x0D)
                 | Zone contrôlée par le checksum   |
     '''
-    startTag = 0x0a
-    endTag = 0x0d
+    startTag = 0x02
+    endTag = 0x03
     separator = 0x20
 
 
@@ -261,7 +267,7 @@ class PortManager:
 
             gpioValues = {Counter.CONSUMPTION_ID: GPIO.LOW, Counter.PRODUCTION_ID: GPIO.HIGH}
 
-            gpioValue = self.gpioValues[self.counterPosition]
+            gpioValue = gpioValues[self.counterPosition]
             GPIO.setup(self.gpioChannel, GPIO.OUT, initial=gpioValue)
 
     def cleanupGPIO(self):
@@ -323,7 +329,7 @@ class FrameReader:
             for char in self.serialPort.read(self.bufferSize):
                 nbRead += 1
 
-                if started and (char == self.endTag or char == self.startTag):
+                if started and char == self.endTag:
                     started = False
                     done = True
                     break

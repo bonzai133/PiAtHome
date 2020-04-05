@@ -108,26 +108,34 @@
       <option name="project" value="LOCAL" />
       <updated>1585512321708</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Finalize teleinfo2.py">
+      <created>1586099637216</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1586099637216</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Create teleinfo2.py for Linky" />
-    <option name="LAST_COMMIT_MESSAGE" value="Create teleinfo2.py for Linky" />
+    <MESSAGE value="Finalize teleinfo2.py" />
+    <option name="LAST_COMMIT_MESSAGE" value="Finalize teleinfo2.py" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="453" y="211" width="1084" height="719" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1586095574833">
+    <state x="453" y="211" width="1084" height="719" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1586099952114">
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
-    <state x="453" y="211" width="1084" height="719" key="#com.intellij.execution.impl.EditConfigurationsDialog/70.27.1850.1053@70.27.1850.1053" timestamp="1586095574833" />
+    <state x="453" y="211" width="1084" height="719" key="#com.intellij.execution.impl.EditConfigurationsDialog/70.27.1850.1053@70.27.1850.1053" timestamp="1586099952114" />
     <state x="827" y="445" width="325" height="224" key="#com.jetbrains.python.refactoring.move.PyMoveModuleMembersDialog" timestamp="1585475098535">
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
     <state x="827" y="445" width="325" height="224" key="#com.jetbrains.python.refactoring.move.PyMoveModuleMembersDialog/70.27.1850.1053@70.27.1850.1053" timestamp="1585475098535" />
-    <state x="601" y="130" width="777" height="854" key="CommitChangelistDialog2" timestamp="1585512321571">
+    <state x="601" y="130" width="777" height="854" key="CommitChangelistDialog2" timestamp="1586099637091">
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
-    <state x="601" y="130" width="777" height="854" key="CommitChangelistDialog2/70.27.1850.1053@70.27.1850.1053" timestamp="1585512321571" />
+    <state x="601" y="130" width="777" height="854" key="CommitChangelistDialog2/70.27.1850.1053@70.27.1850.1053" timestamp="1586099637091" />
     <state width="1827" height="275" key="GridCell.Tab.0.bottom" timestamp="1586099558803">
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
@@ -168,10 +176,10 @@
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
     <state x="484" y="188" width="1022" height="737" key="SettingsEditor/70.27.1850.1053@70.27.1850.1053" timestamp="1585483409192" />
-    <state x="590" y="289" width="800" height="535" key="Vcs.Push.Dialog.v2" timestamp="1585511921130">
+    <state x="590" y="289" width="800" height="535" key="Vcs.Push.Dialog.v2" timestamp="1586099682300">
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
-    <state x="590" y="289" width="800" height="535" key="Vcs.Push.Dialog.v2/70.27.1850.1053@70.27.1850.1053" timestamp="1585511921130" />
+    <state x="590" y="289" width="800" height="535" key="Vcs.Push.Dialog.v2/70.27.1850.1053@70.27.1850.1053" timestamp="1586099682300" />
     <state x="651" y="381" key="com.intellij.ide.util.TipDialog" timestamp="1586094762623">
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
