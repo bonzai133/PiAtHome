@@ -47,6 +47,8 @@ cat /dev/ttyAMA0
 import argparse
 import serial
 import time
+from json import JSONEncoder
+import json
 import logging
 
 try:
@@ -55,23 +57,53 @@ except ImportError as e:
     print("RPi module not installed: will continue for testing")
 
 
+class DataLineEncoder(JSONEncoder):
+    def default(self, object):
+        if isinstance(object, DataLine):
+            return object.toJson()
+        else:
+            # call base class implementation which takes care of
+            # raising exceptions for unsupported types
+            return json.JSONEncoder.default(self, object)
+
+
 class DataLine:
-    def __init__(self):
-        pass
+    def __init__(self, line, separator):
+        self.line = line
+        self.separator = separator
 
-    def parse(self, line):
-        pass
+        self.tag = ""
+        self.horodate = ""
+        self.data = ""
+        self.checksumValue = ""
 
-    def checksup(self):
-        pass
+        self._parse(line)
 
+    def toJson(self):
+        if self.horodate != "":
+            return self.horodate + '|' + self.data
 
-class FrameParser:
-    def __init__(self):
-        pass
+        return self.data
 
-    def parse(self, frame):
-        raise NotImplemented
+    def _parse(self, line):
+        group = line.split(chr(self.separator))
+
+        if len(group) == 3:
+            (tag, data, checksum) = group
+            horodate = ""
+        elif len(group) == 4:
+            (tag, horodate, data, checksum) = group
+        else:
+            raise ValueError("Wrong line format: %s" % group)
+
+        checksum = ord(checksum)
+        if not self.verifyChecksum(tag, horodate, data, checksum):
+            raise ValueError("Wrong cheksum: %s" % group)
+
+        self.tag = tag
+        self.horodate = horodate
+        self.data = data
+        self.checksumValue = checksum
 
     def verifyChecksum(self, tag, horodate, data, checksum):
         calculatedChecksum = self.checkSum(tag, horodate, data)
@@ -109,6 +141,23 @@ class FrameParser:
         return checksum
 
 
+class FrameParser:
+    def __init__(self):
+        pass
+
+    def parse(self, frame):
+        if frame == "":
+            return {}
+
+        dataLines = {}
+        for line in frame.split('\n'):
+            if line:
+                d = DataLine(line, self.separator)
+                dataLines[d.tag] = d
+
+        return dataLines
+
+
 class HistoricParser(FrameParser):
     '''
     Parse historic teleinfo frame
@@ -118,12 +167,6 @@ class HistoricParser(FrameParser):
     startTag = 0x0a
     endTag = 0x0d
     separator = 0x20
-
-    def __init__(self):
-        pass
-
-    def parse(self, frame):
-        raise NotImplemented
 
 
 class LinkyParser(FrameParser):
@@ -142,33 +185,6 @@ class LinkyParser(FrameParser):
     startTag = 0x02
     endTag = 0x03
     separator = 0x09
-
-    def parse(self, frame):
-        if frame == "":
-            return {}
-
-        dataLines = {}
-        for line in frame.split('\n'):
-            if line:
-                d = DataLine(line)
-                dataLines[d.tag] = d
-
-    def parseline(self, line):
-        group= line.split(chr(self.separator))
-
-        if len(group) == 3:
-            (tag, data, checksum) = group
-            horodate = ""
-        elif len(group) == 4:
-            (tag, horodate, data, checksum) = group
-        else:
-            raise ValueError("Wrong line format: %s" % group)
-
-        checksum = ord(checksum)
-        if not self.verifyChecksum(tag, horodate, data, checksum):
-            raise ValueError("Wrong cheksum: %s" % group)
-
-        return (tag, horodate, data, checksum)
 
 
 class SerialPortFile:
@@ -342,7 +358,7 @@ class Counter:
 
     def readTeleinfo(self):
         serialPort = None
-        readData = None
+        dataLines = None
         try:
             portManager = PortManager(self.gpioChannel, self.identifier)
 
@@ -358,7 +374,7 @@ class Counter:
                                 self.serialParameters.frameParser.endTag).readFrame()
 
             # Parse frame
-            readData = self.serialParameters.frameParser.parse(frame)
+            dataLines = self.serialParameters.frameParser.parse(frame)
 
         except Exception:
             logging.exception("Unexpected exception")
@@ -366,7 +382,7 @@ class Counter:
             portManager.cleanupSerialPort()
             portManager.cleanupGPIO()
 
-        return readData
+        return dataLines
 
 
 class ProductionCounter(Counter):
@@ -382,6 +398,25 @@ class ConsumptionCounter(Counter):
 class FakeCounter(Counter):
     def __init__(self):
         super(FakeCounter, self).__init__(-1, FakeTeleinfoSerialParameters, 7)
+
+
+class DataWriter:
+    def __init__(self, filenamePrefix):
+        self.filenamePrefix = filenamePrefix
+
+    def write(self, dataLines):
+        filename = ''
+        if 'ADCO' in dataLines.keys():
+            filename = self.filenamePrefix + dataLines['ADCO'].data
+        elif 'ADSC' in dataLines.keys():
+            filename = self.filenamePrefix + dataLines['ADSC'].data
+        else:
+            logging.debug("ADCO or ADSC not found in data: %s" % dataLines.keys())
+            raise KeyError("Can't find counter key in data")
+
+        logging.debug("Will write to file %s" % filename)
+        with open(filename, 'w') as fp:
+            json.dump(dataLines, fp, cls=DataLineEncoder)
 
 
 def main():
@@ -422,6 +457,11 @@ def main():
 
     logging.debug("Args: %s" % repr(args))
 
+    # Datawriter
+    dataWriter = None
+    if args.writeToFile != "":
+        dataWriter = DataWriter(args.writeToFile)
+
     # Check if we run as a service
     loop = True
     while loop:
@@ -430,19 +470,28 @@ def main():
 
         if args.consumption:
             info = ConsumptionCounter().readTeleinfo()
-            print(info)
+            logging.info("Consumption Teleinfo: %s" % info)
+            if dataWriter:
+                dataWriter.write(info)
+
             if args.service:
                 time.sleep(args.sleepTime)
 
         if args.production:
             info = ProductionCounter().readTeleinfo()
-            print(info)
+            logging.info("Production Teleinfo: %s" % info)
+            if dataWriter:
+                dataWriter.write(info)
+
             if args.service:
                 time.sleep(args.sleepTime)
 
         if args.fake:
             info = FakeCounter().readTeleinfo()
-            print(info)
+            logging.info("Fake Teleinfo: %s" % info)
+            if dataWriter:
+                dataWriter.write(info)
+
             if args.service:
                 time.sleep(args.sleepTime)
 

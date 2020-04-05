@@ -71,7 +71,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/ParseTIC/teleinfo2.py" />
-      <option name="PARAMETERS" value="--debug -e DEBUG -f" />
+      <option name="PARAMETERS" value="--debug -e DEBUG -f -w output_" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -116,10 +116,10 @@
     <option name="LAST_COMMIT_MESSAGE" value="Create teleinfo2.py for Linky" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="453" y="211" width="1084" height="719" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1585491092405">
+    <state x="453" y="211" width="1084" height="719" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1586095574833">
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
-    <state x="453" y="211" width="1084" height="719" key="#com.intellij.execution.impl.EditConfigurationsDialog/70.27.1850.1053@70.27.1850.1053" timestamp="1585491092405" />
+    <state x="453" y="211" width="1084" height="719" key="#com.intellij.execution.impl.EditConfigurationsDialog/70.27.1850.1053@70.27.1850.1053" timestamp="1586095574833" />
     <state x="827" y="445" width="325" height="224" key="#com.jetbrains.python.refactoring.move.PyMoveModuleMembersDialog" timestamp="1585475098535">
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
@@ -128,22 +128,22 @@
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
     <state x="601" y="130" width="777" height="854" key="CommitChangelistDialog2/70.27.1850.1053@70.27.1850.1053" timestamp="1585512321571" />
-    <state width="1827" height="275" key="GridCell.Tab.0.bottom" timestamp="1585515198342">
+    <state width="1827" height="275" key="GridCell.Tab.0.bottom" timestamp="1586099558803">
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
-    <state width="1827" height="275" key="GridCell.Tab.0.bottom/70.27.1850.1053@70.27.1850.1053" timestamp="1585515198342" />
-    <state width="1827" height="275" key="GridCell.Tab.0.center" timestamp="1585515198342">
+    <state width="1827" height="275" key="GridCell.Tab.0.bottom/70.27.1850.1053@70.27.1850.1053" timestamp="1586099558803" />
+    <state width="1827" height="275" key="GridCell.Tab.0.center" timestamp="1586099558802">
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
-    <state width="1827" height="275" key="GridCell.Tab.0.center/70.27.1850.1053@70.27.1850.1053" timestamp="1585515198342" />
-    <state width="1827" height="275" key="GridCell.Tab.0.left" timestamp="1585515198341">
+    <state width="1827" height="275" key="GridCell.Tab.0.center/70.27.1850.1053@70.27.1850.1053" timestamp="1586099558802" />
+    <state width="1827" height="275" key="GridCell.Tab.0.left" timestamp="1586099558802">
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
-    <state width="1827" height="275" key="GridCell.Tab.0.left/70.27.1850.1053@70.27.1850.1053" timestamp="1585515198341" />
-    <state width="1827" height="275" key="GridCell.Tab.0.right" timestamp="1585515198342">
+    <state width="1827" height="275" key="GridCell.Tab.0.left/70.27.1850.1053@70.27.1850.1053" timestamp="1586099558802" />
+    <state width="1827" height="275" key="GridCell.Tab.0.right" timestamp="1586099558803">
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
-    <state width="1827" height="275" key="GridCell.Tab.0.right/70.27.1850.1053@70.27.1850.1053" timestamp="1585515198342" />
+    <state width="1827" height="275" key="GridCell.Tab.0.right/70.27.1850.1053@70.27.1850.1053" timestamp="1586099558803" />
     <state width="1827" height="340" key="GridCell.Tab.1.bottom" timestamp="1585501696460">
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
@@ -172,24 +172,13 @@
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
     <state x="590" y="289" width="800" height="535" key="Vcs.Push.Dialog.v2/70.27.1850.1053@70.27.1850.1053" timestamp="1585511921130" />
-    <state x="651" y="381" key="com.intellij.ide.util.TipDialog" timestamp="1585511836601">
+    <state x="651" y="381" key="com.intellij.ide.util.TipDialog" timestamp="1586094762623">
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
-    <state x="651" y="381" key="com.intellij.ide.util.TipDialog/70.27.1850.1053@70.27.1850.1053" timestamp="1585511836601" />
-    <state x="658" y="259" width="672" height="678" key="search.everywhere.popup" timestamp="1585488921386">
+    <state x="651" y="381" key="com.intellij.ide.util.TipDialog/70.27.1850.1053@70.27.1850.1053" timestamp="1586094762623" />
+    <state x="658" y="259" width="672" height="678" key="search.everywhere.popup" timestamp="1586096544159">
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
-    <state x="658" y="259" width="672" height="678" key="search.everywhere.popup/70.27.1850.1053@70.27.1850.1053" timestamp="1585488921386" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/ParseTIC/teleinfo2.py</url>
-          <line>310</line>
-          <option name="timeStamp" value="5" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+    <state x="658" y="259" width="672" height="678" key="search.everywhere.popup/70.27.1850.1053@70.27.1850.1053" timestamp="1586096544159" />
   </component>
 </project>
