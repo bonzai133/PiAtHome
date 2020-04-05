@@ -68,9 +68,10 @@ class DataLineEncoder(JSONEncoder):
 
 
 class DataLine:
-    def __init__(self, line, separator):
+    def __init__(self, line, separator, addSeparatorInChecksum):
         self.line = line
         self.separator = separator
+        self.addSeparatorInChecksum = addSeparatorInChecksum
 
         self.tag = ""
         self.horodate = ""
@@ -120,6 +121,7 @@ class DataLine:
         return False
 
     def checkSum(self, tag, horodate, data):
+        # TODO: Move checksum to Frame Parsers
         '''
          Le principe de calcul de la Checksum est le suivant :
          - calcul de la somme « S1 » de tous les caractères allant du début du champ « Etiquette » jusqu’au délimiteur (inclus) entre les
@@ -136,12 +138,15 @@ class DataLine:
 
         sep = chr(self.separator)
         if horodate == "":
-            line = tag + sep + data + sep
+            line = tag + sep + data
         else:
-            line = tag + sep + horodate + sep + data + sep
+            line = tag + sep + horodate + sep + data
 
         for c in line:
             checksum += ord(c)
+
+        if self.addSeparatorInChecksum:
+            checksum += self.separator
 
         checksum = (checksum & 0x3F) + 0x20
         return checksum
@@ -158,7 +163,7 @@ class FrameParser:
         dataLines = {}
         for line in frame.split('\n'):
             if line:
-                d = DataLine(line.strip('\r'), self.separator)
+                d = DataLine(line.strip('\r'), self.separator, self.addSeparatorInChecksum)
                 dataLines[d.tag] = d
 
         return dataLines
@@ -173,6 +178,7 @@ class HistoricParser(FrameParser):
     startTag = 0x02
     endTag = 0x03
     separator = 0x20
+    addSeparatorInChecksum = False
 
 
 class LinkyParser(FrameParser):
@@ -191,6 +197,7 @@ class LinkyParser(FrameParser):
     startTag = 0x02
     endTag = 0x03
     separator = 0x09
+    addSeparatorInChecksum = True
 
 
 class SerialPortFile:
@@ -473,6 +480,10 @@ def main():
     while loop:
         if not args.service:
             loop = False
+
+        if not args.consumption and not args.production and not args.fake:
+            logging.error("Must specify at least one counter")
+            break
 
         if args.consumption:
             info = ConsumptionCounter().readTeleinfo()
