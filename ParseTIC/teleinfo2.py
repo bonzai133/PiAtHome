@@ -335,11 +335,13 @@ class FrameReader:
                 nbRead += 1
 
                 if started and char == self.endTag:
+                    logging.debug("End of frame")
                     started = False
                     done = True
                     break
 
                 if char == self.startTag:
+                    logging.debug("Start of frame")
                     started = True
                     continue
 
@@ -379,13 +381,21 @@ class Counter:
             # Setup serial port
             serialPort = portManager.setupSerialPort(self.serialParameters)
 
-            # Read frame
-            frame = FrameReader(portManager.serialPort,
-                                self.serialParameters.frameParser.startTag,
-                                self.serialParameters.frameParser.endTag).readFrame()
+            retry = 3
+            while retry > 0:
+                try:
+                    # Read frame
+                    frame = FrameReader(portManager.serialPort,
+                                        self.serialParameters.frameParser.startTag,
+                                        self.serialParameters.frameParser.endTag).readFrame()
 
-            # Parse frame
-            dataLines = self.serialParameters.frameParser.parse(frame)
+                    # Parse frame
+                    dataLines = self.serialParameters.frameParser.parse(frame)
+                    retry = 0
+                except ValueError as e:
+                    logging.debug("Wrong frame: %s. Will retry (%d)" % (e, retry))
+                    dataLines = None
+                    retry -= 1
 
         except Exception:
             logging.exception("Unexpected exception")
