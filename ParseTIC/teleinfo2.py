@@ -47,6 +47,7 @@ cat /dev/ttyAMA0
 import argparse
 import serial
 import time
+import sys
 from json import JSONEncoder
 import json
 import logging
@@ -55,6 +56,14 @@ try:
     import RPi.GPIO as GPIO
 except ImportError as e:
     print("RPi module not installed: will continue for testing")
+
+# TODO:Split into several files
+
+
+class AbortError(Exception):
+    def __init__(self, message):
+        # Call the base class constructor with the parameters it needs
+        super().__init__(message)
 
 
 class DataLineEncoder(JSONEncoder):
@@ -230,6 +239,9 @@ class HistoricTeleinfoSerialParameters:
     # For fake serial port
     serialPortFileName = ""
 
+    # Buffer size
+    bufferSize = 255
+
     # Serial port name
     serialPortName = "/dev/serial0"
     serialPortReadTimeout = 3.0
@@ -248,6 +260,9 @@ class LinkyTeleinfoSerialParameters:
     # For fake serial port
     serialPortFileName = ""
 
+    # Buffer size
+    bufferSize = 500
+
     # Serial port name
     serialPortName = "/dev/serial0"
     serialPortReadTimeout = 3.0
@@ -263,14 +278,34 @@ class LinkyTeleinfoSerialParameters:
 
 
 class PortManager:
-    def __init__(self, gpioChannel, counterPosition):
+    def __init__(self, gpioChannel, counterPosition, debug=False):
         self.gpioChannel = gpioChannel
 
         self.serialPort = None
         self.counterPosition = counterPosition
 
+        self.debug = debug
+
+
+    def resetBuffer(self):
+        """
+        Discard existing data in input buffer
+        :return:
+        """
+        logging.debug("resetBuffer")
+        if self.serialPort is not None:
+            if hasattr(self.serialPort, 'reset_input_buffer'):
+                self.serialPort.reset_input_buffer()
+            elif hasattr(self.serialPort, 'flushInput'):
+                self.serialPort.flushInput()
+
+
     def setupGPIO(self):
+        logging.debug("setupGPIO")
         if self.counterPosition != Counter.FAKE_ID:
+            # Disable GPIO warnings except in debug mode
+            if not self.debug:
+                GPIO.setwarnings(False)
             GPIO.setmode(GPIO.BOARD)
 
             gpioValues = {Counter.CONSUMPTION_ID: GPIO.LOW, Counter.PRODUCTION_ID: GPIO.HIGH}
@@ -279,10 +314,12 @@ class PortManager:
             GPIO.setup(self.gpioChannel, GPIO.OUT, initial=gpioValue)
 
     def cleanupGPIO(self):
+        logging.debug("cleanupGPIO")
         if self.counterPosition != Counter.FAKE_ID:
             GPIO.cleanup()
 
     def setupSerialPort(self, serialPortParameters):
+        logging.debug("setupSerialPort")
         self.serialPort = None
 
         if serialPortParameters.serialPortFileName != "":
@@ -306,19 +343,19 @@ class PortManager:
                 logging.error("Exception in setupSerial: %s" % e)
 
     def cleanupSerialPort(self):
+        logging.debug("cleanupSerialPort")
         if self.serialPort:
             self.serialPort.close()
 
 
 class FrameReader:
-    def __init__(self, serialPort, startTag, endTag):
+    def __init__(self, serialPort, startTag, endTag, bufferSize):
         self.serialPort = serialPort
         self.startTag = startTag
         self.endTag = endTag
 
-        self.loopNumber = 10
-        self.bufferSize = 255
-
+        self.loopNumber = 5
+        self.bufferSize = bufferSize
 
     def readFrame(self):
         if self.serialPort is None:
@@ -387,10 +424,14 @@ class Counter:
             retry = 3
             while retry > 0:
                 try:
+                    # Clean input buffer:
+                    portManager.resetBuffer()
+
                     # Read frame
                     frame = FrameReader(portManager.serialPort,
                                         self.serialParameters.frameParser.startTag,
-                                        self.serialParameters.frameParser.endTag).readFrame()
+                                        self.serialParameters.frameParser.endTag,
+                                        self.serialParameters.bufferSize).readFrame()
 
                     # Parse frame
                     dataLines = self.serialParameters.frameParser.parse(frame)
@@ -399,12 +440,19 @@ class Counter:
                     if len(dataLines) > 0:
                         retry = 0
                     else:
+                        logging.debug("No datalines. Will retry (%d)" % retry)
+                        dataLines = None
                         retry -= 1
                 except ValueError as e:
                     logging.debug("Wrong frame: %s. Will retry (%d)" % (e, retry))
                     dataLines = None
                     retry -= 1
 
+        except KeyboardInterrupt:
+            logging.info("Interrupted")
+            raise AbortError("Interrupted")
+        except serial.serialutil.SerialException as e:
+            logging.info("SerialException: %s" % e)
         except Exception:
             logging.exception("Unexpected exception")
         finally:
@@ -470,7 +518,8 @@ def main():
     parser.add_argument('-w', '--write-to-file', dest='writeToFile', action='store',
                         help='Path and prefix of file to write. Counter label will be append. Use /var/run/shm/teleinfo for example.',
                         default='')
-    parser.add_argument('-m', '--sleep-time', dest='sleepTime', action='store', help='Sleep time between each read in service mode', default=15)
+    parser.add_argument('-m', '--sleep-time', dest='sleepTime', type=float, action='store',
+                        help='Sleep time between each read in service mode', default=15)
 
     parser.add_argument('-l', '--log-file', dest='logFile', action='store', help='Log file path')
     parser.add_argument('-e', '--log-level', dest='logLevel', action='store', help='Log level DEBUG, INFO, WARNING, ERROR', default='INFO')
@@ -515,20 +564,30 @@ def main():
             logging.error("Must specify at least one counter")
             break
 
-        for counter in countersToCheck:
-            info = counter.readTeleinfo()
-            logging.info("%s Teleinfo: %s" % (counter.name, info))
+        try:
+            for counter in countersToCheck:
+                logging.info("-- Start %s" % (counter.name))
+                info = counter.readTeleinfo()
+                logging.info("%s Teleinfo: %s" % (counter.name, info))
 
-            # Write data
-            if dataWriter and info is not None:
-                try:
-                    dataWriter.write(info)
-                except KeyError as e:
-                    logging.error("Key not found in teleinfo: %s" % info)
+                # Write data
+                if dataWriter and info is not None:
+                    logging.debug("Write data")
+                    try:
+                        dataWriter.write(info)
+                    except KeyError as e:
+                        logging.error("Key not found in teleinfo: %s" % info)
 
-            # Wait a while in service mode
-            if args.service:
-                time.sleep(args.sleepTime)
+                # Wait a while in service mode
+                if args.service:
+                    logging.debug("Sleep")
+                    time.sleep(args.sleepTime)
+        except AbortError as e:
+            logging.info(e)
+            sys.exit(0)
+        except KeyboardInterrupt:
+            logging.info("Interrupted (2)")
+            sys.exit(0)
 
     logging.debug("-- End of process --")
 

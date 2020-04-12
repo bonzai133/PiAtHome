@@ -142,7 +142,14 @@
       <option name="project" value="LOCAL" />
       <updated>1586679404067</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Handle some format exception">
+      <created>1586680406497</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1586680406497</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -152,7 +159,8 @@
     <MESSAGE value="Fix checksum issues." />
     <MESSAGE value="Fix issues." />
     <MESSAGE value="Handle frame format exception" />
-    <option name="LAST_COMMIT_MESSAGE" value="Handle frame format exception" />
+    <MESSAGE value="Handle some format exception" />
+    <option name="LAST_COMMIT_MESSAGE" value="Handle some format exception" />
   </component>
   <component name="WindowStateProjectService">
     <state x="453" y="211" width="1084" height="719" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1586677468863">
@@ -163,26 +171,26 @@
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
     <state x="827" y="445" width="325" height="224" key="#com.jetbrains.python.refactoring.move.PyMoveModuleMembersDialog/70.27.1850.1053@70.27.1850.1053" timestamp="1585475098535" />
-    <state x="230" y="27" width="912" height="854" key="CommitChangelistDialog2" timestamp="1586679404010">
+    <state x="230" y="27" width="912" height="854" key="CommitChangelistDialog2" timestamp="1586680406441">
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
-    <state x="230" y="27" width="912" height="854" key="CommitChangelistDialog2/70.27.1850.1053@70.27.1850.1053" timestamp="1586679404010" />
-    <state width="1827" height="236" key="GridCell.Tab.0.bottom" timestamp="1586677158745">
+    <state x="230" y="27" width="912" height="854" key="CommitChangelistDialog2/70.27.1850.1053@70.27.1850.1053" timestamp="1586680406441" />
+    <state width="1827" height="236" key="GridCell.Tab.0.bottom" timestamp="1586681443808">
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
-    <state width="1827" height="236" key="GridCell.Tab.0.bottom/70.27.1850.1053@70.27.1850.1053" timestamp="1586677158745" />
-    <state width="1827" height="236" key="GridCell.Tab.0.center" timestamp="1586677158744">
+    <state width="1827" height="236" key="GridCell.Tab.0.bottom/70.27.1850.1053@70.27.1850.1053" timestamp="1586681443808" />
+    <state width="1827" height="236" key="GridCell.Tab.0.center" timestamp="1586681443807">
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
-    <state width="1827" height="236" key="GridCell.Tab.0.center/70.27.1850.1053@70.27.1850.1053" timestamp="1586677158744" />
-    <state width="1827" height="236" key="GridCell.Tab.0.left" timestamp="1586677158744">
+    <state width="1827" height="236" key="GridCell.Tab.0.center/70.27.1850.1053@70.27.1850.1053" timestamp="1586681443807" />
+    <state width="1827" height="236" key="GridCell.Tab.0.left" timestamp="1586681443807">
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
-    <state width="1827" height="236" key="GridCell.Tab.0.left/70.27.1850.1053@70.27.1850.1053" timestamp="1586677158744" />
-    <state width="1827" height="236" key="GridCell.Tab.0.right" timestamp="1586677158745">
+    <state width="1827" height="236" key="GridCell.Tab.0.left/70.27.1850.1053@70.27.1850.1053" timestamp="1586681443807" />
+    <state width="1827" height="236" key="GridCell.Tab.0.right" timestamp="1586681443808">
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
-    <state width="1827" height="236" key="GridCell.Tab.0.right/70.27.1850.1053@70.27.1850.1053" timestamp="1586677158745" />
+    <state width="1827" height="236" key="GridCell.Tab.0.right/70.27.1850.1053@70.27.1850.1053" timestamp="1586681443808" />
     <state width="1827" height="340" key="GridCell.Tab.1.bottom" timestamp="1586677004959">
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
@@ -207,10 +215,10 @@
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
     <state x="484" y="188" width="1022" height="737" key="SettingsEditor/70.27.1850.1053@70.27.1850.1053" timestamp="1585483409192" />
-    <state x="590" y="289" width="800" height="535" key="Vcs.Push.Dialog.v2" timestamp="1586679464936">
+    <state x="590" y="289" width="800" height="535" key="Vcs.Push.Dialog.v2" timestamp="1586680416664">
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
-    <state x="590" y="289" width="800" height="535" key="Vcs.Push.Dialog.v2/70.27.1850.1053@70.27.1850.1053" timestamp="1586679464936" />
+    <state x="590" y="289" width="800" height="535" key="Vcs.Push.Dialog.v2/70.27.1850.1053@70.27.1850.1053" timestamp="1586680416664" />
     <state x="651" y="381" key="com.intellij.ide.util.TipDialog" timestamp="1586673775369">
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
