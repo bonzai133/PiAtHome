@@ -35,7 +35,7 @@ Port Série:
 
 
 En bash pour test:
-stty -F /dev/ttyAMA0 1200 sane evenp parenb cs7 -crtscts
+stty -F /dev/ttyAMA0 1200 raw evenp parenb cs7 -crtscts
 echo "4" > /sys/class/gpio/export
 echo "out" > /sys/class/gpio/gpio4/direction
 echo "0" > /sys/class/gpio/gpio4/value
@@ -68,17 +68,16 @@ class DataLineEncoder(JSONEncoder):
 
 
 class DataLine:
-    def __init__(self, line, separator, addSeparatorInChecksum):
+    def __init__(self, line, separator):
         self.line = line
         self.separator = separator
-        self.addSeparatorInChecksum = addSeparatorInChecksum
 
         self.tag = ""
         self.horodate = ""
         self.data = ""
         self.checksumValue = ""
 
-        self._parse(line)
+        self._parse()
 
     def __str__(self):
         return self.toJson()
@@ -87,13 +86,15 @@ class DataLine:
         return "%s: %s|%s|%s" % (self.tag, self.horodate, self.data, self.checksumValue)
 
     def toJson(self):
-        if self.horodate != "":
+        if self.horodate != "" and self.data != "":
             return self.horodate + '|' + self.data
+        elif self.horodate != "":
+            return self.horodate
 
         return self.data
 
-    def _parse(self, line):
-        group = line.split(chr(self.separator))
+    def _parse(self):
+        group = self.line.split(chr(self.separator))
 
         if len(group) == 3:
             (tag, data, checksum) = group
@@ -103,14 +104,29 @@ class DataLine:
         else:
             raise ValueError("Wrong line format: %s" % group)
 
-        checksum = ord(checksum)
-        if not self.verifyChecksum(tag, horodate, data, checksum):
-            raise ValueError("Wrong cheksum: %s" % group)
-
         self.tag = tag
         self.horodate = horodate
         self.data = data
-        self.checksumValue = checksum
+        self.checksumValue = ord(checksum)
+
+
+class FrameParser:
+    def __init__(self):
+        pass
+
+    def parse(self, frame):
+        if frame == "":
+            return {}
+
+        dataLines = {}
+        for line in frame.split('\n'):
+            if line:
+                d = DataLine(line.strip('\r'), self.separator)
+                if not self.verifyChecksum(d.tag, d.horodate, d.data, d.checksumValue):
+                    raise ValueError("Wrong cheksum: %s" % d)
+                dataLines[d.tag] = d
+
+        return dataLines
 
     def verifyChecksum(self, tag, horodate, data, checksum):
         calculatedChecksum = self.checkSum(tag, horodate, data)
@@ -121,7 +137,6 @@ class DataLine:
         return False
 
     def checkSum(self, tag, horodate, data):
-        # TODO: Move checksum to Frame Parsers
         '''
          Le principe de calcul de la Checksum est le suivant :
          - calcul de la somme « S1 » de tous les caractères allant du début du champ « Etiquette » jusqu’au délimiteur (inclus) entre les
@@ -150,23 +165,6 @@ class DataLine:
 
         checksum = (checksum & 0x3F) + 0x20
         return checksum
-
-
-class FrameParser:
-    def __init__(self):
-        pass
-
-    def parse(self, frame):
-        if frame == "":
-            return {}
-
-        dataLines = {}
-        for line in frame.split('\n'):
-            if line:
-                d = DataLine(line.strip('\r'), self.separator, self.addSeparatorInChecksum)
-                dataLines[d.tag] = d
-
-        return dataLines
 
 
 class HistoricParser(FrameParser):
@@ -219,7 +217,7 @@ class SerialPortFile:
 
 class FakeTeleinfoSerialParameters:
     # For fake serial port
-    serialPortFileName = "tic_std1.txt"
+    serialPortFileName = "prod.txt"
 
     # Frame parser
     frameParser = LinkyParser()
@@ -401,16 +399,19 @@ class Counter:
 class ProductionCounter(Counter):
     def __init__(self):
         super(ProductionCounter, self).__init__(0, LinkyTeleinfoSerialParameters, 7)
+        self.name = "Production"
 
 
 class ConsumptionCounter(Counter):
     def __init__(self):
         super(ConsumptionCounter, self).__init__(1, HistoricTeleinfoSerialParameters, 7)
+        self.name = "Consumption"
 
 
 class FakeCounter(Counter):
     def __init__(self):
         super(FakeCounter, self).__init__(-1, FakeTeleinfoSerialParameters, 7)
+        self.name = "Fake"
 
 
 class DataWriter:
@@ -475,40 +476,39 @@ def main():
     if args.writeToFile != "":
         dataWriter = DataWriter(args.writeToFile)
 
+    # Add counters in the list to check
+    countersToCheck = []
+    if args.consumption:
+        countersToCheck.append(ConsumptionCounter())
+
+    if args.production:
+        countersToCheck.append(ProductionCounter())
+
+    if args.fake:
+        countersToCheck.append(FakeCounter())
+
     # Check if we run as a service
     loop = True
     while loop:
         if not args.service:
             loop = False
 
-        if not args.consumption and not args.production and not args.fake:
+        if len(countersToCheck) < 1:
             logging.error("Must specify at least one counter")
             break
 
-        if args.consumption:
-            info = ConsumptionCounter().readTeleinfo()
-            logging.info("Consumption Teleinfo: %s" % info)
-            if dataWriter:
-                dataWriter.write(info)
+        for counter in countersToCheck:
+            info = counter.readTeleinfo()
+            logging.info("%s Teleinfo: %s" % (counter.name, info))
 
-            if args.service:
-                time.sleep(args.sleepTime)
+            # Write data
+            if dataWriter and info is not None:
+                try:
+                    dataWriter.write(info)
+                except KeyError as e:
+                    logging.error("Key not found in teleinfo: %s" % info)
 
-        if args.production:
-            info = ProductionCounter().readTeleinfo()
-            logging.info("Production Teleinfo: %s" % info)
-            if dataWriter:
-                dataWriter.write(info)
-
-            if args.service:
-                time.sleep(args.sleepTime)
-
-        if args.fake:
-            info = FakeCounter().readTeleinfo()
-            logging.info("Fake Teleinfo: %s" % info)
-            if dataWriter:
-                dataWriter.write(info)
-
+            # Wait a while in service mode
             if args.service:
                 time.sleep(args.sleepTime)
 
