@@ -104,6 +104,9 @@ class DataLine:
         else:
             raise ValueError("Wrong line format: %s" % group)
 
+        if len(checksum) != 1:
+            raise ValueError("Wrong checksum length: %s" % group)
+
         self.tag = tag
         self.horodate = horodate
         self.data = data
@@ -391,7 +394,12 @@ class Counter:
 
                     # Parse frame
                     dataLines = self.serialParameters.frameParser.parse(frame)
-                    retry = 0
+
+                    # Retry if datalines are empty
+                    if len(dataLines) > 0:
+                        retry = 0
+                    else:
+                        retry -= 1
                 except ValueError as e:
                     logging.debug("Wrong frame: %s. Will retry (%d)" % (e, retry))
                     dataLines = None
