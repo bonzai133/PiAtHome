@@ -2,7 +2,7 @@
 Description=pyteleinfo - A system to collect statistics from teleinfo interface
 
 [Service]
-ExecStart=/usr/bin/python /usr/local/bin/teleinfo.py -s -f /var/run/shm/teleinfo_ -l /opt/piathome/config/logging_teleinfo.conf
+ExecStart=/usr/bin/python3 /usr/local/bin/teleinfo2.py -p -c -s -e WARNING -w /var/run/shm/teleinfo_ -l /var/log/teleinfo.log
 Restart=on-abort
 
 [Install]

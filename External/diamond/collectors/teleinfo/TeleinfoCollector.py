@@ -49,26 +49,26 @@ class TeleinfoCollector(diamond.collector.Collector):
                 teleinfo_file = os.path.join(teleinfo_path, teleinfo_prefix + oid[3:])
                 
                 try:
+                    counterIdKey = attributes['KEY']
                     with open(teleinfo_file, 'r') as fp:
                         data = json.load(fp)
-                        if 'ADCO' in data:
+                        if counterIdKey in data:
                             self.log.debug("Valid data found: %s" % repr(data))
-                            self.read_values(data, attributes, metrics)
+                            self.read_values(counterIdKey, data, attributes, metrics)
                 except Exception, e:
                     self.log.error("Collect TeleinfoCollector error: %s", e)
         
         for fn, fv in metrics.iteritems():
             self.publish(fn, fv, precision=2)
 
-
     #===========================================================================
     # read_values : read values in json data
     #===========================================================================
-    def read_values(self, data, attributes, metrics):
+    def read_values(self, counterIdKey, data, attributes, metrics):
         for attrib, alias in attributes.iteritems():
             if attrib in data:
-                key = '%s.%s' % (data['ADCO'], attrib)
+                key = '%s.%s' % (data[counterIdKey], attrib)
                 metrics[key] = float(data[attrib])
             else:
-                self.log.error("Attribute %s not found: %s", attrib, e)
+                self.log.error("Attribute %s not found", attrib)
 

@@ -231,6 +231,9 @@ class FakeTeleinfoSerialParameters:
     # For fake serial port
     serialPortFileName = "prod.txt"
 
+    # Buffer size
+    bufferSize = 500
+
     # Frame parser
     frameParser = LinkyParser()
 
@@ -530,13 +533,13 @@ def main():
 
     # Create logger with basic config
     if args.logFile is not None:
-        logging.basicConfig(filename=args.logFile, format='%(levelname)s:%(message)s', level=args.logLevel)
+        logging.basicConfig(filename=args.logFile, format='%(asctime)s: [%(levelname)s] %(message)s', level=args.logLevel)
 
     if args.debug:
         logging.basicConfig(format='%(levelname)s:%(message)s', level=args.logLevel)
         logging.info("-- Debug mode activated --")
 
-    logging.debug("Args: %s" % repr(args))
+    logging.warning("Started with args: %s" % repr(args))
 
     # Datawriter
     dataWriter = None
@@ -571,7 +574,7 @@ def main():
                 logging.info("%s Teleinfo: %s" % (counter.name, info))
 
                 # Write data
-                if dataWriter and info is not None:
+                if dataWriter is not None and info is not None:
                     logging.debug("Write data")
                     try:
                         dataWriter.write(info)
@@ -589,7 +592,7 @@ def main():
             logging.info("Interrupted (2)")
             sys.exit(0)
 
-    logging.debug("-- End of process --")
+    logging.warning("-- End of process --")
 
 
 if __name__ == "__main__":

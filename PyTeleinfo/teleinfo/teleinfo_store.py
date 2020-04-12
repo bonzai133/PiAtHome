@@ -120,7 +120,13 @@ def processStoreData(dbFileName):
 def doStoreData(db, data):
     for counterId, teleinfo in data.items():
         logging.debug("Process %s" % counterId)
-        
+
+        for baseName in ['BASE', 'EAIT']:
+            if baseName in teleinfo:
+                break
+        else:
+            logging.debug("Base index not found")
+
         previous = None
         if db.ExecuteRequest(PREVIOUS_VALUE_QUERY, (counterId, )):
             rows = db.cursor.fetchone()
@@ -129,17 +135,17 @@ def doStoreData(db, data):
 
         if previous is None:
             #No previous data
-            previous = int(teleinfo['BASE'])
+            previous = int(teleinfo[baseName])
             
-        delta = int(teleinfo['BASE']) - previous
-        db.ExecuteRequest(INSERT_QUERY, (counterId, teleinfo['BASE'], delta))
+        delta = int(teleinfo[baseName]) - previous
+        db.ExecuteRequest(INSERT_QUERY, (counterId, teleinfo[baseName], delta))
 
 
 #===============================================================================
 # doReadTeleinfo
 # Read teleinfo data stored in json files (1 by counter id)
 # Return a dict:
-#  - key is ADCO (counter id)
+#  - key is ADCO or ADSC (counter id)
 #  - value is a dict of teleinfo keys
 #===============================================================================
 def doReadTeleinfo(fileprefix):
@@ -149,8 +155,11 @@ def doReadTeleinfo(fileprefix):
         with open(f, 'r') as fp:
             data = json.load(fp)
             if 'ADCO' in data:
-                logging.debug("Valid data found: %s" % repr(data))
+                logging.debug("Valid data found (ADCO): %s" % repr(data))
                 allinfo[data['ADCO']] = data
+            elif 'ADSC' in data:
+                logging.debug("Valid data found (ADSC): %s" % repr(data))
+                allinfo[data['ADSC']] = data
                 
     return allinfo
 

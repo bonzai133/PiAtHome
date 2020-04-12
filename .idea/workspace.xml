@@ -3,7 +3,11 @@
   <component name="ChangeListManager">
     <list default="true" id="ff208450-df61-4f95-9ebb-0be9ff29d6cd" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/External/diamond/collectors/teleinfo/TeleinfoCollector.py" beforeDir="false" afterPath="$PROJECT_DIR$/External/diamond/collectors/teleinfo/TeleinfoCollector.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/External/diamond/configuration/TeleinfoCollector.conf" beforeDir="false" afterPath="$PROJECT_DIR$/External/diamond/configuration/TeleinfoCollector.conf" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ParseTIC/teleinfo2.py" beforeDir="false" afterPath="$PROJECT_DIR$/ParseTIC/teleinfo2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyTeleinfo/teleinfo/pyteleinfo.service" beforeDir="false" afterPath="$PROJECT_DIR$/PyTeleinfo/teleinfo/pyteleinfo.service" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyTeleinfo/teleinfo/teleinfo_store.py" beforeDir="false" afterPath="$PROJECT_DIR$/PyTeleinfo/teleinfo/teleinfo_store.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -149,7 +153,14 @@
       <option name="project" value="LOCAL" />
       <updated>1586680406497</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Fine tuning of exception">
+      <created>1586693323253</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1586693323253</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -160,7 +171,8 @@
     <MESSAGE value="Fix issues." />
     <MESSAGE value="Handle frame format exception" />
     <MESSAGE value="Handle some format exception" />
-    <option name="LAST_COMMIT_MESSAGE" value="Handle some format exception" />
+    <MESSAGE value="Fine tuning of exception" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fine tuning of exception" />
   </component>
   <component name="WindowStateProjectService">
     <state x="453" y="211" width="1084" height="719" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1586677468863">
@@ -171,26 +183,26 @@
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
     <state x="827" y="445" width="325" height="224" key="#com.jetbrains.python.refactoring.move.PyMoveModuleMembersDialog/70.27.1850.1053@70.27.1850.1053" timestamp="1585475098535" />
-    <state x="230" y="27" width="912" height="854" key="CommitChangelistDialog2" timestamp="1586680406441">
+    <state x="230" y="27" width="912" height="854" key="CommitChangelistDialog2" timestamp="1586693323196">
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
-    <state x="230" y="27" width="912" height="854" key="CommitChangelistDialog2/70.27.1850.1053@70.27.1850.1053" timestamp="1586680406441" />
-    <state width="1827" height="236" key="GridCell.Tab.0.bottom" timestamp="1586681443808">
+    <state x="230" y="27" width="912" height="854" key="CommitChangelistDialog2/70.27.1850.1053@70.27.1850.1053" timestamp="1586693323196" />
+    <state width="1827" height="236" key="GridCell.Tab.0.bottom" timestamp="1586693414105">
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
-    <state width="1827" height="236" key="GridCell.Tab.0.bottom/70.27.1850.1053@70.27.1850.1053" timestamp="1586681443808" />
-    <state width="1827" height="236" key="GridCell.Tab.0.center" timestamp="1586681443807">
+    <state width="1827" height="236" key="GridCell.Tab.0.bottom/70.27.1850.1053@70.27.1850.1053" timestamp="1586693414105" />
+    <state width="1827" height="236" key="GridCell.Tab.0.center" timestamp="1586693414104">
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
-    <state width="1827" height="236" key="GridCell.Tab.0.center/70.27.1850.1053@70.27.1850.1053" timestamp="1586681443807" />
-    <state width="1827" height="236" key="GridCell.Tab.0.left" timestamp="1586681443807">
+    <state width="1827" height="236" key="GridCell.Tab.0.center/70.27.1850.1053@70.27.1850.1053" timestamp="1586693414104" />
+    <state width="1827" height="236" key="GridCell.Tab.0.left" timestamp="1586693414103">
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
-    <state width="1827" height="236" key="GridCell.Tab.0.left/70.27.1850.1053@70.27.1850.1053" timestamp="1586681443807" />
-    <state width="1827" height="236" key="GridCell.Tab.0.right" timestamp="1586681443808">
+    <state width="1827" height="236" key="GridCell.Tab.0.left/70.27.1850.1053@70.27.1850.1053" timestamp="1586693414103" />
+    <state width="1827" height="236" key="GridCell.Tab.0.right" timestamp="1586693414104">
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
-    <state width="1827" height="236" key="GridCell.Tab.0.right/70.27.1850.1053@70.27.1850.1053" timestamp="1586681443808" />
+    <state width="1827" height="236" key="GridCell.Tab.0.right/70.27.1850.1053@70.27.1850.1053" timestamp="1586693414104" />
     <state width="1827" height="340" key="GridCell.Tab.1.bottom" timestamp="1586677004959">
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
