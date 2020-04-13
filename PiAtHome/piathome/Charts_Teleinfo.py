@@ -13,7 +13,9 @@ from Charts_Authentication import *
 
 @route("/teleinfo_counter_id.json", apply=authenticated)
 def teleinfo_counterId(db_teleinfo):
-    query = "SELECT distinct(TeleinfoDaily.counterId), counterName from TeleinfoDaily, TeleinfoCounters WHERE TeleinfoDaily.counterId=TeleinfoCounters.counterId"
+    query = "select distinct(TeleinfoByDay.counterId), counterName from TeleinfoByDay " \
+            "left join TeleinfoCounters on TeleinfoByDay.counterId=TeleinfoCounters.counterId;"
+
     c = db_teleinfo.execute(query)
     d1 = []
 
@@ -31,7 +33,7 @@ def teleinfo_setCounterId(db_teleinfo):
         counterId = request.query.get('counterId')
         counterName = request.query.get('counterName')
         
-        query_exists = "SELECT EXISTS (SELECT 1 FROM TeleinfoDaily WHERE counterId=?)"
+        query_exists = "SELECT EXISTS (SELECT 1 FROM TeleinfoByDay WHERE counterId=?)"
         query = "REPLACE INTO TeleinfoCounters (counterId, counterName) VALUES (?, ?)"
         
         c = db_teleinfo.execute(query_exists, (counterId, ))
@@ -79,15 +81,14 @@ def teleinfo_values_byday(db_teleinfo):
         
         c2 = db_teleinfo.execute(query2, (dStart, dEnd, row1[0]))
         d1 = []
-        #d2 = []
         for row in c2:
             d1.append((row[0], row[3]))
-            #d2.append((row[0], row[2]))
-        
-        series_label.append(str(row1[0]))
-        data_value.append(d1)
-        #data_index.append(d2)
-    
+
+        # Only add serie if there is some data
+        if len(d1) > 0:
+            series_label.append(str(row1[0]))
+            data_value.append(d1)
+
     return json.dumps([series_label, data_value])
 
 
@@ -129,8 +130,10 @@ def teleinfo_index_byday(db_teleinfo):
 
             d2.append((row[0], row[2] - offset))
         
-        series_label.append(str(row1[0]))
-        data_index.append(d2)
+        # Only add serie if there is some data
+        if len(d2) > 0:
+            series_label.append(str(row1[0]))
+            data_index.append(d2)
     
     return json.dumps([series_label, data_index])
 
