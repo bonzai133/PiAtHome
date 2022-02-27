@@ -38,7 +38,7 @@ class ApplicationUsers(object):
         try:
             with open(userFile, 'r') as infile:
                 self.m_users = json.load(infile)
-        except IOError, e:
+        except IOError as e:
             #print "loadUsers exception: %s" % e
             #sha256('Passw0rd@dmin').hexdigest()
             self.m_users = {'admin': {'hash': 'bb59ad73aff30cc6c586754579dba0498a3971e8842698288848739d55685b7e',
@@ -72,9 +72,9 @@ if __name__ == "__main__":
     my_users = ApplicationUsers('test.txt')
 
     #my_users.saveUsers('test.txt')
-    print my_users.m_users
+    print(my_users.m_users)
         
     my_users.createUser('laurent', 'Laurent', 'pipikaka', 'user')
     my_users.createUser('titi', 'Titi', 'tutu', 'user')
     
-    print my_users.m_users
+    print(my_users.m_users)

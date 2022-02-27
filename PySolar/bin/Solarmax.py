@@ -114,7 +114,7 @@ def process(args):
         logger.error("Can't connect to inverter")
         
         if args.output == 'Screen':
-            print "Can't connect to inverter"
+            print("Can't connect to inverter")
             
         exit(1)
         
@@ -143,7 +143,7 @@ def process(args):
         elif args.output == 'Database':
             output = DbOutput(args.dbFileName)
         else:
-            print "No output"
+            print("No output")
             
         if output is not None:
             output.TreatCommandsResults(args.action, allValues)
@@ -174,7 +174,7 @@ def main():
     if args.logConfig is not None:
         try:
             logging.config.fileConfig(args.logConfig)
-        except Exception, e:
+        except Exception as e:
             logging.error("Can't read logger configuration: %s" % e)
     
     #Process

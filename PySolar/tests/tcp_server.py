@@ -19,21 +19,21 @@ class TcpServer():
         server.start()
         
     def serveOnce(self):
-        print "Start"
+        print("Start")
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.bind(("127.0.0.1", self.tcp_port))
         s.listen(1)
         
         conn, addr = s.accept()
-        print 'Connection address:', addr
+        print('Connection address:', addr)
         while 1:
             data = conn.recv(self.buffer_size)
             if not data:
                 break
-            print "received data:", data
+            print("received data:", data)
             conn.send("world")  # echo
         conn.close()
-        print "End"
+        print("End")
     
     def serveForEver(self):
         while self.stop != True:

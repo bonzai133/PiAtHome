@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from SqliteDBManager import DBManager
-from SqliteDBManager import GlobalData
+from .SqliteDBManager import DBManager
+from .SqliteDBManager import GlobalData
 import time
 
 #===============================================================================
@@ -178,7 +178,7 @@ class DbOutput:
     # _buildRequests
     #===========================================================================
     def _buildRequests(self, cmdsValues):
-        for cmdName, cmd in cmdsValues.items():
+        for cmdName, cmd in list(cmdsValues.items()):
             logger.debug('Command %s' % cmdName)
             for (outputMethod, cmdList) in self.OUTPUT_METHODS:
                 if cmdName in cmdList:

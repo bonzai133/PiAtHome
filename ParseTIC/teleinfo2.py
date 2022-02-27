@@ -489,12 +489,12 @@ class DataWriter:
 
     def write(self, dataLines):
         filename = ''
-        if 'ADCO' in dataLines.keys():
+        if 'ADCO' in list(dataLines.keys()):
             filename = self.filenamePrefix + dataLines['ADCO'].data
-        elif 'ADSC' in dataLines.keys():
+        elif 'ADSC' in list(dataLines.keys()):
             filename = self.filenamePrefix + dataLines['ADSC'].data
         else:
-            logging.debug("ADCO or ADSC not found in data: %s" % dataLines.keys())
+            logging.debug("ADCO or ADSC not found in data: %s" % list(dataLines.keys()))
             raise KeyError("Can't find counter key in data")
 
         logging.debug("Will write to file %s" % filename)

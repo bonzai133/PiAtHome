@@ -18,8 +18,8 @@ try:
     LOGCONF_PATH = os.path.join(ROOT_PATH, 'logging_pysolarmax.conf')
     
     logging.config.fileConfig(LOGCONF_PATH)
-except Exception, e:
-    print "Can't read logger configuration: %s" % e
+except Exception as e:
+    print("Can't read logger configuration: %s" % e)
 logger = logging.getLogger(__name__)
 
 #Output colors
@@ -230,11 +230,11 @@ class DataConverter:
         return (date, total, peak, hours)
 
     def OutputPrint(self, cmd):
-        print "%s = %s" % (cmd, cmd.Value)
+        print("%s = %s" % (cmd, cmd.Value))
 
     def OutputRealtime(self, cmd):
         logger.debug("%s = %s" % (cmd, cmd.Value))
-        print "%s = %s" % (cmd, cmd.Value)
+        print("%s = %s" % (cmd, cmd.Value))
         #Build request
         sqlRequest = 'REPLACE INTO Realtime '
         sqlRequest += '(key, value, desc) '
@@ -246,7 +246,7 @@ class DataConverter:
 
     def OutputStatistics(self, cmd):
         logger.debug("%s = %s" % (cmd, cmd.Value))
-        print "%s = %s" % (cmd, cmd.Value)
+        print("%s = %s" % (cmd, cmd.Value))
         #Build request
         sqlRequest = 'REPLACE INTO Statistics '
         sqlRequest += '(key, value, desc) '
@@ -258,7 +258,7 @@ class DataConverter:
         
     def OutputError(self, cmd):
         logger.debug("%s = %s" % (cmd, cmd.Value))
-        print "%s = %s" % (cmd, cmd.Value)
+        print("%s = %s" % (cmd, cmd.Value))
 
         #Split values
         (date_str, time_str, errCode, desc) = cmd.Value
@@ -471,14 +471,14 @@ class DataConverter:
             
         except KeyError:
             logger.error("TreatResponse: Unknown command '%s' = %s" % (command, values))
-            print RED + "Unknown command '%s' = %s" % (command, values) + ENDC
+            print(RED + "Unknown command '%s' = %s" % (command, values) + ENDC)
             
     def GetCurrentValue(self, command):
         try:
             cmd = self.m_Commands[command]
             if cmd.Output is None:
                 logger.warning("GetCurrentValue: No Output: %s = %s" % (cmd, cmd.Value))
-                print YELLOW + "No Output: %s = %s" % (cmd, cmd.Value) + ENDC
+                print(YELLOW + "No Output: %s = %s" % (cmd, cmd.Value) + ENDC)
             else:
                 #Call output function
                 self.m_Commands[command].Output.__get__(self, DataConverter)(cmd)
@@ -517,7 +517,7 @@ class Response:
             parts = self.body.split(':')
             
             if len(parts) < 2:
-                print RED + "Error in body: %s" % self.body + ENDC
+                print(RED + "Error in body: %s" % self.body + ENDC)
                 logger.error("Error in body: %s" % self.body)
 
                 self.port = 0
@@ -625,11 +625,11 @@ def setTimeToCurrentTime(my_sock, dataConverter):
             rsp.AddBlock(rspData)
 
         cmdDict = rsp.ParseCommandResponse()
-        if 'return' in cmdDict.keys() and cmdDict['return'] == 'Ok':
-            print "Inverter set to current time."
+        if 'return' in list(cmdDict.keys()) and cmdDict['return'] == 'Ok':
+            print("Inverter set to current time.")
             logger.info("Inverter set to current time.")
         else:
-            print RED + "Inverter was NOT set to current time." + ENDC
+            print(RED + "Inverter was NOT set to current time." + ENDC)
             logger.error("Inverter was NOT set to current time.")
 
     else:
@@ -685,7 +685,7 @@ def requestAndPrintCommands(my_sock, dataConverter, cmds):
 
         cmdDict = rsp.ParseCommandResponse()
 
-        for cmd, values in cmdDict.items():
+        for cmd, values in list(cmdDict.items()):
             dataConverter.TreatResponse(cmd, values)
 
         for cmd in cmds:
@@ -802,7 +802,7 @@ def main():
             #Connect to the database
             dbm = DBManager(args.dbFileName)
             if dbm.connectFailure == 1:
-                print "Can't connect to database"
+                print("Can't connect to database")
                 logger.error("Can't connect to database '%s'" % args.dbFileName)
             else:
                 dbm.CreateTables(GlobalData.dbTables)
@@ -811,9 +811,9 @@ def main():
             for group in GROUPS_COMMANDS:
                 if group["action"] == args.action:
                     logger.info("Request group '%s'" % group["group"])
-                    print GREEN + group["group"] + ENDC
+                    print(GREEN + group["group"] + ENDC)
                     requestAndPrintCommands(my_sock, dataConverter, group["cmds"])
-                    print
+                    print()
 
             #Commit data to DB
             dataConverter.CommitDataToDb()
@@ -824,8 +824,8 @@ def main():
             #Close database
             dbm.Close()
 
-    except socket.error, e:
-        print "Socket error: %s" % e
+    except socket.error as e:
+        print("Socket error: %s" % e)
         logger.error("Socket error: %s" % e)
     
     #Close the socket
@@ -838,16 +838,16 @@ def main():
 #===============================================================================
 def testCmd():
     cmd = Request(["SAL"])
-    print cmd.BuildCommand()
+    print(cmd.BuildCommand())
     
     cmd = Request("SAL")
-    print cmd.BuildCommand()
+    print(cmd.BuildCommand())
 
     cmd = Request(["SAL", "SYS"])
-    print cmd.BuildCommand()
+    print(cmd.BuildCommand())
     
     cmd = Request(["SDAT"], way=Request.SET, attr=datetime.now(), fFormat=Format.DateTime2Hex)
-    print cmd.BuildCommand()
+    print(cmd.BuildCommand())
     
 
 #===============================================================================
@@ -860,12 +860,12 @@ def testRsp():
     cmdDict = rsp.ParseCommandResponse()
     
     dc = DataConverter()
-    for cmd, values in cmdDict.items():
+    for cmd, values in list(cmdDict.items()):
         dc.TreatResponse(cmd, values)
 
     rsp = Response("{01;FB;38|64:IL1=2D1;PAC=D16;PDC=DD2;PRL=3A;TKK=2C|0CC1}")
     cmdDict = rsp.ParseCommandResponse()
-    for cmd, values in cmdDict.items():
+    for cmd, values in list(cmdDict.items()):
         dc.TreatResponse(cmd, values)
     
     dc.GetCurrentValue("TNF")

@@ -33,7 +33,7 @@ class DBManager:
         "Connect and create the cursor"
         try:
             self.connection = sqlite3.connect(dbFileName)
-        except Exception, err:
+        except Exception as err:
             logging.error("DB Connect failed: %s" % err)
             self.connectFailure = 1
         else:
@@ -41,7 +41,7 @@ class DBManager:
             self.connectFailure = 0
     
     def CreateTables(self, dictTables):
-        for table in dictTables.keys():
+        for table in list(dictTables.keys()):
             req = "CREATE TABLE IF NOT EXISTS %s (" % table
             
             for descr in dictTables[table]:
@@ -68,7 +68,7 @@ class DBManager:
             self.ExecuteRequest(req)
                 
     def DeleteTables(self, dictTables):
-        for table in dictTables.keys():
+        for table in list(dictTables.keys()):
             req = "DROP TABLE %s" % table
             self.ExecuteRequest(req)
         self.Commit()
@@ -77,7 +77,7 @@ class DBManager:
         logging.debug("Request: %s" % req)
         try:
             self.cursor.execute(req)
-        except Exception, err:
+        except Exception as err:
             logging.error("Incorrect SQL request (%s)\n%s" % (req, err))
             return 0
         else:
@@ -171,7 +171,7 @@ def main():
     if args.logConfig is not None:
         try:
             logging.config.fileConfig(args.logConfig)
-        except Exception, e:
+        except Exception as e:
             logging.error("Can't read logger configuration: %s" % e)
 
     logging.info("Input Args: %s" % repr(args))

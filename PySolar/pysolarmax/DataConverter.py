@@ -3,7 +3,7 @@
 import re
 from time import strftime
 from time import gmtime
-from Command import Command
+from .Command import Command
 
 #===============================================================================
 # Logs
@@ -304,7 +304,7 @@ class DataConverter:
     #===========================================================================
     def convertValues(self, commands):
         convertedCommands = {}
-        for command, value in commands.items():
+        for command, value in list(commands.items()):
             try:
                 cmd = self.m_Commands[command]
                 cmd.SetRawValue(value)

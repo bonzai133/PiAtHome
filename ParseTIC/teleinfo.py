@@ -138,8 +138,8 @@ import json
 
 try:
     import RPi.GPIO as GPIO
-except ImportError, e:
-    print "RPi module must be installed"
+except ImportError as e:
+    print("RPi module must be installed")
     
     #Fake GPIO class for unit tests
     class cGPIO:
@@ -209,7 +209,7 @@ def setupSerial(serialPortName):
         wainting_chars = serial_port.inWaiting()
         if wainting_chars != 0:
             logging.warning("There is some chars in the buffer. We are not alone !")
-    except Exception, e:
+    except Exception as e:
         logging.error("Exception in setupSerial: %s" % e)
     
     return serial_port
@@ -307,7 +307,7 @@ def parseFrame(frame):
                 data[code] = val
             else:
                 logging.warning("Badly splitted: %s" % msg)
-        except Exception, e:
+        except Exception as e:
             if msg != "":
                 logging.warning("Can't split: %s" % msg)
 
@@ -322,7 +322,7 @@ def exportData(data, dbFileName, filename):
         logging.debug("Will store data in %s" % dbFileName)
         writeDataToDb(data, dbFileName)
 
-    if filename and 'ADCO' in data.keys():
+    if filename and 'ADCO' in list(data.keys()):
         file_path = filename + data['ADCO']
         logging.debug("Will write to file %s" % file_path)
         
@@ -337,7 +337,7 @@ def exportData(data, dbFileName, filename):
 # displayData
 #===============================================================================
 def displayData(data):
-    print data
+    print(data)
 
 
 #===============================================================================
@@ -373,7 +373,7 @@ def writeDataToDb(data, dbFileName):
             db.ExecuteRequest(query % (date, counterId, indexBase, iMax))
             db.Commit()
             
-        except KeyError, e:
+        except KeyError as e:
             logging.error("Can't store data. Missing key: '%s'" % e)
 
         db.Close()
@@ -401,7 +401,7 @@ class DBManager:
         "Connect and create the cursor"
         try:
             self.connection = sqlite3.connect(dbFileName)
-        except Exception, err:
+        except Exception as err:
             logging.error("DB Connect failed: %s" % err)
             self.connectFailure = 1
         else:
@@ -409,7 +409,7 @@ class DBManager:
             self.connectFailure = 0
     
     def CreateTables(self, dictTables):
-        for table in dictTables.keys():
+        for table in list(dictTables.keys()):
             req = "CREATE TABLE IF NOT EXISTS %s (" % table
             
             for descr in dictTables[table]:
@@ -436,7 +436,7 @@ class DBManager:
             self.ExecuteRequest(req)
                 
     def DeleteTables(self, dictTables):
-        for table in dictTables.keys():
+        for table in list(dictTables.keys()):
             req = "DROP TABLE %s" % table
             self.ExecuteRequest(req)
         self.Commit()
@@ -445,7 +445,7 @@ class DBManager:
         logging.debug("Request: %s" % req)
         try:
             self.cursor.execute(req)
-        except Exception, err:
+        except Exception as err:
             logging.error("Incorrect SQL request (%s)\n%s" % (req, err))
             return 0
         else:
@@ -511,7 +511,7 @@ def main():
     if args.logConfig is not None:
         try:
             logging.config.fileConfig(args.logConfig)
-        except Exception, e:
+        except Exception as e:
             logging.error("Can't read logger configuration: %s" % e)
 
     logging.info("Args: %s" % repr(args))

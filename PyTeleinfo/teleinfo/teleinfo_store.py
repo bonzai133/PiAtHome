@@ -31,7 +31,7 @@ class DBManager:
         "Connect and create the cursor"
         try:
             self.connection = sqlite3.connect(dbFileName)
-        except Exception, err:
+        except Exception as err:
             logging.error("DB Connect failed: %s" % err)
             self.connectFailure = 1
         else:
@@ -45,7 +45,7 @@ class DBManager:
                 self.cursor.execute(req, params)
             else:
                 self.cursor.execute(req)
-        except Exception, err:
+        except Exception as err:
             logging.error("Incorrect SQL request '%s' (%s)\n%s" % (req, params or 'None', err))
             return 0
         else:
@@ -118,7 +118,7 @@ def processStoreData(dbFileName):
 #  - value is a dict of teleinfo keys
 #===============================================================================
 def doStoreData(db, data):
-    for counterId, teleinfo in data.items():
+    for counterId, teleinfo in list(data.items()):
         logging.debug("Process %s" % counterId)
 
         for baseName in ['BASE', 'EAIT']:
@@ -184,7 +184,7 @@ def main():
     if args.logConfig is not None:
         try:
             logging.config.fileConfig(args.logConfig)
-        except Exception, e:
+        except Exception as e:
             logging.error("Can't read logger configuration: %s" % e)
 
     logging.debug("Input Args: %s" % repr(args))

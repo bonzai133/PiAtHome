@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from MessageData import MessageData
-from MessageData import MessageDataException
+from .MessageData import MessageData
+from .MessageData import MessageDataException
 
 #===============================================================================
 # Logs

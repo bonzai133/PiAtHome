@@ -8,7 +8,7 @@ Created on 8 déc. 2013
 from bottle import route
 import json
 
-from Charts_Authentication import *
+from .Charts_Authentication import *
 
 
 @route("/teleinfo_counter_id.json", apply=authenticated)
@@ -58,7 +58,7 @@ def teleinfo_values_byday(db_teleinfo):
     counterId = request.query.get('counterId')
     
     if not date1 or not date2 or not counterId:
-        print "Missing args"
+        print("Missing args")
         return None
 
     #Format dates
@@ -100,7 +100,7 @@ def teleinfo_index_byday(db_teleinfo):
     counterId = request.query.get('counterId')
     
     if not date1 or not date2 or not counterId:
-        print "Missing args"
+        print("Missing args")
         return None
 
     #Format dates
@@ -146,7 +146,7 @@ def teleinfo_delta_from_date(db_teleinfo):
     counterId = request.query.get('counterId')
 
     if not date1 or not date2 or not counterId:
-        print "Missing args"
+        print("Missing args")
         return None
 
     #Format dates
@@ -170,7 +170,7 @@ def teleinfo_delta_from_date(db_teleinfo):
         
         delta = 0
         if len(row) != 2:
-            print "Can't compare, row number %d != 2" % len(row)
+            print("Can't compare, row number %d != 2" % len(row))
         else:
             index1 = row[0][1]
             index2 = row[1][1]
