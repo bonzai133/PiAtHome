@@ -56,7 +56,8 @@ class FioulLeclercCollector(diamond.collector.Collector):
         tds = root.xpath('//div[@id="tableau1"]/div/table/tbody/tr/td')
         for idx, td in enumerate(tds):
             if u"1 000 à 1 999 litres" in self.text(td):
-                price = float(self.text(tds[idx + 2]).replace(',', '.'))
+                price_ht = float(self.text(tds[idx + 1]).replace(',', '.'))
+                price = price_ht * 1.20
                 break
         else:
             self.log.error("Fioul page has change (2): update script.")
