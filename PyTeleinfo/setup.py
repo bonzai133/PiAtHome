@@ -11,11 +11,11 @@ from distutils.core import setup
 def main():
     setup(
         name='PyTeleinfo',
-        version='1.1',
+        version='2.0',
         description='Python Teleinfo monitoring',
         author='bonzai133',
         author_email='bonzai133@sourceforge.net',
-        url='http://sourceforge.net/projects/pysolarmax/',
+        url='https://github.com/bonzai133/PiAtHome',
         scripts=['teleinfo/teleinfo.py',
                  'teleinfo/teleinfo_store.py'],
     )

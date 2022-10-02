@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "pyteleinfo"
+version = "0.1.0"
+description = "Read teleinfo data on serial port of Raspberry Pi"
+authors = ["bonzai133 <bonzai133@free.fr>"]
+license = "MIT"
+
+
+[tool.poetry.dependencies]
+python = "^3.9"
+"RPi.GPIO" = "^0.7.1"
+serial = "^0.0.97"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+teleinfo = "pyteleinfo.teleinfo:main"
+teleinfo_store = "pyteleinfo.teleinfo_store:main"
+

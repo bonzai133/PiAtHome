@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 '''
 Created on 3 janv. 2017
@@ -15,8 +15,6 @@ import json
 #===============================================================================
 # Fixed values
 #===============================================================================
-TELEINFO_FILE_PREFIX = "/var/run/shm/teleinfo_"
-
 INSERT_QUERY = "INSERT OR REPLACE INTO TeleinfoByDay (dateDay, counterId, indexBase, value) VALUES (date('now'), ?, ?, ?)"
 PREVIOUS_VALUE_QUERY = "SELECT indexBase FROM TeleinfoByDay where counterId=? AND dateDay=date('now', '-1 day')"
 
@@ -97,14 +95,14 @@ def processCreateTables(dbFileName):
 # processStoreData
 # Read teleinfo data, then connect to database and save daily values
 #===============================================================================
-def processStoreData(dbFileName):
+def processStoreData(dbFileName, teleinfoFilePrefix):
     logging.debug("Enter processStoreData")
     db = DBManager(dbFileName)
     
     if db.connectFailure == 1:
         logging.error("Can't connect to database '%s'" % dbFileName)
     else:
-        data = doReadTeleinfo(TELEINFO_FILE_PREFIX)
+        data = doReadTeleinfo(teleinfoFilePrefix)
         doStoreData(db, data)
         db.Commit()
         db.Close()
@@ -163,23 +161,10 @@ def doReadTeleinfo(fileprefix):
                 
     return allinfo
 
-
 #===============================================================================
-# main
+# process(args)
 #===============================================================================
-def main():
-    #Get parameters
-    parser = argparse.ArgumentParser(description='Store daily values of Teleinfo into TeleinfoByDay')
-    
-    parser.add_argument('-d', '--dbname', dest='dbFileName', action='store', help='Database filename', required=True)
-    parser.add_argument('-c', '--createTables', dest='createTables', action='store_true', help='Create required tables in database')
-    parser.add_argument('-l', '--log-config', dest='logConfig', action='store', help='Log configuration file')
-
-    args = parser.parse_args()
-
-    #Create logger with basic config
-    logging.basicConfig()
-    
+def process(args):
     #Use configuration file ?
     if args.logConfig is not None:
         try:
@@ -192,9 +177,29 @@ def main():
     if args.createTables:
         processCreateTables(args.dbFileName)
     else:
-        processStoreData(args.dbFileName)
+        processStoreData(args.dbFileName, args.teleinfoFilePrefix)
     
     logging.debug("----- End of treatment")
+
+
+#===============================================================================
+# main
+#===============================================================================
+def main():
+    #Get parameters
+    parser = argparse.ArgumentParser(description='Store daily values of Teleinfo into TeleinfoByDay')
+    
+    parser.add_argument('-d', '--dbname', dest='dbFileName', action='store', help='Database filename', required=True)
+    parser.add_argument('-c', '--createTables', dest='createTables', action='store_true', help='Create required tables in database')
+    parser.add_argument('-l', '--log-config', dest='logConfig', action='store', help='Log configuration file')
+    parser.add_argument('-f', '--teleinfo-file-prefix', dest='teleinfoFilePrefix', action='store', default="/var/run/shm/teleinfo_", help='Teleinfo file path')
+
+    args = parser.parse_args()
+
+    #Create logger with basic config
+    logging.basicConfig()
+
+    process(args)
     
     
 if __name__ == '__main__':
