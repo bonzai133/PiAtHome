@@ -52,6 +52,12 @@ External: Contains Diamond custom collectors and configuration for various monit
 ** PyTeleinfo/teleinfo_store.py: Store daily values of Teleinfo (/var/run/shm) into TeleinfoByDay. Launched by cron. Ok, but need to make shm path configurable
 * Setup.py
 ** update all, really a mess
+** test on qemu
+* PiAtHome
+** pyproject.toml
+** bottle
+** tests
+
 
 ### Replace Diamond by Prometheus
 * Check how to install/configure Prometheus on RPi
