@@ -65,4 +65,4 @@ class SolarmaxCollector(diamond.collector.Collector):
         values = inverter.getValues(commands.keys())
         
         for key, cmd_obj in values.iteritems():
-            metrics[commands[key] = cmd_obj.Value
+            metrics[commands[key]] = cmd_obj.Value

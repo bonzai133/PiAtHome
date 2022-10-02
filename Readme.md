@@ -62,6 +62,9 @@ External: Contains Diamond custom collectors and configuration for various monit
 ### Replace Diamond by Prometheus
 * Check how to install/configure Prometheus on RPi
 * Dev Prom Exporter
+** https://github.com/cliviu74/onewire-prom-exporter
+** https://github.com/prometheus/client_python
+** https://github.com/prometheus/blackbox_exporter
 
 ### Update RPi to latest RPiOS
 * Backup current install (PiAtHome db + graphite Db)
