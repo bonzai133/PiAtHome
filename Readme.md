@@ -26,20 +26,20 @@ External: Contains Diamond custom collectors and configuration for various monit
 
 * PyTeleinfo
 ** 2 to 3: Done
-** Unit tests: Todo
+** Unit tests: Done
 ** Test on RPi: Todo
 
 * ParseTIC
 ** 2 to 3: Done
-** Unit tests: Todo
+** Unit tests: Done
 ** Test on RPi: Done
 
 * PiAtHome
 ** 2 to 3: Done
-** Unit tests: Todo
+** Unit tests: Done
 ** Test on RPi: Todo
 
-* Update magic headers to force Python3 ?
+* Update magic headers to force Python3
 
 ### Remove old code
 * Solarmax2: Done
