@@ -13,14 +13,14 @@ from requestlogger import WSGILogger, ApacheFormatter
 from logging.handlers import TimedRotatingFileHandler
 
 #Set file path
-ROOT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../piathome')
+ROOT_PATH = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../'))
 sys.path.append(ROOT_PATH)
 
 #Import main app
-import Charts
+import piathome.Charts
 
 #Define absolute path of templates for bottle
-TEMPLATE_PATH.insert(0, os.path.join(ROOT_PATH, "templates"))
+TEMPLATE_PATH.insert(0, os.path.join(ROOT_PATH, "piathome/templates"))
 
 DB_FILE_SOLAR = os.path.join("/opt/pysolarmax/data", "Solarmax_data2.s3db")
 DB_FILE_TELEINFO = os.path.join("/opt/pysolarmax/data", "Teleinfo_data.s3db")
@@ -30,8 +30,8 @@ VAR_LOG_ACCESS = os.path.join("/var/log", "access.log")
 VAR_LOG_ACCESS_SSL = os.path.join("/var/log", "access_ssl.log")
 
 #SSL Certificate
-SSL_CERTIFICATE = os.path.join(ROOT_PATH, "ssl/cacert.pem")
-SSL_PRIVATE_KEY = os.path.join(ROOT_PATH, "ssl/privkey.pem")
+SSL_CERTIFICATE = os.path.join(ROOT_PATH, "piathome/ssl/cacert.pem")
+SSL_PRIVATE_KEY = os.path.join(ROOT_PATH, "piathome/ssl/privkey.pem")
 
 
 #===============================================================================
@@ -65,9 +65,9 @@ def main(port):
     #Debug mode ?
     if port != 80 and port != 443:
         #Sqlite db file
-        mydbfile_solarmax = os.path.join(ROOT_PATH, "../data/Solarmax_data2.s3db")
-        mydbfile_rtstats = os.path.join(ROOT_PATH, "../data/Solarmax_rtstats.s3db")
-        mydbfile_teleinfo = os.path.join(ROOT_PATH, "../data/Teleinfo_data.s3db")
+        mydbfile_solarmax = os.path.join(ROOT_PATH, "data/Solarmax_data2.s3db")
+        mydbfile_rtstats = os.path.join(ROOT_PATH, "data/Solarmax_rtstats.s3db")
+        mydbfile_teleinfo = os.path.join(ROOT_PATH, "data/Teleinfo_data.s3db")
         access_log_file = 'access.log'
 
         #Run http test server on given port

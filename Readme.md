@@ -54,7 +54,7 @@ External: Contains Diamond custom collectors and configuration for various monit
 ** update all, really a mess
 ** test on qemu
 * PiAtHome
-** pyproject.toml
+** pyproject.toml (poetry init)
 ** bottle
 ** tests
 

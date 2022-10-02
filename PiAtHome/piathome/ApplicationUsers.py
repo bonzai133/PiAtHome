@@ -26,7 +26,7 @@ class ApplicationUsers(object):
     
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
-            cls._instance = super(ApplicationUsers, cls).__new__(cls, *args, **kwargs)
+            cls._instance = super(ApplicationUsers, cls).__new__(cls)
         return cls._instance
 
     def __init__(self, userFile):
@@ -51,9 +51,9 @@ class ApplicationUsers(object):
         
     def createUser(self, name, realname, password, role):
         salt = b64encode(urandom(32))
-        digest = sha256(salt + password).hexdigest()
+        digest = sha256(salt + password.encode('utf-8')).hexdigest()
         
-        self.m_users[name] = {'hash': digest, 'realname': realname, 'role': role, 'salt': salt}
+        self.m_users[name] = {'hash': digest, 'realname': realname, 'role': role, 'salt': salt.decode('utf-8')}
         
         #Save new user
         self.__saveUsers(self.m_userFile)
@@ -62,7 +62,8 @@ class ApplicationUsers(object):
         retUser = None
         if name in self.m_users:
             user = self.m_users[name]
-            if sha256(user['salt'] + password).hexdigest() == user['hash']:
+
+            if sha256((user['salt'] + password).encode('utf-8')).hexdigest() == user['hash']:
                 retUser = User(user['realname'], user['role'])
             
         return retUser
