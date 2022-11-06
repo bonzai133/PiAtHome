@@ -64,6 +64,9 @@ External: Contains Diamond custom collectors and configuration for various monit
 * Dev Prom Exporter
 ** https://github.com/cliviu74/onewire-prom-exporter
 ** https://github.com/prometheus/client_python
+*** See also Bridges to Graphite
+*** Custom collectors
+*** https://github.com/hikhvar/w1_prometheus_exporter
 ** https://github.com/prometheus/blackbox_exporter
 
 ### Update RPi to latest RPiOS
