@@ -10,6 +10,7 @@ REGISTRY.unregister(GC_COLLECTOR)
 REGISTRY.unregister(PLATFORM_COLLECTOR)
 #REGISTRY.unregister(PROCESS_COLLECTOR)
 
+import configparser
 
 import lxml.html as LH
 import requests
@@ -47,7 +48,7 @@ class FioulPageParser():
     def get_fioul_price(self):
         price = -1.0
         
-        r = requests.get(url)
+        r = requests.get(self.url)
         root = LH.fromstring(r.content)
 
         # check if "tableau1" header contains FIOUL ORDINAIRE
@@ -82,10 +83,21 @@ def register_prometheus_gauges(url):
     error_g = Gauge("fioul_parser_error", "Is 1 if error parsing the page")
     fioulPageParser.set_error_gauge(error_g)
 
+
+def load_config(config_filename):
+    config = configparser.ConfigParser()
+    config.read(config_filename)
+
+    return config['DEFAULT']
+
 if __name__ == "__main__":
+    config = load_config(os.path.splitext(__file__)[0] + ".conf")
+    if 'url' not in config or config['url'] == "":
+        logging.error("Bad configuration: please set 'url'")
+        exit(-1)
+
     start_http_server(8000)
 
-    url = 'https://www.eleclerc-serviceouest.com/nos-tarifs/'
-    register_prometheus_gauges(url)
+    register_prometheus_gauges(config['url'])
     while True:
         time.sleep(10000)
