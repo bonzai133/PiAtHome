@@ -9,7 +9,7 @@ from bottle import route, template
 import json
 import datetime
 
-from Charts_Authentication import *
+from .Charts_Authentication import *
 
 
 # route to historic
@@ -86,7 +86,7 @@ def energy_by_month(db):
     month = request.query.get('month')
     
     if not year1 or not year2 or not month:
-        print "Missing args"
+        print("Missing args")
         return None
 
     #Query db

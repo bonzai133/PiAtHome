@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 '''
 Module to read Teleinfo information for historic and Linky counters (EDF France counters)
@@ -31,7 +31,7 @@ Port Série:
    # /boot/cmdline.txt
    # /etc/inittab
 
-- Module pyserial : sudo apt-get install python-serial (import serial)
+- Module pyserial : sudo apt-get install python3-serial (import serial)
 
 
 En bash pour test:
@@ -56,6 +56,9 @@ try:
     import RPi.GPIO as GPIO
 except ImportError as e:
     print("RPi module not installed: will continue for testing")
+except RuntimeError as e:
+    print(e)
+    print("I hope we are only testing !")
 
 # TODO:Split into several files
 
@@ -229,7 +232,7 @@ class SerialPortFile:
 
 class FakeTeleinfoSerialParameters:
     # For fake serial port
-    serialPortFileName = "prod.txt"
+    serialPortFileName = "PyTeleinfo/tests/prod.txt"
 
     # Buffer size
     bufferSize = 500
@@ -489,12 +492,12 @@ class DataWriter:
 
     def write(self, dataLines):
         filename = ''
-        if 'ADCO' in dataLines.keys():
+        if 'ADCO' in list(dataLines.keys()):
             filename = self.filenamePrefix + dataLines['ADCO'].data
-        elif 'ADSC' in dataLines.keys():
+        elif 'ADSC' in list(dataLines.keys()):
             filename = self.filenamePrefix + dataLines['ADSC'].data
         else:
-            logging.debug("ADCO or ADSC not found in data: %s" % dataLines.keys())
+            logging.debug("ADCO or ADSC not found in data: %s" % list(dataLines.keys()))
             raise KeyError("Can't find counter key in data")
 
         logging.debug("Will write to file %s" % filename)
@@ -502,34 +505,7 @@ class DataWriter:
             json.dump(dataLines, fp, cls=DataLineEncoder)
 
 
-def main():
-    '''
-    Main entry point
-
-    :return:
-    '''
-
-    # Get parameters
-    parser = argparse.ArgumentParser(description='Read values from teleinfo interface')
-
-    parser.add_argument('-c', '--consumption-counter', dest='consumption', action='store_true', help='Get info from consumption counter')
-    parser.add_argument('-p', '--production-counter', dest='production', action='store_true', help='Get info from production counter')
-    parser.add_argument('-f', '--fake-counter', dest='fake', action='store_true', help='Get info from fake counter')
-    parser.add_argument('-s', '--service', action='store_true', help='Start as a service (infinite loop)')
-
-    parser.add_argument('-d', '--dbname', dest='dbFileName', action='store', help='Database filename', default='')
-    parser.add_argument('-w', '--write-to-file', dest='writeToFile', action='store',
-                        help='Path and prefix of file to write. Counter label will be append. Use /var/run/shm/teleinfo for example.',
-                        default='')
-    parser.add_argument('-m', '--sleep-time', dest='sleepTime', type=float, action='store',
-                        help='Sleep time between each read in service mode', default=15)
-
-    parser.add_argument('-l', '--log-file', dest='logFile', action='store', help='Log file path')
-    parser.add_argument('-e', '--log-level', dest='logLevel', action='store', help='Log level DEBUG, INFO, WARNING, ERROR', default='INFO')
-
-    parser.add_argument('-g', '--debug', dest='debug', action='store_true', help='Display log on console')
-
-    args = parser.parse_args()
+def process(args):
 
     # Create logger with basic config
     if args.logFile is not None:
@@ -593,6 +569,38 @@ def main():
             sys.exit(0)
 
     logging.warning("-- End of process --")
+
+
+def main():
+    '''
+    Main entry point
+
+    :return:
+    '''
+
+    # Get parameters
+    parser = argparse.ArgumentParser(description='Read values from teleinfo interface')
+
+    parser.add_argument('-c', '--consumption-counter', dest='consumption', action='store_true', help='Get info from consumption counter')
+    parser.add_argument('-p', '--production-counter', dest='production', action='store_true', help='Get info from production counter')
+    parser.add_argument('-f', '--fake-counter', dest='fake', action='store_true', help='Get info from fake counter')
+    parser.add_argument('-s', '--service', action='store_true', help='Start as a service (infinite loop)')
+
+    parser.add_argument('-d', '--dbname', dest='dbFileName', action='store', help='Database filename', default='')
+    parser.add_argument('-w', '--write-to-file', dest='writeToFile', action='store',
+                        help='Path and prefix of file to write. Counter label will be append. Use /var/run/shm/teleinfo for example.',
+                        default='')
+    parser.add_argument('-m', '--sleep-time', dest='sleepTime', type=float, action='store',
+                        help='Sleep time between each read in service mode', default=15)
+
+    parser.add_argument('-l', '--log-file', dest='logFile', action='store', help='Log file path')
+    parser.add_argument('-e', '--log-level', dest='logLevel', action='store', help='Log level DEBUG, INFO, WARNING, ERROR', default='INFO')
+
+    parser.add_argument('-g', '--debug', dest='debug', action='store_true', help='Display log on console')
+
+    args = parser.parse_args()
+
+    process(args)
 
 
 if __name__ == "__main__":

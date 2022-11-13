@@ -15,7 +15,7 @@ class ScreenOutput():
         pass
     
     def TreatCommandsResults(self, action, cmdsValues):
-        for cmdKey, cmd in cmdsValues.items():
-            print cmd
+        for cmdKey, cmd in list(cmdsValues.items()):
+            print(cmd)
             
         return True

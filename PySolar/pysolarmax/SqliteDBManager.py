@@ -52,15 +52,15 @@ class DBManager:
         "Connect and create the cursor"
         try:
             self.connection = sqlite3.connect(dbFileName)
-        except Exception, err:
-            print "DB Connect failed: %s" % err
+        except Exception as err:
+            print("DB Connect failed: %s" % err)
             self.connectFailure = 1
         else:
             self.cursor = self.connection.cursor()
             self.connectFailure = 0
     
     def CreateTables(self, dictTables):
-        for table in dictTables.keys():
+        for table in list(dictTables.keys()):
             req = "CREATE TABLE IF NOT EXISTS %s (" % table
             
             for descr in dictTables[table]:
@@ -85,7 +85,7 @@ class DBManager:
             self.ExecuteRequest(req)
                 
     def DeleteTables(self, dictTables):
-        for table in dictTables.keys():
+        for table in list(dictTables.keys()):
             req = "DROP TABLE %s" % table
             self.ExecuteRequest(req)
         self.Commit()
@@ -94,8 +94,8 @@ class DBManager:
         #print req
         try:
             self.cursor.execute(req)
-        except Exception, err:
-            print "Incorrect SQL request (%s)\n%s" % (req, err)
+        except Exception as err:
+            print("Incorrect SQL request (%s)\n%s" % (req, err))
             return 0
         else:
             return 1
@@ -116,10 +116,10 @@ def main(argv):
     #Connect to the database
     dbm = DBManager(GlobalData.dbFileName)
     if dbm.connectFailure == 1:
-        print "Can't connect to database"
+        print("Can't connect to database")
     else:
         dbm.CreateTables(GlobalData.dbTables)
-        print "TODO : work on the DB"
+        print("TODO : work on the DB")
     
     dbm.Close()
     

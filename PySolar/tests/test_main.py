@@ -3,7 +3,7 @@
 import unittest
 import mock
 from mock import MagicMock
-from bin.Solarmax import process
+from pysolarmax.Solarmax import process
 from pysolarmax.Command import Command
 
 #===============================================================================

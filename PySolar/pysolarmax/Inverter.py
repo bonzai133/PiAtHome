@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import socket
-from Request import *
-from Response import *
+from .Request import *
+from .Response import *
 from datetime import datetime
-from Format import Format
-from DataConverter import DataConverter
+from .Format import Format
+from .DataConverter import DataConverter
 
 
 #===============================================================================
@@ -37,7 +37,7 @@ class Inverter():
             my_sock.connect((self.hostname, self.port))
             
             self.connected = True
-        except IOError, e:
+        except IOError as e:
             logger.debug("Socket error: %s", e)
             self.connected = False
         
@@ -67,7 +67,7 @@ class Inverter():
         try:
             cmd = Request(cmdList)
             cmdData = cmd.buildRequest()
-        except Exception, e:
+        except Exception as e:
             logger.error("Build request command error: %s" % e)
             return convertedValues
     
@@ -78,7 +78,7 @@ class Inverter():
             try:
                 rsp = self._sendDataAndWaitResponse(cmdData)
                 commands = rsp.getCommands()
-            except MessageDataException, e:
+            except MessageDataException as e:
                 logger.error("Error in received message: %s" % e)
             
             if commands is not None:
@@ -103,7 +103,7 @@ class Inverter():
             rsp = self._sendDataAndWaitResponse(cmdData)
     
             commands = rsp.getCommands()
-            if 'return' in commands.keys() and commands['return'] == 'Ok':
+            if 'return' in list(commands.keys()) and commands['return'] == 'Ok':
                 logger.info("Inverter set to current time.")
                 result = True
             else:

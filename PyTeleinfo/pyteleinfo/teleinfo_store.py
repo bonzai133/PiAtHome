@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 '''
 Created on 3 janv. 2017
@@ -15,8 +15,6 @@ import json
 #===============================================================================
 # Fixed values
 #===============================================================================
-TELEINFO_FILE_PREFIX = "/var/run/shm/teleinfo_"
-
 INSERT_QUERY = "INSERT OR REPLACE INTO TeleinfoByDay (dateDay, counterId, indexBase, value) VALUES (date('now'), ?, ?, ?)"
 PREVIOUS_VALUE_QUERY = "SELECT indexBase FROM TeleinfoByDay where counterId=? AND dateDay=date('now', '-1 day')"
 
@@ -31,7 +29,7 @@ class DBManager:
         "Connect and create the cursor"
         try:
             self.connection = sqlite3.connect(dbFileName)
-        except Exception, err:
+        except Exception as err:
             logging.error("DB Connect failed: %s" % err)
             self.connectFailure = 1
         else:
@@ -45,7 +43,7 @@ class DBManager:
                 self.cursor.execute(req, params)
             else:
                 self.cursor.execute(req)
-        except Exception, err:
+        except Exception as err:
             logging.error("Incorrect SQL request '%s' (%s)\n%s" % (req, params or 'None', err))
             return 0
         else:
@@ -97,14 +95,14 @@ def processCreateTables(dbFileName):
 # processStoreData
 # Read teleinfo data, then connect to database and save daily values
 #===============================================================================
-def processStoreData(dbFileName):
+def processStoreData(dbFileName, teleinfoFilePrefix):
     logging.debug("Enter processStoreData")
     db = DBManager(dbFileName)
     
     if db.connectFailure == 1:
         logging.error("Can't connect to database '%s'" % dbFileName)
     else:
-        data = doReadTeleinfo(TELEINFO_FILE_PREFIX)
+        data = doReadTeleinfo(teleinfoFilePrefix)
         doStoreData(db, data)
         db.Commit()
         db.Close()
@@ -118,7 +116,7 @@ def processStoreData(dbFileName):
 #  - value is a dict of teleinfo keys
 #===============================================================================
 def doStoreData(db, data):
-    for counterId, teleinfo in data.items():
+    for counterId, teleinfo in list(data.items()):
         logging.debug("Process %s" % counterId)
 
         for baseName in ['BASE', 'EAIT']:
@@ -163,6 +161,26 @@ def doReadTeleinfo(fileprefix):
                 
     return allinfo
 
+#===============================================================================
+# process(args)
+#===============================================================================
+def process(args):
+    #Use configuration file ?
+    if args.logConfig is not None:
+        try:
+            logging.config.fileConfig(args.logConfig)
+        except Exception as e:
+            logging.error("Can't read logger configuration: %s" % e)
+
+    logging.debug("Input Args: %s" % repr(args))
+    
+    if args.createTables:
+        processCreateTables(args.dbFileName)
+    else:
+        processStoreData(args.dbFileName, args.teleinfoFilePrefix)
+    
+    logging.debug("----- End of treatment")
+
 
 #===============================================================================
 # main
@@ -174,27 +192,14 @@ def main():
     parser.add_argument('-d', '--dbname', dest='dbFileName', action='store', help='Database filename', required=True)
     parser.add_argument('-c', '--createTables', dest='createTables', action='store_true', help='Create required tables in database')
     parser.add_argument('-l', '--log-config', dest='logConfig', action='store', help='Log configuration file')
+    parser.add_argument('-f', '--teleinfo-file-prefix', dest='teleinfoFilePrefix', action='store', default="/var/run/shm/teleinfo_", help='Teleinfo file path')
 
     args = parser.parse_args()
 
     #Create logger with basic config
     logging.basicConfig()
-    
-    #Use configuration file ?
-    if args.logConfig is not None:
-        try:
-            logging.config.fileConfig(args.logConfig)
-        except Exception, e:
-            logging.error("Can't read logger configuration: %s" % e)
 
-    logging.debug("Input Args: %s" % repr(args))
-    
-    if args.createTables:
-        processCreateTables(args.dbFileName)
-    else:
-        processStoreData(args.dbFileName)
-    
-    logging.debug("----- End of treatment")
+    process(args)
     
     
 if __name__ == '__main__':

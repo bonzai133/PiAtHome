@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from MessageData import MessageData
-from MessageData import MessageDataException
+from .MessageData import MessageData
+from .MessageData import MessageDataException
 
 import logging
 logger = logging.getLogger(__name__)
@@ -24,7 +24,7 @@ class Response:
         try:
             msg = MessageData()
             msg.parseMessage(respData)
-        except MessageDataException, e:
+        except MessageDataException as e:
             logger.error("AddBlock exception: %s" % e)
             raise
         

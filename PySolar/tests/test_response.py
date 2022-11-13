@@ -73,7 +73,7 @@ class TestResponse(unittest.TestCase):
         rsp.addBlock("{01;FB;1D|2,EA09,4E22,0|057E}")
         
         cmdDict = rsp.getCommands()
-        print cmdDict
+        print(cmdDict)
         rsp_ref = {'EC08': ['7DF0C13', '79F2', '4E23', '0'], 'EC09': ['7DF0C12', 'EA09', '4E22', '0'], 'EC00': ['7DF0C14', '81E0', '4E28', '0'], 'EC01': ['7DF0C14', '816F', '4E22', '0'], 'EC02': ['7DF0C14', '8133', '4E28', '0'], 'EC03': ['7DF0C14', '8067', '4E23', '0'], 'EC04': ['7DF0C13', 'EA6F', '4E22', '0'], 'EC05': ['7DF0C13', '7E4A', '4E28', '0'], 'EC06': ['7DF0C13', '7D68', '4E22', '0'], 'EC07': ['7DF0C13', '7D2C', '4E28', '0']}
         self.assertDictEqual(cmdDict, rsp_ref)
         

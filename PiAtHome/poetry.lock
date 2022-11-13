@@ -1,0 +1,61 @@
+[[package]]
+name = "beaker"
+version = "1.11.0"
+description = "A Session and Caching library with WSGI Middleware"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+funcsigs = "*"
+
+[package.extras]
+crypto = ["pycryptopp (>=0.5.12)"]
+cryptography = ["cryptography"]
+pycrypto = ["pycrypto"]
+pycryptodome = ["pycryptodome"]
+testsuite = ["nose", "mock", "pycryptodome", "webtest", "coverage", "cryptography", "sqlalchemy", "pymongo", "redis", "pylibmc", "python-memcached"]
+
+[[package]]
+name = "bottle"
+version = "0.12.23"
+description = "Fast and simple WSGI-framework for small web-applications."
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
+name = "bottle-sqlite"
+version = "0.2.0"
+description = "SQLite3 integration for Bottle."
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
+name = "funcsigs"
+version = "1.0.2"
+description = "Python function signatures from PEP362 for Python 2.6, 2.7 and 3.2+"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
+name = "wsgi-request-logger"
+version = "0.4.6"
+description = "Apache-like combined logging for WSGI Web Applications"
+category = "main"
+optional = false
+python-versions = "*"
+
+[metadata]
+lock-version = "1.1"
+python-versions = "^3.9"
+content-hash = "a847a901ce76d675d1ebd0bf6802e730d100f7c24432d89f16aae856a92039b9"
+
+[metadata.files]
+beaker = []
+bottle = []
+bottle-sqlite = []
+funcsigs = []
+wsgi-request-logger = []

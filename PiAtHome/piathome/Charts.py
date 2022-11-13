@@ -9,11 +9,11 @@ import os
 
 from bottle import route, template, static_file, request, response, redirect
 
-from ApplicationUsers import ApplicationUsers
+from .ApplicationUsers import ApplicationUsers
 
-from Charts_Authentication import *
-from Charts_Solar import *
-from Charts_Teleinfo import *
+from .Charts_Authentication import *
+from .Charts_Solar import *
+from .Charts_Teleinfo import *
 
 
 #===============================================================================
