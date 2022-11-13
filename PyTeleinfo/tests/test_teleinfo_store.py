@@ -10,7 +10,7 @@ print(sys.path)
 import unittest
 import mock
 from mock import MagicMock
-from pyteleinfo import teleinfo_store
+from PyTeleinfo import teleinfo_store
 
 #===============================================================================
 # Logging

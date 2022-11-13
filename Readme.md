@@ -47,7 +47,7 @@ External: Contains Diamond custom collectors and configuration for various monit
 ** ParseTIC/teleinfo2.py: used in production with Python 3. To move to PyTeleinfo. Launched by a service.
 ** ParseTIC/teleinfo.py: to remove
 ** ParseTIC/parseTic.py: to move to test folder ?
-** PyTeleinfo/teleinfo.py: to remove
+** PyTeleinfo/teleinfo.py: collect teleinfo to /var/run/shm and prom exporter
 ** PyTeleinfo/teleinfo_aggr.py: Not used anymore (linked to teleinfo.py). To remove.
 ** PyTeleinfo/teleinfo_store.py: Store daily values of Teleinfo (/var/run/shm) into TeleinfoByDay. Launched by cron. Ok, but need to make shm path configurable
 * Setup.py

@@ -1,29 +1,22 @@
 # -*- coding: utf-8 -*-
-
-from pathlib import Path
 import sys
+from pathlib import Path
 path_root = Path(__file__).parents[1]
 sys.path.append(str(path_root))
 print(sys.path)
 
-
 import unittest
-import mock
-from mock import MagicMock
-from pyteleinfo import teleinfo
 
-#===============================================================================
-# Logging
-#===============================================================================
+from mock import MagicMock
+import teleinfo
 import logging
+
 logging.basicConfig(level=logging.INFO)
 
-#===============================================================================
-# TestMain
-#===============================================================================
+
 class TestMain(unittest.TestCase):
     def test_fake(self):
-        #Args
+        # Args
         args = MagicMock()
         args.logFile = None
         args.debug = False
