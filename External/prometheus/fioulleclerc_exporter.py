@@ -21,6 +21,7 @@ logging.basicConfig(level=logging.ERROR,
 
 REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request')
 
+
 class FioulPageParser():
     def __init__(self, url) -> None:
         self.url = url
@@ -47,7 +48,7 @@ class FioulPageParser():
 
     def get_fioul_price(self):
         price = -1.0
-        
+
         r = requests.get(self.url)
         root = LH.fromstring(r.content)
 
@@ -74,6 +75,7 @@ class FioulPageParser():
 
         return price
 
+
 def register_prometheus_gauges(url):
     fioulPageParser = FioulPageParser(url)
 
@@ -89,6 +91,7 @@ def load_config(config_filename):
     config.read(config_filename)
 
     return config['DEFAULT']
+
 
 if __name__ == "__main__":
     config = load_config(os.path.splitext(__file__)[0] + ".conf")
