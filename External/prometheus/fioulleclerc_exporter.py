@@ -2,46 +2,39 @@
 import os
 os.environ['PROMETHEUS_DISABLE_CREATED_SERIES'] = "True"
 
+import logging
 import time
-from prometheus_client import start_http_server, Gauge, Summary
-from prometheus_client import REGISTRY, GC_COLLECTOR, PLATFORM_COLLECTOR, PROCESS_COLLECTOR
+import argparse
+import configparser
+import lxml.html as LH
+import requests
+
+from prometheus_client import start_http_server
+from prometheus_client.core import GaugeMetricFamily
+from prometheus_client import REGISTRY, GC_COLLECTOR, PLATFORM_COLLECTOR
 
 REGISTRY.unregister(GC_COLLECTOR)
 REGISTRY.unregister(PLATFORM_COLLECTOR)
-#REGISTRY.unregister(PROCESS_COLLECTOR)
-
-import configparser
-
-import lxml.html as LH
-import requests
-import logging
-
-logging.basicConfig(level=logging.ERROR,
-                    format='%(asctime)s [%(levelname)s] %(message)s',)
-
-REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request')
+# REGISTRY.unregister(PROCESS_COLLECTOR)
 
 
-class FioulPageParser():
-    def __init__(self, url) -> None:
-        self.url = url
+class FioulLeclercCollector(object):
+    def __init__(self, config) -> None:
+        self.url = config['url']
         self.error_gauge = None
 
-    @REQUEST_TIME.time()
-    def __call__(self):
-        return self.get_fioul_price()
+    def collect(self):
+        # Read values
+        values = self.get_fioul_price()
 
-    def set_error_gauge(self, error_g):
-        self.error_gauge = error_g
-        self.unset_parse_error()
-
-    def set_parse_error(self):
-        if self.error_gauge is not None:
-            self.error_gauge.set(1)
-
-    def unset_parse_error(self):
-        if self.error_gauge is not None:
-            self.error_gauge.set(0)
+        if values != -1.0:
+            yield GaugeMetricFamily("fioul_standard_price_in_euros", "Price of standard fioul in Euros",
+                                    value=values)
+            yield GaugeMetricFamily("fioul_parser_error", "Is 1 if error parsing the page",
+                                    value=0)
+        else:
+            yield GaugeMetricFamily("fioul_parser_error", "Is 1 if error parsing the page",
+                                    value=1)
 
     def text(self, elt):
         return elt.text_content().replace(u'\xa0', u' ')
@@ -58,7 +51,6 @@ class FioulPageParser():
                 break
         else:
             logging.error("Fioul page has change (1): update script.")
-            self.set_parse_error()
             return price
 
         # Search the line with "1 000 à 1 999 litres"
@@ -66,41 +58,80 @@ class FioulPageParser():
         for idx, td in enumerate(tds):
             if u"1 000 à 1 999 litres" in self.text(td):
                 price = float(self.text(tds[idx + 2]).replace(',', '.'))
-
-                self.unset_parse_error()
                 break
         else:
             logging.error("Fioul page has change (2): update script.")
-            self.set_parse_error()
+            return price
 
         return price
 
 
-def register_prometheus_gauges(url):
-    fioulPageParser = FioulPageParser(url)
+def register(args, config):
+    # Start Prometheus serveur and register gauges in service mode only
+    logging.info("Starting Prometheus exporter")
+    start_http_server(args.metrics_port)
 
-    g = Gauge("fioul_standard_price_in_euros", "Price of standard fioul in Euros")
-    g.set_function(fioulPageParser)
-
-    error_g = Gauge("fioul_parser_error", "Is 1 if error parsing the page")
-    fioulPageParser.set_error_gauge(error_g)
+    # Create metrics
+    REGISTRY.register(FioulLeclercCollector(config))
 
 
-def load_config(config_filename):
+def process(args):
+    '''
+    Main loop process
+    '''
+    # Create logger with basic config
+    if args.logFile is not None:
+        logging.basicConfig(filename=args.logFile, format='%(asctime)s: [%(levelname)s] %(message)s', level=args.logLevel)
+
+    if args.debug:
+        logging.basicConfig(format='%(levelname)s:%(message)s', level=args.logLevel)
+        logging.info("-- Debug mode activated --")
+
+    logging.warning("Started with args: %s" % repr(args))
+
+    # Load configuration
+    if args.configFile is not None:
+        configFile = args.configFile
+    else:
+        configFile = os.path.splitext(__file__)[0] + ".conf"
+
     config = configparser.ConfigParser()
-    config.read(config_filename)
+    config.read(configFile)
 
-    return config['DEFAULT']
+    # Register Prometheus metrics
+    register(args, config['DEFAULT'])
+
+    # Check if we run as a service
+    while True:
+        time.sleep(10000)
+
+
+def main():
+    '''
+    Main entry point
+
+    :return:
+    '''
+
+    # Get parameters
+    parser = argparse.ArgumentParser(description='Prometheus exporter for Fioul Leclerc price')
+
+    parser.add_argument('-i', '--config-file', dest='configFile', action='store', help='Config file path')
+
+    parser.add_argument('-o', '--metrics-port', dest='metrics_port', type=int, action='store',
+                        help='Enable Prometheus metrics', default=8000)
+
+    parser.add_argument('-l', '--log-file', dest='logFile', action='store', help='Log file path')
+    parser.add_argument('-e', '--log-level', dest='logLevel', action='store',
+                        help='Log level DEBUG, INFO, WARNING, ERROR', default='INFO')
+
+    parser.add_argument('-g', '--debug', dest='debug', action='store_true', help='Display log on console')
+
+    args = parser.parse_args()
+
+    # Start main process loop
+    process(args)
 
 
 if __name__ == "__main__":
-    config = load_config(os.path.splitext(__file__)[0] + ".conf")
-    if 'url' not in config or config['url'] == "":
-        logging.error("Bad configuration: please set 'url'")
-        exit(-1)
-
-    start_http_server(8000)
-
-    register_prometheus_gauges(config['url'])
-    while True:
-        time.sleep(10000)
+    main()

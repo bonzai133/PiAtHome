@@ -6,7 +6,7 @@ import os
 os.environ['PROMETHEUS_DISABLE_CREATED_SERIES'] = "True"
 
 from prometheus_client import start_http_server, Gauge
-from prometheus_client import REGISTRY, GC_COLLECTOR, PLATFORM_COLLECTOR, PROCESS_COLLECTOR
+from prometheus_client import REGISTRY, GC_COLLECTOR, PLATFORM_COLLECTOR
 
 REGISTRY.unregister(GC_COLLECTOR)
 REGISTRY.unregister(PLATFORM_COLLECTOR)
