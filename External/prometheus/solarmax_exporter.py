@@ -96,7 +96,7 @@ def main():
     '''
 
     # Get parameters
-    parser = argparse.ArgumentParser(description='Read values from teleinfo interface')
+    parser = argparse.ArgumentParser(description='Read values from Solarmax inverter')
 
     parser.add_argument('-i', '--config-file', dest='configFile', action='store', help='Config file path')
 
