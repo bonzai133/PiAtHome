@@ -69,6 +69,23 @@ External: Contains Diamond custom collectors and configuration for various monit
 *** https://github.com/hikhvar/w1_prometheus_exporter
 ** https://github.com/prometheus/blackbox_exporter
 
+### Exporters
+* Fioul Leclerc: standalone exporter -> Done
+* Freebox status
+** https://github.com/trazfr/freebox-exporter: not tested.
+** https://github.com/saphoooo/freebox_exporter: tested ok on RPi, need to increase time to validate app on Fbx
+* OneWire / OneWireNet: using i2c master (owfs on /mnt/1wire ?) -> Done
+** https://github.com/Nick4154/raspberrypi_onewire_exporter: python read "/sys/bus/w1/devices/"
+** https://github.com/l3akage/onewire_exporter: go read "/sys/bus/w1/devices/"
+** Need to implement exporter with owfs server on port 4304 (http on 2121 for visualisation)
+* Philipstv
+* Solarmax: standalone exporter -> Done
+* Teleinfo: integrated to teleinfo.py service -> Done
+
+### Exporters improvments
+* Run exporter as systemd service: see pyteleinfo.service
+* Expose exporter on /metrics: it is the case. Any path give same response in fact. -> Done
+
 ### Update RPi to latest RPiOS
 * Backup current install (PiAtHome db + graphite Db)
 * Reinstall RPiOS
@@ -76,3 +93,12 @@ External: Contains Diamond custom collectors and configuration for various monit
 * Install Prometheus
 * Install Grafana
 * Migrate Graphite to Prometheus
+
+### Existing Prometheus Exporter with ports
+* https://github.com/prometheus/prometheus/wiki/Default-port-allocations
+
+### RPi Exporters and Prometheus setup
+* https://github.com/fahlke/raspberrypi_exporter: interesting service example to replace cron
+* https://pimylifeup.com/raspberry-pi-prometheus/
+* https://github.com/eko/pihole-exporter/
+* https://github.com/dr1s/pihole_exporter.py
