@@ -2,7 +2,7 @@
 import sys
 from pathlib import Path
 path_root = Path(__file__).parents[1]
-sys.path.append(str(path_root))
+sys.path.append(str(path_root) + "/pyteleinfo")
 print(sys.path)
 
 import unittest
@@ -19,6 +19,7 @@ class TestMain(unittest.TestCase):
         # Args
         args = MagicMock()
         args.logFile = None
+        args.configFile = None
         args.debug = False
         args.service = False
         args.sleepTime = 2

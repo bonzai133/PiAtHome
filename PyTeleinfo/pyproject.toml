@@ -1,6 +1,6 @@
 [tool.poetry]
-name = "pyteleinfo"
-version = "0.1.0"
+name = "PyTeleinfo"
+version = "2.0.0"
 description = "Read teleinfo data on serial port of Raspberry Pi"
 authors = ["bonzai133 <bonzai133@free.fr>"]
 license = "MIT"

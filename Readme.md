@@ -5,7 +5,7 @@ This project for Raspberry Pi contains several parts.
 
 PySolar: Collect information from Solarmax inverter and store it in local database
 PyTeleinfo: Collect information from Teleinfo of eletric counter and store it in local database
-ParseTIC: Collect information from Teleinfo of Linky eletric counter
+ParseTIC: Collect information from Teleinfo of Linky eletric counter => Merge to PyTeleinfo
 PiAtHome: Web pages to display previous information and production configuration
 External: Contains Diamond custom collectors and configuration for various monitoring purposes
 
@@ -44,14 +44,18 @@ External: Contains Diamond custom collectors and configuration for various monit
 ### Remove old code
 * Solarmax2: Done
 * PyTeleinfo vs ParseTIC
-** ParseTIC/teleinfo2.py: used in production with Python 3. To move to PyTeleinfo. Launched by a service.
-** ParseTIC/teleinfo.py: to remove
-** ParseTIC/parseTic.py: to move to test folder ?
-** PyTeleinfo/teleinfo.py: collect teleinfo to /var/run/shm and prom exporter
-** PyTeleinfo/teleinfo_aggr.py: Not used anymore (linked to teleinfo.py). To remove.
-** PyTeleinfo/teleinfo_store.py: Store daily values of Teleinfo (/var/run/shm) into TeleinfoByDay. Launched by cron. Ok, but need to make shm path configurable
+** ParseTIC/teleinfo2.py: used in production with Python 3. To move to PyTeleinfo. Launched by a service. => Done
+** ParseTIC/teleinfo.py: to remove => Done
+** ParseTIC/parseTic.py: to move to test folder ? => Done
+** PyTeleinfo/teleinfo.py: collect teleinfo to /var/run/shm and prom exporter => Done
+** PyTeleinfo/teleinfo_aggr.py: Not used anymore (linked to teleinfo.py). To remove => Done
+** PyTeleinfo/teleinfo_store.py: Store daily values of Teleinfo (/var/run/shm) into TeleinfoByDay. Launched by cron.  => Done
 * Setup.py
-** update all, really a mess
+** Use Poetry: poetry build => pip install 
+*** External
+*** PiAtHome
+*** PySolar
+*** PyTeleinfo -> build done
 ** test on qemu
 * PiAtHome
 ** pyproject.toml (poetry init)
@@ -78,7 +82,7 @@ External: Contains Diamond custom collectors and configuration for various monit
 ** https://github.com/Nick4154/raspberrypi_onewire_exporter: python read "/sys/bus/w1/devices/"
 ** https://github.com/l3akage/onewire_exporter: go read "/sys/bus/w1/devices/"
 ** Need to implement exporter with owfs server on port 4304 (http on 2121 for visualisation)
-* Philipstv
+* Philipstv -> Not required
 * Solarmax: standalone exporter -> Done
 * Teleinfo: integrated to teleinfo.py service -> Done
 

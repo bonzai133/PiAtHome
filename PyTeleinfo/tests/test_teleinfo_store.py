@@ -3,14 +3,14 @@
 from pathlib import Path
 import sys
 path_root = Path(__file__).parents[1]
-sys.path.append(str(path_root))
+sys.path.append(str(path_root) + "/pyteleinfo")
 print(sys.path)
 
 
 import unittest
 import mock
 from mock import MagicMock
-from PyTeleinfo import teleinfo_store
+import teleinfo_store
 
 #===============================================================================
 # Logging

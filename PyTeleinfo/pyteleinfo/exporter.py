@@ -1,6 +1,6 @@
 import logging
 import json
-from .counter import Counter
+from counter import Counter
 
 import os
 os.environ['PROMETHEUS_DISABLE_CREATED_SERIES'] = "True"

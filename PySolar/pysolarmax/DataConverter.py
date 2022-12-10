@@ -3,18 +3,18 @@
 import re
 from time import strftime
 from time import gmtime
-from .Command import Command
+from Command import Command
 
-#===============================================================================
+# ===============================================================================
 # Logs
-#===============================================================================
+# ===============================================================================
 import logging
 logger = logging.getLogger()
 
 
-#===============================================================================
+# ===============================================================================
 # DataConverter
-#===============================================================================
+# ===============================================================================
 class DataConverter:
     def __init__(self):
         self.m_Commands = {
@@ -28,7 +28,7 @@ class DataConverter:
             'DYR': Command('DYR', 'Date year', self.convertX1),
             'THR': Command('THR', 'Time hours', self.convertX1),
             'TMI': Command('TMI', 'Time minutes', self.convertX1),
-            
+
             'KHR': Command('KHR', 'Operating hours', self.convertX1),
             'KDY': Command('KDY', 'Energy today [Wh]', self.convertX100),
             'KLD': Command('KLD', 'Energy yesterday [Wh]', self.convertX100),
@@ -37,7 +37,7 @@ class DataConverter:
             'KYR': Command('KYR', 'Energy this year [kWh]', self.convertX1),
             'KLY': Command('KLY', 'Energy last year [kWh]', self.convertX1),
             'KT0': Command('KT0', 'Energy total [kWh]', self.convertX1),
-            
+
             'UDC': Command('UDC', 'DC voltage [V]', self.convertD10),
             'UL1': Command('UL1', 'AC voltage [V]', self.convertD10),
             'IDC': Command('IDC', 'DC current [A]', self.convertD100),
@@ -45,14 +45,14 @@ class DataConverter:
             'PAC': Command('PAC', 'AC power [W]', self.convertD2),
             'PIN': Command('PIN', 'Power installed [W]', self.convertD2),
             'PRL': Command('PRL', 'AC power [%]', self.convertX1),
-            
+
             'TKK': Command('TKK', 'Temperature Heat Sink', self.convertX1),
             'TNF': Command('TNF', 'AC Frequency', self.convertD100),
-            
+
             'LAN': Command('LAN', 'Language', self.convertX1),
             'CAC': Command('CAC', 'Start ups', self.convertX1),
             'FRD': Command('FRD', 'First run date', self.convertDate),
-            
+
             'EC00': Command('EC00', 'Error 00', self.convertError),
             'EC01': Command('EC01', 'Error 01', self.convertError),
             'EC02': Command('EC02', 'Error 02', self.convertError),
@@ -73,7 +73,7 @@ class DataConverter:
             'EC17': Command('EC17', 'Error 17', self.convertError),
             'EC18': Command('EC18', 'Error 18', self.convertError),
             'EC19': Command('EC19', 'Error 19', self.convertError),
-            
+
             'DY00': Command('DY00', 'Energy by year', self.convertDateEnergy),
             'DY01': Command('DY01', 'Energy by year', self.convertDateEnergy),
             'DY02': Command('DY02', 'Energy by year', self.convertDateEnergy),
@@ -84,7 +84,7 @@ class DataConverter:
             'DY07': Command('DY07', 'Energy by year', self.convertDateEnergy),
             'DY08': Command('DY08', 'Energy by year', self.convertDateEnergy),
             'DY09': Command('DY09', 'Energy by year', self.convertDateEnergy),
-            
+
             'DM00': Command('DM00', 'Energy by month', self.convertDateEnergy),
             'DM01': Command('DM01', 'Energy by month', self.convertDateEnergy),
             'DM02': Command('DM02', 'Energy by month', self.convertDateEnergy),
@@ -97,7 +97,7 @@ class DataConverter:
             'DM09': Command('DM09', 'Energy by month', self.convertDateEnergy),
             'DM10': Command('DM10', 'Energy by month', self.convertDateEnergy),
             'DM11': Command('DM11', 'Energy by month', self.convertDateEnergy),
-            
+
             'DD00': Command('DD00', 'Energy by day', self.convertDateEnergy),
             'DD01': Command('DD01', 'Energy by day', self.convertDateEnergy),
             'DD02': Command('DD02', 'Energy by day', self.convertDateEnergy),
@@ -130,7 +130,7 @@ class DataConverter:
             'DD29': Command('DD29', 'Energy by day', self.convertDateEnergy),
             'DD30': Command('DD30', 'Energy by day', self.convertDateEnergy),
         }
-    
+
     m_Status = {
         20001: "En service",
         20002: "Rayonnement trop faible",
@@ -194,10 +194,9 @@ class DataConverter:
         20110: "SolarMax 35S",
         20020: "SolarMax 3000 S",
         20030: "SolarMax 4200 S",
-        20040: "SolarMax 6000 S",
-        6010: "SolarMax 6000C",
+        20040: "SolarMax 6000 S"
     }
-    
+
     @staticmethod
     def convertSYS(values):
         code = values[0]
@@ -206,23 +205,23 @@ class DataConverter:
         except KeyError:
             logger.warning("Unknown Status (%s)" % int(code, 16))
             retStr = "Unknown Status %d" % int(code, 16)
-            
+
         return retStr
-    
+
     @staticmethod
     def convertError(values):
         logger.debug("ConvertError: %s" % values)
 
         date = DataConverter.convertDate([values[0]])
         time = DataConverter.convertTime([values[1]])
-        
+
         key = int(values[2], 16)
         if key in DataConverter.m_Status:
             error = DataConverter.m_Status[key]
         else:
             logger.warning("Unknown error (%s)" % key)
             error = "Unknown error (%s)" % key
-        
+
         return (date, time, key, error)
 
     @staticmethod
@@ -233,18 +232,18 @@ class DataConverter:
         except KeyError:
             logger.warning("Unknown Type %d" % int(value, 16))
             retStr = "Unknown Type %d" % int(value, 16)
-            
+
         return retStr
-    
+
     @staticmethod
     def convertDate(values):
-        #7DB0206 -> 2011-02-06
+        # 7DB0206 -> 2011-02-06
         m = re.split("(.+)(.{2})(.{2})", values[0])
-        
+
         year = int(m[1], 16)
         month = int(m[2], 16)
         day = int(m[3], 16)
-        
+
         return "%04d-%02d-%02d" % (year, month, day)
 
     @staticmethod
@@ -255,32 +254,32 @@ class DataConverter:
     def convertD2(values):
         value = values[0]
         return str(int(value, 16) / 2.0)
-    
+
     @staticmethod
     def convertD10(values):
         value = values[0]
         return str(int(value, 16) / 10.0)
-    
+
     @staticmethod
     def convertD100(values):
         value = values[0]
         return str(int(value, 16) / 100.0)
-        
+
     @staticmethod
     def convertX1(values):
         value = values[0]
         return str(int(value, 16))
-    
+
     @staticmethod
     def convertX10(values):
         value = values[0]
         return str(int(value, 16) * 10)
-    
+
     @staticmethod
     def convertX100(values):
         value = values[0]
         return str(int(value, 16) * 100)
-    
+
     @staticmethod
     def convertX500(values):
         value = values[0]
@@ -288,31 +287,31 @@ class DataConverter:
 
     @staticmethod
     def convertDateEnergy(values):
-        #7DB0112,1B,11F6,51 -> date, total watt, peak watt, hours sunshine
+        # 7DB0112,1B,11F6,51 -> date, total watt, peak watt, hours sunshine
         date = DataConverter.convertDate([values[0]])
         total = DataConverter.convertD10([values[1]])
         peak = DataConverter.convertD2([values[2]])
         hours = DataConverter.convertD10([values[3]])
 
-        #return date + " : " + total + " kWh, " + peak + " W peak, " + hours + " hours"
+        # return date + " : " + total + " kWh, " + peak + " W peak, " + hours + " hours"
         return (date, total, peak, hours)
 
-    #===========================================================================
+    # ===========================================================================
     # convertValues
     # commands: dictionary of commands: key=command value=hex_value
     # returns: list of Commands with converted values
-    #===========================================================================
+    # ===========================================================================
     def convertValues(self, commands):
         convertedCommands = {}
         for command, value in list(commands.items()):
             try:
                 cmd = self.m_Commands[command]
                 cmd.SetRawValue(value)
-                
+
                 convertedCommands[command] = cmd
-                
+
                 logger.debug("convertValues: %s" % repr(cmd.Value))
             except KeyError:
                 logger.error("convertValues: Unknown command '%s' = %s" % (command, value))
-        
+
         return convertedCommands

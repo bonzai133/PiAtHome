@@ -1,6 +1,6 @@
 [tool.poetry]
-name = "pysolarmax"
-version = "0.1.0"
+name = "PySolarmax"
+version = "2.0.0"
 description = "Retrieve info from Solarmax inverter"
 authors = ["bonzai133 <bonzai133@free.fr>"]
 license = "MIT"

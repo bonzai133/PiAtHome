@@ -3,6 +3,9 @@
 '''
 Created on 3 janv. 2017
 
+Store daily values of Teleinfo into TeleinfoByDay table in Sqlite database.
+
+
 @author: laurent
 '''
 import logging
@@ -12,19 +15,19 @@ import sqlite3
 import glob
 import json
 
-#===============================================================================
+# ===============================================================================
 # Fixed values
-#===============================================================================
+# ===============================================================================
 INSERT_QUERY = "INSERT OR REPLACE INTO TeleinfoByDay (dateDay, counterId, indexBase, value) VALUES (date('now'), ?, ?, ?)"
 PREVIOUS_VALUE_QUERY = "SELECT indexBase FROM TeleinfoByDay where counterId=? AND dateDay=date('now', '-1 day')"
 
 
-#===============================================================================
+# ===============================================================================
 # DBManager
-#===============================================================================
+# ===============================================================================
 class DBManager:
     """Management of sqlite database"""
-    
+
     def __init__(self, dbFileName):
         "Connect and create the cursor"
         try:
@@ -35,7 +38,7 @@ class DBManager:
         else:
             self.cursor = self.connection.cursor()
             self.connectFailure = 0
-    
+
     def ExecuteRequest(self, req, params=None):
         logging.debug("Request: %s ; params: %s" % (req, params or 'None'))
         try:
@@ -48,41 +51,41 @@ class DBManager:
             return 0
         else:
             return 1
-    
+
     def GetResult(self):
         return self.cursor.fetchall()
-        
+
     def Commit(self):
         if self.connection:
             self.connection.commit()
-                    
+
     def Close(self):
         if self.connection:
             self.connection.close()
 
-            
-#===============================================================================
+
+# ===============================================================================
 # doCreateTables
 # Execute query to create sqlite tables
-#===============================================================================
+# ===============================================================================
 def doCreateTables(db):
     tableName = "TeleinfoByDay"
-    
+
     query = "CREATE TABLE IF NOT EXISTS %s ("
     query += "dateDay TEXT, counterId INTEGER NOT NULL, indexBase INTEGER NOT NULL, value INTEGER, "
     query += "PRIMARY KEY (dateDay, counterId))"
 
     db.ExecuteRequest(query % tableName)
 
-    
-#===============================================================================
+
+# ===============================================================================
 # processCreateTables
 # Connect to database and create tables
-#===============================================================================
+# ===============================================================================
 def processCreateTables(dbFileName):
     logging.debug("Enter processCreateTables")
     db = DBManager(dbFileName)
-    
+
     if db.connectFailure == 1:
         logging.error("Can't connect to database '%s'" % dbFileName)
     else:
@@ -91,14 +94,14 @@ def processCreateTables(dbFileName):
         db.Close()
 
 
-#===============================================================================
+# ===============================================================================
 # processStoreData
 # Read teleinfo data, then connect to database and save daily values
-#===============================================================================
+# ===============================================================================
 def processStoreData(dbFileName, teleinfoFilePrefix):
     logging.debug("Enter processStoreData")
     db = DBManager(dbFileName)
-    
+
     if db.connectFailure == 1:
         logging.error("Can't connect to database '%s'" % dbFileName)
     else:
@@ -108,13 +111,13 @@ def processStoreData(dbFileName, teleinfoFilePrefix):
         db.Close()
 
 
-#===============================================================================
+# ===============================================================================
 # doStoreData
 # Store teleinfo BASE index in TeleinfoByDay
 # data is a dict:
 #  - key is ADCO (counter id)
 #  - value is a dict of teleinfo keys
-#===============================================================================
+# ===============================================================================
 def doStoreData(db, data):
     for counterId, teleinfo in list(data.items()):
         logging.debug("Process %s" % counterId)
@@ -132,20 +135,20 @@ def doStoreData(db, data):
                 previous = rows[0]
 
         if previous is None:
-            #No previous data
+            # No previous data
             previous = int(teleinfo[baseName])
-            
+
         delta = int(teleinfo[baseName]) - previous
         db.ExecuteRequest(INSERT_QUERY, (counterId, teleinfo[baseName], delta))
 
 
-#===============================================================================
+# ===============================================================================
 # doReadTeleinfo
 # Read teleinfo data stored in json files (1 by counter id)
 # Return a dict:
 #  - key is ADCO or ADSC (counter id)
 #  - value is a dict of teleinfo keys
-#===============================================================================
+# ===============================================================================
 def doReadTeleinfo(fileprefix):
     logging.debug("Enter doReadTeleinfo")
     allinfo = {}
@@ -158,14 +161,15 @@ def doReadTeleinfo(fileprefix):
             elif 'ADSC' in data:
                 logging.debug("Valid data found (ADSC): %s" % repr(data))
                 allinfo[data['ADSC']] = data
-                
+
     return allinfo
 
-#===============================================================================
+
+# ===============================================================================
 # process(args)
-#===============================================================================
+# ===============================================================================
 def process(args):
-    #Use configuration file ?
+    # Use configuration file ?
     if args.logConfig is not None:
         try:
             logging.config.fileConfig(args.logConfig)
@@ -173,34 +177,35 @@ def process(args):
             logging.error("Can't read logger configuration: %s" % e)
 
     logging.debug("Input Args: %s" % repr(args))
-    
+
     if args.createTables:
         processCreateTables(args.dbFileName)
     else:
         processStoreData(args.dbFileName, args.teleinfoFilePrefix)
-    
+
     logging.debug("----- End of treatment")
 
 
-#===============================================================================
+# ===============================================================================
 # main
-#===============================================================================
+# ===============================================================================
 def main():
-    #Get parameters
+    # Get parameters
     parser = argparse.ArgumentParser(description='Store daily values of Teleinfo into TeleinfoByDay')
-    
+
     parser.add_argument('-d', '--dbname', dest='dbFileName', action='store', help='Database filename', required=True)
     parser.add_argument('-c', '--createTables', dest='createTables', action='store_true', help='Create required tables in database')
     parser.add_argument('-l', '--log-config', dest='logConfig', action='store', help='Log configuration file')
-    parser.add_argument('-f', '--teleinfo-file-prefix', dest='teleinfoFilePrefix', action='store', default="/var/run/shm/teleinfo_", help='Teleinfo file path')
+    parser.add_argument('-f', '--teleinfo-file-prefix', dest='teleinfoFilePrefix', action='store',
+                        default="/var/run/shm/teleinfo_", help='Teleinfo file path')
 
     args = parser.parse_args()
 
-    #Create logger with basic config
+    # Create logger with basic config
     logging.basicConfig()
 
     process(args)
-    
-    
+
+
 if __name__ == '__main__':
     main()

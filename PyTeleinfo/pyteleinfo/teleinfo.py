@@ -51,11 +51,12 @@ import time
 import sys
 import configparser
 import logging
+
 # import exporter
-from pyteleinfo.exporter import register
-from pyteleinfo.errors import AbortError
-from pyteleinfo.data_writer import DataWriter
-from pyteleinfo.counter import Counter
+from exporter import register
+from errors import AbortError
+from data_writer import DataWriter
+from counter import Counter
 
 
 def process(args):
@@ -87,19 +88,20 @@ def process(args):
     if args.writeToFile != "":
         dataWriter = DataWriter(args.writeToFile)
 
-    # Add counters in the list to check
+    # Add counters in the list to check (only in service mode)
     countersToCheck = []
-    if args.consumption:
-        countersToCheck.append(Counter(config['Consumption']))
+    if args.service:
+        if args.consumption:
+            countersToCheck.append(Counter(config['Consumption']))
 
-    if args.production:
-        countersToCheck.append(Counter(config['Production']))
+        if args.production:
+            countersToCheck.append(Counter(config['Production']))
 
-    if args.fake:
-        countersToCheck.append(Counter(config['Fake']))
+        if args.fake:
+            countersToCheck.append(Counter(config['Fake']))
 
-    # Register Prometheus metrics
-    teleinfoMetrics = register(args, config['Metrics'])
+        # Register Prometheus metrics
+        teleinfoMetrics = register(args, config['Metrics'])
 
     # Check if we run as a service
     loop = True
