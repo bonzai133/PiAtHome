@@ -3,7 +3,7 @@
 import re
 from time import strftime
 from time import gmtime
-from Command import Command
+from .Command import Command
 
 # ===============================================================================
 # Logs

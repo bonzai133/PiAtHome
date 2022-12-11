@@ -53,10 +53,10 @@ import configparser
 import logging
 
 # import exporter
-from exporter import register
-from errors import AbortError
-from data_writer import DataWriter
-from counter import Counter
+from .exporter import register
+from .errors import AbortError
+from .data_writer import DataWriter
+from .counter import Counter
 
 
 def process(args):

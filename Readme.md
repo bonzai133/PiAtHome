@@ -50,18 +50,32 @@ External: Contains Diamond custom collectors and configuration for various monit
 ** PyTeleinfo/teleinfo.py: collect teleinfo to /var/run/shm and prom exporter => Done
 ** PyTeleinfo/teleinfo_aggr.py: Not used anymore (linked to teleinfo.py). To remove => Done
 ** PyTeleinfo/teleinfo_store.py: Store daily values of Teleinfo (/var/run/shm) into TeleinfoByDay. Launched by cron.  => Done
+
+### Deployement
 * Setup.py
-** Use Poetry: poetry build => pip install 
-*** External
-*** PiAtHome
-*** PySolar
-*** PyTeleinfo -> build done
+** Use Poetry
+*** poetry build
+*** sudo pip install xxx.whl: => scripts installed in /usr/local/bin, packages in /usr/local/lib/python3.9/dist-packages/
+** Projects
+*** External -> Diamond and spikes
+*** MyPromExporters -> build done, deploy ok, test qemu ok
+**** sudo apt install python3-lxml
+**** python -m mypromexporters.fioulleclerc_exporter => ok
+**** python -m mypromexporters.solarmax_exporter => ok
+**** python -m mypromexporters.onewirenet_exporter => ok
+*** PiAtHome -> build done
+*** PySolar -> build done, deploy ok, test qemu ok
+*** PyTeleinfo -> build done, deploy ok, test qemu ok
 ** test on qemu
 * PiAtHome
 ** pyproject.toml (poetry init)
 ** bottle
 ** tests
-
+* Service systemd + cron job
+** MyPromExporters
+** PiAtHome
+** PySolar
+** PyTeleinfo
 
 ### Replace Diamond by Prometheus
 * Check how to install/configure Prometheus on RPi

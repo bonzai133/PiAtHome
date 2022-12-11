@@ -12,18 +12,19 @@ import mock
 from mock import MagicMock
 import teleinfo_store
 
-#===============================================================================
+# ===============================================================================
 # Logging
-#===============================================================================
+# ===============================================================================
 import logging
 logging.basicConfig(level=logging.INFO)
 
-#===============================================================================
+
+# ===============================================================================
 # TestMain
-#===============================================================================
+# ===============================================================================
 class TestMain(unittest.TestCase):
     def test_create(self):
-        #Args
+        # Args
         args = MagicMock()
         args.logConfig = None
         args.createTables = True
@@ -36,7 +37,7 @@ class TestMain(unittest.TestCase):
 
     def test_write(self):
         self.test_create()
-        #Args
+        # Args
         args = MagicMock()
         args.logConfig = None
         args.createTables = False
@@ -48,6 +49,7 @@ class TestMain(unittest.TestCase):
         # TODO: Check data written in db
         # dateDay	counterId	indexBase	value
         # 2022-10-02	61961603414	421550	0
+
 
 if __name__ == '__main__':
     unittest.main()

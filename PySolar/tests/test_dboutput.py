@@ -5,11 +5,11 @@ import unittest
 import sys
 from pathlib import Path
 path_root = Path(__file__).parents[1]
-sys.path.append(str(path_root) + "/pysolarmax")
+sys.path.append(str(path_root))
 print(sys.path)
 
-from DbOutput import DbOutput
-from Command import Command
+from pysolarmax.DbOutput import DbOutput
+from pysolarmax.Command import Command
 
 # ===============================================================================
 # Logging

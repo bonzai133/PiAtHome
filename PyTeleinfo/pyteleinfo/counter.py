@@ -1,8 +1,8 @@
 import logging
 import serial
-from serial_management import PortManager
-from serial_management import TeleinfoSerialParameters
-from errors import AbortError
+from .serial_management import PortManager
+from .serial_management import TeleinfoSerialParameters
+from .errors import AbortError
 
 
 class FrameReader:

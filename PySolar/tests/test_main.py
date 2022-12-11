@@ -7,11 +7,11 @@ from mock import MagicMock
 import sys
 from pathlib import Path
 path_root = Path(__file__).parents[1]
-sys.path.append(str(path_root) + "/pysolarmax")
+sys.path.append(str(path_root))
 print(sys.path)
 
-from Solarmax import process
-from Command import Command
+from pysolarmax.Solarmax import process
+from pysolarmax.Command import Command
 
 # ===============================================================================
 # Logging
@@ -24,7 +24,7 @@ logging.basicConfig(level=logging.INFO)
 # TestConnection
 # ===============================================================================
 class TestMain(unittest.TestCase):
-    @mock.patch('Solarmax.Inverter')
+    @mock.patch('pysolarmax.Solarmax.Inverter')
     def test_connect_error(self, inverter):
         # Args
         args = MagicMock()
@@ -40,7 +40,7 @@ class TestMain(unittest.TestCase):
 
         self.assertEqual(cm.exception.code, 1)
 
-    @mock.patch('Solarmax.Inverter')
+    @mock.patch('pysolarmax.Solarmax.Inverter')
     def test_connect_ok(self, inverter):
         # Args
         args = MagicMock()

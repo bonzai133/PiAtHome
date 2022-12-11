@@ -1,0 +1,18 @@
+[[package]]
+name = "prometheus-client"
+version = "0.15.0"
+description = "Python client for the Prometheus monitoring system."
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.extras]
+twisted = ["twisted"]
+
+[metadata]
+lock-version = "1.1"
+python-versions = "^3.9"
+content-hash = "015663834b559a0faf9f90447fcf45a12345b275a7b5419310d476a5aecbb082"
+
+[metadata.files]
+prometheus-client = []

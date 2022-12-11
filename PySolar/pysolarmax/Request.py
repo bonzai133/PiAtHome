@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from MessageData import MessageData
+from .MessageData import MessageData
 
 # ===============================================================================
 # Logs

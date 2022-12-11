@@ -1,8 +1,8 @@
 import logging
 import json
 import serial
-from counter_id import CounterId
-from parsers import HistoricParser, LinkyParser
+from .counter_id import CounterId
+from .parsers import HistoricParser, LinkyParser
 
 try:
     import RPi.GPIO as GPIO

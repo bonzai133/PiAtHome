@@ -5,10 +5,10 @@ import unittest
 import sys
 from pathlib import Path
 path_root = Path(__file__).parents[1]
-sys.path.append(str(path_root) + "/pysolarmax")
+sys.path.append(str(path_root))
 print(sys.path)
 
-from DataConverter import DataConverter
+from pysolarmax.DataConverter import DataConverter
 
 # ===============================================================================
 # Logging

@@ -1,4 +1,4 @@
-from data_writer import DataLine
+from .data_writer import DataLine
 
 
 class FrameParser:

@@ -10,6 +10,7 @@ license = "MIT"
 python = "^3.9"
 "RPi.GPIO" = "^0.7.1"
 serial = "^0.0.97"
+prometheus-client = "^0.15.0"
 
 [tool.poetry.dev-dependencies]
 

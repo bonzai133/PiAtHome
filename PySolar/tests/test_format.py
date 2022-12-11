@@ -6,10 +6,10 @@ from datetime import datetime
 import sys
 from pathlib import Path
 path_root = Path(__file__).parents[1]
-sys.path.append(str(path_root) + "/pysolarmax")
+sys.path.append(str(path_root))
 print(sys.path)
 
-from Format import Format
+from pysolarmax.Format import Format
 
 # ===============================================================================
 # Logging

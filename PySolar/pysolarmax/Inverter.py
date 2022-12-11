@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import socket
-from Request import Request
-from Response import Response
-from MessageData import MessageData, MessageDataException
 from datetime import datetime
-from Format import Format
-from DataConverter import DataConverter
+from .Request import Request
+from .Response import Response
+from .MessageData import MessageData, MessageDataException
+from .Format import Format
+from .DataConverter import DataConverter
 
 
 # ===============================================================================

@@ -10,12 +10,12 @@ import unittest
 import sys
 from pathlib import Path
 path_root = Path(__file__).parents[1]
-sys.path.append(str(path_root) + "/pysolarmax")
+sys.path.append(str(path_root))
 print(sys.path)
 
 import mock
 from mock import MagicMock
-from Inverter import Inverter
+from pysolarmax.Inverter import Inverter
 import socket
 
 # ===============================================================================
@@ -29,7 +29,7 @@ logging.basicConfig(level=logging.INFO)
 # TestConnection
 # ===============================================================================
 class TestConnection(unittest.TestCase):
-    @mock.patch('Inverter.socket')
+    @mock.patch('pysolarmax.Inverter.socket')
     def test_connect_ok(self, sock):
         # Patch
         # sock.return_value = MagicMock()
@@ -49,7 +49,7 @@ class TestConnection(unittest.TestCase):
 
         self.assertTrue(inverter.connected)
 
-    @mock.patch('Inverter.socket')
+    @mock.patch('pysolarmax.Inverter.socket')
     def test_disconnect_connected_socket(self, sock):
         # Patch
         sock_mock = MagicMock()
@@ -63,7 +63,7 @@ class TestConnection(unittest.TestCase):
         res = inverter.disconnect()
         self.assertTrue(res)
 
-    @mock.patch('Inverter.socket')
+    @mock.patch('pysolarmax.Inverter.socket')
     def test_disconnect_not_connected_socket(self, sock):
         # Patch
         sock_mock = MagicMock()
@@ -78,7 +78,7 @@ class TestConnection(unittest.TestCase):
         res = inverter.disconnect()
         self.assertTrue(res)
 
-    @mock.patch('Inverter.socket')
+    @mock.patch('pysolarmax.Inverter.socket')
     def test_connect_error(self, sock):
         # Patch
         sock_mock = MagicMock()
@@ -93,7 +93,7 @@ class TestConnection(unittest.TestCase):
         self.assertFalse(res)
         self.assertFalse(inverter.connected)
 
-    @mock.patch('Inverter.socket')
+    @mock.patch('pysolarmax.Inverter.socket')
     def test_set_datetime(self, sock):
         # Patch
         sock_mock = MagicMock()

@@ -5,11 +5,11 @@ import unittest
 import sys
 from pathlib import Path
 path_root = Path(__file__).parents[1]
-sys.path.append(str(path_root) + "/pysolarmax")
+sys.path.append(str(path_root))
 print(sys.path)
 
-from MessageData import MessageData
-from MessageData import MessageDataException
+from pysolarmax.MessageData import MessageData
+from pysolarmax.MessageData import MessageDataException
 
 # ===============================================================================
 # Logging

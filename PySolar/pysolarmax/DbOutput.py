@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from SqliteDBManager import DBManager
-from SqliteDBManager import GlobalData
+from .SqliteDBManager import DBManager
+from .SqliteDBManager import GlobalData
 import time
 
 # ===============================================================================

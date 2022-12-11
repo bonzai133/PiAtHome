@@ -2,13 +2,13 @@
 import sys
 from pathlib import Path
 path_root = Path(__file__).parents[1]
-sys.path.append(str(path_root) + "/pyteleinfo")
+sys.path.append(str(path_root))
 print(sys.path)
 
 import unittest
 
 from mock import MagicMock
-import teleinfo
+from pyteleinfo import teleinfo
 import logging
 
 logging.basicConfig(level=logging.INFO)
