@@ -119,11 +119,23 @@ def doStoreData(db, data):
     for counterId, teleinfo in list(data.items()):
         logging.debug("Process %s" % counterId)
 
-        for baseName in ['BASE', 'EAIT']:
-            if baseName in teleinfo:
-                break
+        if 'BASE' in teleinfo:
+            index = int(teleinfo['BASE'])
+        elif 'EAIT' in teleinfo:
+            index = int(teleinfo['EAIT'])
+        elif 'BBRHPJB' in teleinfo and \
+            'BBRHCJB' in teleinfo and \
+            'BBRHPJW' in teleinfo and \
+            'BBRHCJW' in teleinfo and \
+            'BBRHPJR' in teleinfo and \
+            'BBRHCJR' in teleinfo:
+        
+            index = int(teleinfo['BBRHPJB']) + int(teleinfo['BBRHCJB']) + \
+                int(teleinfo['BBRHPJW']) + int(teleinfo['BBRHCJW']) + \
+                int(teleinfo['BBRHPJR']) + int(teleinfo['BBRHCJR'])
+                
         else:
-            logging.debug("Base index not found")
+            logging.error("Base index not found")
 
         previous = None
         if db.ExecuteRequest(PREVIOUS_VALUE_QUERY, (counterId, )):
@@ -133,10 +145,10 @@ def doStoreData(db, data):
 
         if previous is None:
             #No previous data
-            previous = int(teleinfo[baseName])
+            previous = index
             
-        delta = int(teleinfo[baseName]) - previous
-        db.ExecuteRequest(INSERT_QUERY, (counterId, teleinfo[baseName], delta))
+        delta = index - previous
+        db.ExecuteRequest(INSERT_QUERY, (counterId, index, delta))
 
 
 #===============================================================================
