@@ -50,6 +50,16 @@ class TestMain(unittest.TestCase):
         # dateDay	counterId	indexBase	value
         # 2022-10-02	61961603414	421550	0
 
+    def test_write_tempo(self):
+        self.test_create()
+        #Args
+        args = MagicMock()
+        args.logConfig = None
+        args.createTables = False
+        args.dbFileName = "PyTeleinfo/tests/output/test_store.s3db"
+        args.teleinfoFilePrefix = "PyTeleinfo/tests/output_061961603418_tempo"
+
+        teleinfo_store.process(args)
 
 if __name__ == '__main__':
     unittest.main()
