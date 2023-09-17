@@ -127,16 +127,16 @@ def doStoreData(db, data):
         elif 'EAIT' in teleinfo:
             index = int(teleinfo['EAIT'])
         elif 'BBRHPJB' in teleinfo and \
-            'BBRHCJB' in teleinfo and \
-            'BBRHPJW' in teleinfo and \
-            'BBRHCJW' in teleinfo and \
-            'BBRHPJR' in teleinfo and \
-            'BBRHCJR' in teleinfo:
-        
+             'BBRHCJB' in teleinfo and \
+             'BBRHPJW' in teleinfo and \
+             'BBRHCJW' in teleinfo and \
+             'BBRHPJR' in teleinfo and \
+             'BBRHCJR' in teleinfo:
+
             index = int(teleinfo['BBRHPJB']) + int(teleinfo['BBRHCJB']) + \
                 int(teleinfo['BBRHPJW']) + int(teleinfo['BBRHCJW']) + \
                 int(teleinfo['BBRHPJR']) + int(teleinfo['BBRHCJR'])
-                
+
         else:
             logging.error("Base index not found")
 
@@ -149,10 +149,9 @@ def doStoreData(db, data):
         if previous is None:
             # No previous data
             previous = index
-            
+
         delta = index - previous
         db.ExecuteRequest(INSERT_QUERY, (counterId, index, delta))
-
 
 
 # ===============================================================================
